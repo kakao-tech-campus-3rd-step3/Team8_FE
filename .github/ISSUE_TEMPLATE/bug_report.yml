@@ -1,0 +1,43 @@
+﻿name: 버그 리포트 템플릿
+description: 이 템플릿으로 버그에 대한 이슈를 등록하세요
+title: '[BUG] 이슈 제목'
+labels: [bug]
+assignees:
+  - Moderator11
+body:
+  - type: markdown
+    attributes:
+      value: |
+        팀원들이 버그에 대해 상세하게 이해할 수 있도록 아래 내용을 작성해주세요.
+
+  - type: input
+    id: summary
+    attributes:
+      label: 버그 요약
+      description: 버그에 대해 간단히 설명해주세요.
+      placeholder: e.g. 로그인 페이지 정적 규칙 오류
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 버그 재현 방법
+      description: 어떻게 하면 버그를 재현할 수 있나요?
+      placeholder: |
+        1. 로그인 페이지로 이동
+        2. example@gmail.com 이메일을 입력
+    validations:
+      required: false
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 중요도
+      description: 이 버그가 얼마나 중요한가요?
+      options:
+        - label: 🟢 낮음
+        - label: 🟡 중간
+        - label: 🔴 높음
+    validations:
+      required: true
