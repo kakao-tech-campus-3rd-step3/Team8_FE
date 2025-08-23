@@ -26,7 +26,7 @@ const Button = styled.button`
 
 const RoutingPanelWrapper = styled.div`
   bottom: 600px;
-  position: absolute;
+  position: fixed;
   background-color: white;
   right: 0;
   transform: translateX(calc(100% - 50px));

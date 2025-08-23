@@ -65,7 +65,7 @@ const ColorPanelWrapper = styled.div`
   right: 0;
   transform: translateX(calc(100% - 50px));
   transition: transform 0.5s ease-out;
-  position: absolute;
+  position: fixed;
   border: 1px solid black;
   padding: 16px;
   border-radius: 8px;
