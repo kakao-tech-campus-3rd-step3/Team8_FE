@@ -1,12 +1,5 @@
 # Journey Planner FE
 
-## 사전 작업
-
-- prettier 설정
-- Favicon 로고
-- CSS 리셋 [normalize.css](https://gist.github.com/devinschumacher/6cbd52c082040f0e4c414836aebdb36f)
-- Router 설정
-
 ## 설치된 패키지
 
 - styled-components: JSX 스타일링
