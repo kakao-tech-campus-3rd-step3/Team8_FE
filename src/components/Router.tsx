@@ -7,10 +7,12 @@ import SpacePage from '@pages/space/SpacePage';
 import RoutingPanel from '@components/RoutingPanel';
 import { PATH } from '@utils/path';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import ColorPanel from './ColorPanel';
 
 function Router() {
   return (
     <BrowserRouter>
+      <ColorPanel />
       <RoutingPanel />
       <Routes>
         <Route path={PATH.LANDING} element={<LandingPage />} />
