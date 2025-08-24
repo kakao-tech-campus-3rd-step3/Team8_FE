@@ -9,6 +9,7 @@ import { PATH } from '@utils/path';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import ColorPanel from './ColorPanel';
 import FontPanel from './FontPanel';
+import { ToastContainer } from 'react-toastify';
 
 function Router() {
   return (
@@ -16,6 +17,7 @@ function Router() {
       <RoutingPanel />
       <ColorPanel />
       <FontPanel />
+      <ToastContainer />
       <Routes>
         <Route path={PATH.LANDING} element={<LandingPage />} />
         <Route path={PATH.HOME} element={<HomePage />} />

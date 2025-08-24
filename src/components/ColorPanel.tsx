@@ -1,7 +1,20 @@
 import { colorSystem } from '@styles/colorSystem';
+import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
 function ColorPanel() {
+  const toastify = (msg: string) =>
+    toast(msg, {
+      position: 'top-right',
+      autoClose: 1000,
+      hideProgressBar: true,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: 'light',
+    });
+
   const colorBoxes = (colorType: keyof typeof colorSystem) => {
     const colorScheme = colorSystem[colorType];
 
@@ -19,7 +32,8 @@ function ColorPanel() {
               color={colorInt >= 500 ? 'white' : 'black'}
               boxcolor={colorValue}
               onClick={() => {
-                console.log(`${colorValue} copied to clipboard`);
+                toastify(`colorSystem.${colorType}.${colorLevel}\n(${colorValue}) 복사됨`);
+
                 navigator.clipboard.writeText(`colorSystem.${colorType}.${colorLevel}`);
               }}
             >

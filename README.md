@@ -5,6 +5,7 @@
 - styled-components: JSX 스타일링
 - react-router-dom: 페이지 라우팅
 - vite-tsconfig-paths: alias 설정 통합
+- react-toastify: 개발 패널 이벤트 토스트 알림
 
 ## 커밋 템플릿 설정
 

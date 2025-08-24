@@ -1,4 +1,5 @@
 import { fontSystem } from '@styles/fontSystem';
+import { toast } from 'react-toastify';
 import styled, { type RuleSet } from 'styled-components';
 
 function FontPanel() {
@@ -6,6 +7,18 @@ function FontPanel() {
 
   const fsTitle = Object.keys(fontSystem.title);
   const fsBody = Object.keys(fontSystem.body);
+
+  const toastify = (msg: string) =>
+    toast(msg, {
+      position: 'top-right',
+      autoClose: 1000,
+      hideProgressBar: true,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: 'light',
+    });
 
   return (
     <ColorPanelWrapper>
@@ -20,7 +33,7 @@ function FontPanel() {
                   <CustomFont
                     ruleset={fontSystem.title[key as keyof typeof fontSystem.title]}
                     onClick={() => {
-                      console.log(`fontSystem.title.${key} copied to clipboard`);
+                      `fontSystem.title.${key} 복사됨`;
                       navigator.clipboard.writeText(`fontSystem.title.${key}`);
                     }}
                   >
@@ -29,7 +42,7 @@ function FontPanel() {
                   <CustomFont
                     ruleset={fontSystem.body[key as keyof typeof fontSystem.body]}
                     onClick={() => {
-                      console.log(`fontSystem.body.${key} copied to clipboard`);
+                      toastify(`fontSystem.body.${key} 복사됨`);
                       navigator.clipboard.writeText(`fontSystem.body.${key}`);
                     }}
                   >
@@ -48,7 +61,7 @@ function FontPanel() {
                   <CustomFont
                     ruleset={fontSystem.title[key as keyof typeof fontSystem.title]}
                     onClick={() => {
-                      console.log(`fontSystem.title.${key} copied to clipboard`);
+                      toastify(`fontSystem.title.${key} 복사됨`);
                       navigator.clipboard.writeText(`fontSystem.title.${key}`);
                     }}
                   >
@@ -57,7 +70,7 @@ function FontPanel() {
                   <CustomFont
                     ruleset={fontSystem.body[key as keyof typeof fontSystem.body]}
                     onClick={() => {
-                      console.log(`fontSystem.body.${key} copied to clipboard`);
+                      toastify(`fontSystem.body.${key} 복사됨`);
                       navigator.clipboard.writeText(`fontSystem.body.${key}`);
                     }}
                   >
