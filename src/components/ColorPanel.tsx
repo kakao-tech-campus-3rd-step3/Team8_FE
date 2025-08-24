@@ -42,6 +42,7 @@ function ColorPanel() {
 }
 
 const ColorBox = styled.button<{ boxcolor: string; color: string }>`
+  cursor: pointer;
   background-color: ${({ boxcolor }) => boxcolor};
   color: ${({ color }) => color};
   padding: 8px;
@@ -61,7 +62,7 @@ const ColorBoxWrapper = styled.div`
 
 const ColorPanelWrapper = styled.div`
   background-color: white;
-  bottom: 256px;
+  top: 400px;
   right: 0;
   transform: translateX(calc(100% - 50px));
   transition: transform 0.5s ease-out;

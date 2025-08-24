@@ -8,12 +8,14 @@ import RoutingPanel from '@components/RoutingPanel';
 import { PATH } from '@utils/path';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import ColorPanel from './ColorPanel';
+import FontPanel from './FontPanel';
 
 function Router() {
   return (
     <BrowserRouter>
-      <ColorPanel />
       <RoutingPanel />
+      <ColorPanel />
+      <FontPanel />
       <Routes>
         <Route path={PATH.LANDING} element={<LandingPage />} />
         <Route path={PATH.HOME} element={<HomePage />} />

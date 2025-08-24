@@ -20,14 +20,15 @@ function RoutingPanel() {
 }
 
 const Button = styled.button`
+  cursor: pointer;
   min-width: 50px;
   padding: 4px;
 `;
 
 const RoutingPanelWrapper = styled.div`
-  bottom: 600px;
   position: fixed;
   background-color: white;
+  top: 40px;
   right: 0;
   transform: translateX(calc(100% - 50px));
   transition: transform 0.5s ease-out;
