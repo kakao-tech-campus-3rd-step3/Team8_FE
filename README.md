@@ -31,17 +31,18 @@ git config commit.template .gitmessage
 
 ### 브랜치 관리
 
-- `main`: 배포용 코드 관리
+- `main`: 모든 피드백이 반영된 최종 산출 코드 관리
+- `refactor` 멘토 피드백 반영
 - `develop`: 개발용 코드 관리
-- `develop/*`: 기능별 개인 개발용 코드 관리
+- `feature/*`: 기능별 개인 개발용 코드 관리
 
 ### 기능 개발
 
-1. 새로운 기능, 페이지를 구현한다면 develop/기능 이름으로 새로운 브랜치를 생성해주세요. e.g. develop/LandingPage
+1. 새로운 기능, 페이지를 구현한다면 feature/기능 이름으로 새로운 브랜치를 생성해주세요. e.g. feature/LandingPage
 
 2. 해당 브랜치에서 기능을 개발하세요
 
-3. 개발이 끝나면 PR 템플릿 형식에 맞춰 PR을 생성해주세요 (병합 방향은 `develop/*` -> `develop` 입니다!)
+3. 개발이 끝나면 PR 템플릿 형식에 맞춰 PR을 생성해주세요 (병합 방향은 `feature/*` -> `develop` 입니다!)
 
 - **다른 사람의 PR이 올라오면 피어 리뷰를 해주세요.**
 
