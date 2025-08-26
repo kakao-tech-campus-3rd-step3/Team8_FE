@@ -112,7 +112,7 @@ const Banner = styled.section`
 `;
 
 const Title = styled.h1`
-  ${fontSystem.title.xlarge};
+  ${fontSystem.title.xxxlarge};
   font-size: 48px;
   font-weight: 800;
   letter-spacing: -1px;
@@ -120,7 +120,7 @@ const Title = styled.h1`
 
   /*mobile version*/
   @media (max-width: 768px) {
-    font-size: 32px;
+    ${fontSystem.title.xxlarge}; 
   }
 `;
 
