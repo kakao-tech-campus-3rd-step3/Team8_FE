@@ -164,6 +164,7 @@ const TripList = styled.section`
   width: 100%;
   justify-content: center;
   margin-bottom: 32px;
+  
 `;
 
 const TripCard = styled.div`
@@ -190,6 +191,10 @@ const CardBody = styled.div`
     margin: 0;
     ${fontSystem.body.medium};
     color: ${colorSystem.tertiary_white._600};
+      /*mobile version*/
+  @media (max-width: 768px) {
+    ${fontSystem.body.small}; 
+  }
   }
   li {
     margin-bottom: 8px;
@@ -218,6 +223,10 @@ const NavLink = styled.a<{ image: string }>`
   text-decoration: none;
   font-weight: bold;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    /*mobile version*/
+  @media (max-width: 768px) {
+    ${fontSystem.title.small}; 
+  }
 `;
 
 const Footer = styled.footer`
