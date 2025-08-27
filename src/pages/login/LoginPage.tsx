@@ -5,7 +5,7 @@ import { colorSystem } from '@/styles/colorSystem';
 import { useLoginForm } from './hooks/useLoginForm';
 
 function LoginPage() {
-  const { register, handleSubmit, errors, navigateToRegister } = useLoginForm();
+  const { register, handleSubmit, errors, isValid, navigateToRegister } = useLoginForm();
 
   return (
     <Container>
@@ -38,7 +38,9 @@ function LoginPage() {
             회원가입
           </SignupLink>
         </SignupGuide>
-        <LoginButton type="submit">로그인</LoginButton>
+        <LoginButton type="submit" disabled={!isValid}>
+          로그인
+        </LoginButton>
       </StyledForm>
     </Container>
   );
@@ -115,6 +117,11 @@ const LoginButton = styled.button`
   transition: background 0.2s;
   &:hover {
     background: ${colorSystem.secondary_green._500};
+  }
+  &:disabled {
+    background: ${colorSystem.tertiary_white._100};
+    color: ${colorSystem.tertiary_white._300};
+    cursor: not-allowed;
   }
 `;
 
