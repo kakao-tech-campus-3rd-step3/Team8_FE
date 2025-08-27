@@ -1,6 +1,10 @@
+import { useModal } from '@/hooks/useModal';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
 import styled from 'styled-components';
+import InfoEditWindow from './InfoEditWindow';
+import type { MemberType } from '../types/member';
+import PhotoEditWindow from './PhotoEditWindow';
 
 const dummyProfileResponse = {
   status: 200,
@@ -11,40 +15,55 @@ const dummyProfileResponse = {
     name: '홍길동',
     contact: '+82-10-1234-1234',
     mbti: 'ISTP',
-  },
+  } as MemberType,
 };
 
 function Profile() {
   const member = dummyProfileResponse.member;
 
+  const [infoModalWindow, openInfoModal] = useModal({
+    ModalWindow: InfoEditWindow,
+    modalProps: {
+      member,
+    },
+  });
+
+  const [photoModalWindow, openPhotoModal] = useModal({
+    ModalWindow: PhotoEditWindow,
+  });
+
   return (
-    <ProfileWrapper>
-      <HorizontalLayout>
-        <VerticalLayout>
-          <ImagePlaceholder />
-          <EditPictureButton>사진 수정</EditPictureButton>
-        </VerticalLayout>
-        <InfoSection>
-          <Entry>
-            <Section>이메일</Section>
-            <div>{member.email}</div>
-          </Entry>
-          <Entry>
-            <Section>이름</Section>
-            <div>{member.name}</div>
-          </Entry>
-          <Entry>
-            <Section>연락처</Section>
-            <div>{member.contact}</div>
-          </Entry>
-          <Entry>
-            <Section>MBTI</Section>
-            <div>{member.mbti}</div>
-          </Entry>
-          <EditInfoButton>수정</EditInfoButton>
-        </InfoSection>
-      </HorizontalLayout>
-    </ProfileWrapper>
+    <>
+      {photoModalWindow}
+      {infoModalWindow}
+      <ProfileWrapper>
+        <HorizontalLayout>
+          <VerticalLayout>
+            <ImagePlaceholder />
+            <EditPictureButton onClick={openPhotoModal}>사진 수정</EditPictureButton>
+          </VerticalLayout>
+          <InfoSection>
+            <Entry>
+              <Section>이메일</Section>
+              <div>{member.email}</div>
+            </Entry>
+            <Entry>
+              <Section>이름</Section>
+              <div>{member.name}</div>
+            </Entry>
+            <Entry>
+              <Section>연락처</Section>
+              <div>{member.contact}</div>
+            </Entry>
+            <Entry>
+              <Section>MBTI</Section>
+              <div>{member.mbti}</div>
+            </Entry>
+            <EditInfoButton onClick={openInfoModal}>수정</EditInfoButton>
+          </InfoSection>
+        </HorizontalLayout>
+      </ProfileWrapper>
+    </>
   );
 }
 
