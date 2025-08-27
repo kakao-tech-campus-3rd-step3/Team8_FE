@@ -1,6 +1,6 @@
 import TopBar from '@/components/TopBar';
 import Profile from '@/pages/space/components/profile/Profile';
-import PlanSpace from '@/pages/space/components/PlanSpace';
+import PlanSpace from '@/pages/space/components/planspace/PlanSpace';
 import styled from 'styled-components';
 
 function SpacePage() {
