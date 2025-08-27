@@ -3,6 +3,8 @@ import logo from '../../../public/logo.svg';
 import { fontSystem } from '@/styles/fontSystem';
 import { colorSystem } from '@/styles/colorSystem';
 import { useLoginForm } from './hooks/useLoginForm';
+import { InputField } from '@/components/InputField';
+import type { LoginFormInputs } from './utils/loginValidation';
 
 function LoginPage() {
   const { register, handleSubmit, errors, isValid, navigateToRegister } = useLoginForm();
@@ -12,26 +14,22 @@ function LoginPage() {
       <Logo src={logo} alt="logo" />
       <Title>로그인</Title>
       <StyledForm onSubmit={handleSubmit} noValidate>
-        <InputGroup>
-          <StyledLabel htmlFor="email">이메일</StyledLabel>
-          <StyledInput
-            id="email"
-            type="email"
-            placeholder="이메일을 입력해주세요"
-            {...register('email', { required: '이메일을 입력해주세요' })}
-          />
-          {errors.email && <ErrorMsg>{errors.email.message}</ErrorMsg>}
-        </InputGroup>
-        <InputGroup>
-          <StyledLabel htmlFor="password">비밀번호</StyledLabel>
-          <StyledInput
-            id="password"
-            type="password"
-            placeholder="비밀번호를 입력해주세요"
-            {...register('password', { required: '비밀번호를 입력해주세요' })}
-          />
-          {errors.password && <ErrorMsg>{errors.password.message}</ErrorMsg>}
-        </InputGroup>
+        <InputField<LoginFormInputs>
+          id="email"
+          label="이메일"
+          type="email"
+          placeholder="이메일을 입력해주세요"
+          register={register}
+          error={errors.email}
+        />
+        <InputField<LoginFormInputs>
+          id="password"
+          label="비밀번호"
+          type="password"
+          placeholder="비밀번호를 입력해주세요"
+          register={register}
+          error={errors.password}
+        />
         <SignupGuide>
           아직 계정이 없으신가요?{' '}
           <SignupLink type="button" onClick={navigateToRegister}>
@@ -68,6 +66,7 @@ const Title = styled.h2`
 const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
+  align-items: center; // InputField가 width: 100%를 가지므로 정렬을 위해 추가
   gap: 16px;
   width: 320px;
   background: #fff;
@@ -76,38 +75,10 @@ const StyledForm = styled.form`
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 `;
 
-const InputGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const StyledLabel = styled.label`
-  ${fontSystem.body.medium}
-  color: ${colorSystem.tertiary_white._300}
-`;
-
-const StyledInput = styled.input`
-  padding: 12px 14px;
-  border: 1px solid ${colorSystem.tertiary_white._100};
-  border-radius: 6px;
-  ${fontSystem.body.medium}
-  transition: border-color 0.2s;
-  &:focus {
-    outline: none;
-    border-color: #222;
-  }
-`;
-
-const ErrorMsg = styled.span`
-  margin-left: 4px;
-  color: red;
-  ${fontSystem.body.small}
-`;
-
 const LoginButton = styled.button`
   margin-top: 12px;
   padding: 12px 0;
+  width: 100%; // 다른 필드와 너비를 맞추기 위해 추가
   background: ${colorSystem.secondary_green._400};
   color: #fff;
   border: none;
