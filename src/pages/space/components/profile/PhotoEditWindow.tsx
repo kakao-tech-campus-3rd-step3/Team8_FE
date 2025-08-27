@@ -8,7 +8,7 @@ import {
   ModalWindowWrapper,
   WindowTitle,
   WindowTopBar,
-} from '../styles/modalWindowStyle';
+} from '@/pages/space/styles/modalWindowStyle';
 import Close from '@/assets/icons/Close';
 import { useState } from 'react';
 import { colorSystem } from '@/styles/colorSystem';

@@ -1,5 +1,5 @@
 import type { ModalPropType } from '@/hooks/useModal';
-import type { MemberType } from '../types/member';
+import type { MemberType } from '@/pages/space/types/member';
 import Close from '@/assets/icons/Close';
 import {
   CancelButton,
@@ -9,7 +9,7 @@ import {
   ModalWindowWrapper,
   WindowTitle,
   WindowTopBar,
-} from '../styles/modalWindowStyle';
+} from '@/pages/space/styles/modalWindowStyle';
 import { styled } from 'styled-components';
 
 function InfoEditWindow({ closeModal, member }: ModalPropType & { member: MemberType }) {

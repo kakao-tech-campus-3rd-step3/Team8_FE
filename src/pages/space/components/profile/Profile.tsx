@@ -2,9 +2,9 @@ import { useModal } from '@/hooks/useModal';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
 import styled from 'styled-components';
-import InfoEditWindow from './InfoEditWindow';
-import type { MemberType } from '../types/member';
-import PhotoEditWindow from './PhotoEditWindow';
+import InfoEditWindow from '@/pages/space/components/profile/InfoEditWindow';
+import type { MemberType } from '@/pages/space/types/member';
+import PhotoEditWindow from '@/pages/space/components/profile/PhotoEditWindow';
 
 const dummyProfileResponse = {
   status: 200,
