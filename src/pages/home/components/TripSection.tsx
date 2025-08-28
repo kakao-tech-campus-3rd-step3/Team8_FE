@@ -6,34 +6,43 @@ const placeholderImages = {
   airplaneIcon: '✈️',
 };
 
-// HomePage로부터 props를 통해 데이터를 전달받도록 인터페이스를 정의합니다.
-interface Trip {
-  location: string;
-  period: string;
-  member: string;
+export interface Plan {
+  id: number;
+  title: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+}
+export interface Member {
+  id: number;
+  email: string;
+  name: string;
+  contact: string;
+  mbti: string;
 }
 
 interface TripSectionProps {
-  userName: string;
-  trips: Trip[];
+  member: Member
+  plans: Plan[];
 }
 
-export function TripSection({ userName, trips }: TripSectionProps) {
+export function TripSection({ member, plans }: TripSectionProps) {
   return (
     <>
       <WelcomeMessage>
-        {placeholderImages.airplaneIcon} {userName}님 안녕하세요
+        {placeholderImages.airplaneIcon} {member.name}님 안녕하세요
       </WelcomeMessage>
 
       <TripList>
-        {trips.map((trip, index) => (
-          <TripCard key={index}>
-            <CardTitle>여행</CardTitle>
+        {plans.map((plan) => (
+          <TripCard key={plan.id}>
+            <CardTitle>{plan.title}</CardTitle>
             <CardBody>
               <ul>
-                <li>장소: {trip.location}</li>
-                <li>기간: {trip.period}</li>
-                <li>멤버: {trip.member}</li>
+                <li>{plan.description}</li>
+                <li>
+                  {plan.startDate} ~ {plan.endDate}
+                </li>
               </ul>
             </CardBody>
           </TripCard>
@@ -42,6 +51,8 @@ export function TripSection({ userName, trips }: TripSectionProps) {
     </>
   );
 }
+
+// --- Styled Components ---
 
 const WelcomeMessage = styled.p`
   ${fontSystem.title.medium};
@@ -71,13 +82,14 @@ const CardTitle = styled.h3`
   padding: 16px;
   border-bottom: 1px solid ${colorSystem.tertiary_white._100};
   margin: 0;
+  font-weight: bold;
 `;
 
 const CardBody = styled.div`
   padding: 16px;
   ul {
-    list-style-type: '• ';
-    padding-left: 16px;
+    list-style-type: none;
+    padding-left: 0;
     margin: 0;
     ${fontSystem.body.medium};
     color: ${colorSystem.tertiary_white._600};
