@@ -4,9 +4,9 @@
 
 | 프로필 이미지 | 이름 | 역할 | GitHub |
 | :--: | :--: | :--: | :--: |
-| <img src="https://avatars.githubusercontent.com/u/65269430?s=88&v=4" width="100"> | [박수민] | [Frontend tech-leader] | [https://github.com/Moderator11] |
-| <img src="https://avatars.githubusercontent.com/u/190569602?s=88&v=4" width="100"> | [김성진] | [Frontend] | [https://github.com/seongjin0320] |
-| <img src="https://avatars.githubusercontent.com/u/128571447?s=88&v=4" width="100"> | [남규리] | [Frontend] | [https://github.com/whyyhyh] |
+| <img src="https://avatars.githubusercontent.com/u/65269430?s=88&v=4" width="100"> | 박수민 | Frontend tech-leader | [https://github.com/Moderator11 |
+| <img src="https://avatars.githubusercontent.com/u/190569602?s=88&v=4" width="100"> | 김성진 | Frontend | https://github.com/seongjin0320 |
+| <img src="https://avatars.githubusercontent.com/u/128571447?s=88&v=4" width="100"> | 남규리 | Frontend | https://github.com/whyyhyh |
 
 ## 프로젝트 실행
 
