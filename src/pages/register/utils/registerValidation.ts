@@ -13,6 +13,10 @@ export const registerSchema = z
       .regex(/^(?=.*[a-zA-Z])(?=.*[0-9])/, {
         message: '비밀번호는 영문, 숫자를 모두 포함해야 합니다',
       }),
+    // 유효성 검사 강화 필요시 아래 주석 해제
+    // .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+    //   message: '비밀번호는 8자 이상이며, 대/소문자, 숫자, 특수문자를 모두 포함해야 합니다',
+    // }),
     confirmPassword: z.string().min(1, { message: '비밀번호를 다시 입력해주세요' }),
     phone: z
       .string()
