@@ -3,7 +3,7 @@ import type { FieldError, UseFormRegister, Path } from 'react-hook-form';
 import { fontSystem } from '@/styles/fontSystem';
 import { colorSystem } from '@/styles/colorSystem';
 
-interface InputFieldProps<TFormValues extends Record<string, unknown>> {
+interface FormInputFieldProps<TFormValues extends Record<string, unknown>> {
   id: Path<TFormValues>;
   label: string;
   type?: 'text' | 'email' | 'password';
@@ -12,14 +12,14 @@ interface InputFieldProps<TFormValues extends Record<string, unknown>> {
   error?: FieldError;
 }
 
-export function InputField<TFormValues extends Record<string, unknown>>({
+export function FormInputField<TFormValues extends Record<string, unknown>>({
   id,
   label,
   type = 'text',
   placeholder,
   register,
   error,
-}: InputFieldProps<TFormValues>) {
+}: FormInputFieldProps<TFormValues>) {
   return (
     <InputGroup>
       <StyledLabel htmlFor={id}>{label}</StyledLabel>

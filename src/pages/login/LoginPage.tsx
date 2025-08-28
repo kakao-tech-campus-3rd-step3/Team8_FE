@@ -3,7 +3,7 @@ import logo from '../../../public/logo.svg';
 import { fontSystem } from '@/styles/fontSystem';
 import { colorSystem } from '@/styles/colorSystem';
 import { useLoginForm } from './hooks/useLoginForm';
-import { InputField } from '@/components/InputField';
+import { FormInputField } from '@/components/FormInputField';
 import type { LoginFormInputs } from './utils/loginValidation';
 
 function LoginPage() {
@@ -14,7 +14,7 @@ function LoginPage() {
       <Logo src={logo} alt="logo" />
       <Title>로그인</Title>
       <StyledForm onSubmit={handleSubmit} noValidate>
-        <InputField<LoginFormInputs>
+        <FormInputField<LoginFormInputs>
           id="email"
           label="이메일"
           type="email"
@@ -22,7 +22,7 @@ function LoginPage() {
           register={register}
           error={errors.email}
         />
-        <InputField<LoginFormInputs>
+        <FormInputField<LoginFormInputs>
           id="password"
           label="비밀번호"
           type="password"

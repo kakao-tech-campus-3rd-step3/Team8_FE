@@ -1,10 +1,11 @@
 import styled from 'styled-components';
 import { useRegisterForm } from './hooks/useRegisterForm';
-import { InputField } from '@/components/InputField';
-import type { RegisterFormInputs } from './utils/registerValidation';
+import { FormInputField } from '@/components/FormInputField';
+import { mbtiTypes, type RegisterFormInputs } from './utils/registerValidation';
 import { fontSystem } from '@/styles/fontSystem';
 import { colorSystem } from '@/styles/colorSystem';
 import { useNavigate } from 'react-router-dom';
+import { FormSelectField } from '@/components/FormSelectField';
 
 function RegisterPage() {
   const { register, handleSubmit, errors, isValid } = useRegisterForm();
@@ -14,7 +15,7 @@ function RegisterPage() {
     <Container>
       <Title>회원가입</Title>
       <StyledForm onSubmit={handleSubmit} noValidate>
-        <InputField<RegisterFormInputs>
+        <FormInputField<RegisterFormInputs>
           id="email"
           label="이메일"
           type="email"
@@ -22,14 +23,14 @@ function RegisterPage() {
           register={register}
           error={errors.email}
         />
-        <InputField<RegisterFormInputs>
+        <FormInputField<RegisterFormInputs>
           id="name"
           label="이름"
           placeholder="이름을 입력해주세요"
           register={register}
           error={errors.name}
         />
-        <InputField<RegisterFormInputs>
+        <FormInputField<RegisterFormInputs>
           id="password"
           label="비밀번호"
           type="password"
@@ -37,7 +38,7 @@ function RegisterPage() {
           register={register}
           error={errors.password}
         />
-        <InputField<RegisterFormInputs>
+        <FormInputField<RegisterFormInputs>
           id="confirmPassword"
           label="비밀번호 확인"
           type="password"
@@ -45,19 +46,20 @@ function RegisterPage() {
           register={register}
           error={errors.confirmPassword}
         />
-        <InputField<RegisterFormInputs>
+        <FormInputField<RegisterFormInputs>
           id="phone"
           label="연락처"
           placeholder="010-1234-5678"
           register={register}
           error={errors.phone}
         />
-        <InputField<RegisterFormInputs>
+        <FormSelectField<RegisterFormInputs>
           id="mbti"
           label="MBTI (선택 사항)"
-          placeholder="예: INFP"
           register={register}
           error={errors.mbti}
+          options={mbtiTypes}
+          placeholder="MBTI를 선택하세요"
         />
         <SubmitButton type="submit" disabled={!isValid}>
           가입하기
