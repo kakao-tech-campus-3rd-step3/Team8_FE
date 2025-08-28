@@ -61,7 +61,9 @@ const PlanInfo = styled.div`
   gap: 8px;
 `;
 
-const PlanCardWrapper = styled.div<{ highlight: boolean }>`
+const PlanCardWrapper = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'highlight',
+})<{ highlight: boolean }>`
   padding: 24px;
   height: 100px;
 
