@@ -1,11 +1,20 @@
 import ArrowBackiOS from '@/assets/icons/ArrowBackiOS';
 import { fontSystem } from '@/styles/fontSystem';
+import { PATH } from '@/utils/path';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 function TopBar(props: { children: React.ReactNode }) {
   const navigate = useNavigate();
-  const goBack = () => navigate(-1);
+
+  const goBack = () => {
+    const canGoBack = window.history.state && window.history.state.idx > 0;
+    if (canGoBack) {
+      navigate(-1);
+    } else {
+      navigate(PATH.HOME, { replace: true });
+    }
+  };
 
   return (
     <TopBarWrapper>
