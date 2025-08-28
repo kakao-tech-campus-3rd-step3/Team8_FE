@@ -128,11 +128,12 @@ const HorizontalLayout = styled.div`
   display: flex;
   justify-content: space-around;
   align-items: center;
+  flex-wrap: wrap;
 
   gap: 16px;
 `;
 
-// 반응형 깨지는 해상도 가로 픽셀 하한선: 430px
+// 반응형 깨지는 해상도 가로 픽셀 하한선: 320px
 const ProfileWrapper = styled.div`
   min-width: calc(100% - 2 * 40px); // 좌우 padding 값
   padding: 40px;
