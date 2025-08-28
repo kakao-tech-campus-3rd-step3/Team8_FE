@@ -37,12 +37,15 @@ export const ControlBar = styled.div`
   min-width: 300px;
 `;
 
-export const CompleteButton = styled.button`
+export const CompleteButton = styled.button<{ disabled: boolean }>`
   flex: 2;
   padding: 16px;
   border-radius: 8px;
   border: 1px solid ${colorSystem.primary_yellow._500};
-  background-color: ${colorSystem.tertiary_white._0};
+  background-color: ${({ disabled }) =>
+    disabled ? colorSystem.tertiary_white._0 : colorSystem.primary_yellow._500};
+
+  transition: all 0.25s;
   cursor: pointer;
 `;
 
