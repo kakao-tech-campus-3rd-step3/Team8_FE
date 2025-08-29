@@ -36,5 +36,13 @@ export const fontSystem = {
       font-size: 26px;
       font-weight: bold;
     `,
+    xxlarge: css`
+      font-size: 32px;
+      font-weight: bold;
+    `,
+    xxxlarge: css`
+      font-size: 43px;
+      font-weight: bold;
+    `,
   },
 };
