@@ -3,12 +3,19 @@ import type { PlanType } from '@/pages/space/types/plan';
 import { fontSystem } from '@/styles/fontSystem';
 import Edit from '@/assets/icons/Edit';
 import { usePageRouting } from '@/hooks/usePageRouting';
+import Delete from '@/assets/icons/Delete';
+import DeletionConfirmWindow from './DeletionConfirmWindow';
+import { useModal } from '@/hooks/useModal';
 
 function PlanCard({ plan, highlight = false }: { plan: PlanType; highlight?: boolean }) {
   const goto = usePageRouting();
-
+  const [deletionConfirmModal, openDeletionConfirmWindow] = useModal({
+    ModalWindow: DeletionConfirmWindow,
+    modalProps: { plan },
+  });
   return (
     <PlanCardWrapper highlight={highlight}>
+      {deletionConfirmModal}
       <HorizontalLayout>
         <PlanInfo>
           <PlanTitle>{plan.title}</PlanTitle>
@@ -17,13 +24,33 @@ function PlanCard({ plan, highlight = false }: { plan: PlanType; highlight?: boo
             {plan.startDate} ~ {plan.endDate}
           </PlanDate>
         </PlanInfo>
-        <EditButton onClick={goto.plan}>
-          <Edit />
-        </EditButton>
+        <ControlPanel>
+          <EditButton onClick={goto.plan}>
+            <Edit />
+          </EditButton>
+          <DeleteButton onClick={openDeletionConfirmWindow}>
+            <Delete />
+          </DeleteButton>
+        </ControlPanel>
       </HorizontalLayout>
     </PlanCardWrapper>
   );
 }
+
+const ControlPanel = styled.div`
+  display: flex;
+  justify-content: space-around;
+  gap: 20px;
+`;
+
+const DeleteButton = styled.button`
+  height: 100%;
+
+  background-color: transparent;
+  border: none;
+
+  cursor: pointer;
+`;
 
 const EditButton = styled.button`
   height: 100%;
