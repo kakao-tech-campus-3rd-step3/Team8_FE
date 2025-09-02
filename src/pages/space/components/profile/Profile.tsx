@@ -13,7 +13,7 @@ const dummyProfileResponse = {
     id: 1234,
     email: 'example@test.com',
     name: '홍길동',
-    contact: '+82-10-1234-1234',
+    contact: '010-1234-1234',
     mbti: 'ISTP',
   } as MemberType,
 };

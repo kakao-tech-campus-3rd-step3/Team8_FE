@@ -10,17 +10,22 @@ import {
   WindowTopBar,
 } from '@/pages/space/styles/modalWindowStyle';
 import Close from '@/assets/icons/Close';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { colorSystem } from '@/styles/colorSystem';
 
 function PhotoEditWindow({ closeModal }: ModalPropType) {
   const [preview, setPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setPreview(URL.createObjectURL(file));
     }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -33,14 +38,15 @@ function PhotoEditWindow({ closeModal }: ModalPropType) {
       </WindowTopBar>
 
       <PreviewDiv>{preview && <PreviewImage src={preview} alt="preview" />}</PreviewDiv>
-      <input id="photo-input" type="file" accept="image/*" hidden onChange={handleFileChange} />
-      <label htmlFor="photo-input">
-        <button>사진 업로드</button>
-      </label>
+      <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleFileChange} />
+      <UploadButton type="button" onClick={handleUploadClick}>
+        사진 업로드
+      </UploadButton>
 
       <ControlBar>
         <CancelButton onClick={closeModal}>취소</CancelButton>
         <CompleteButton
+          disabled={preview === null}
           onClick={() => {
             console.log('회원 사진 수정 API 호출');
           }}
@@ -51,6 +57,17 @@ function PhotoEditWindow({ closeModal }: ModalPropType) {
     </ModalWindowWrapper>
   );
 }
+
+const UploadButton = styled.button`
+  width: 100%;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid ${colorSystem.primary_yellow._500};
+  background-color: ${colorSystem.tertiary_white._0};
+
+  transition: all 0.25s;
+  cursor: pointer;
+`;
 
 const PreviewDiv = styled.div`
   width: 100%;
