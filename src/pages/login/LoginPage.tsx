@@ -5,41 +5,44 @@ import { colorSystem } from '@/styles/colorSystem';
 import { useLoginForm } from './hooks/useLoginForm';
 import { FormInputField } from '@/components/FormInputField';
 import type { LoginFormInputs } from './utils/loginValidation';
+import TopBar from '@/components/TopBar';
 
 function LoginPage() {
   const { register, handleSubmit, errors, isValid, navigateToRegister } = useLoginForm();
 
   return (
     <Container>
-      <Logo src={logo} alt="logo" />
-      <Title>로그인</Title>
-      <StyledForm onSubmit={handleSubmit} noValidate>
-        <FormInputField<LoginFormInputs>
-          id="email"
-          label="이메일"
-          type="email"
-          placeholder="이메일을 입력해주세요"
-          register={register}
-          error={errors.email}
-        />
-        <FormInputField<LoginFormInputs>
-          id="password"
-          label="비밀번호"
-          type="password"
-          placeholder="비밀번호를 입력해주세요"
-          register={register}
-          error={errors.password}
-        />
-        <SignupGuide>
-          아직 계정이 없으신가요?{' '}
-          <SignupLink type="button" onClick={navigateToRegister}>
-            회원가입
-          </SignupLink>
-        </SignupGuide>
-        <LoginButton type="submit" disabled={!isValid}>
-          로그인
-        </LoginButton>
-      </StyledForm>
+      <TopBar>로그인</TopBar>
+      <Content>
+        <StyledForm onSubmit={handleSubmit} noValidate>
+          <Logo src={logo} alt="logo" />
+          <FormInputField<LoginFormInputs>
+            id="email"
+            label="이메일"
+            type="email"
+            placeholder="이메일을 입력해주세요"
+            register={register}
+            error={errors.email}
+          />
+          <FormInputField<LoginFormInputs>
+            id="password"
+            label="비밀번호"
+            type="password"
+            placeholder="비밀번호를 입력해주세요"
+            register={register}
+            error={errors.password}
+          />
+          <SignupGuide>
+            아직 계정이 없으신가요?{' '}
+            <SignupLink type="button" onClick={navigateToRegister}>
+              회원가입
+            </SignupLink>
+          </SignupGuide>
+          <LoginButton type="submit" disabled={!isValid}>
+            로그인
+          </LoginButton>
+        </StyledForm>
+      </Content>
     </Container>
   );
 }
@@ -48,19 +51,20 @@ const Container = styled.div`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: white;
+`;
+
+const Content = styled.div`
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: white;
+  flex-grow: 1;
 `;
 
 const Logo = styled.img`
   width: 80px;
   margin-bottom: 24px;
-`;
-
-const Title = styled.h2`
-  margin-bottom: 32px;
-  ${fontSystem.title.xlarge}
 `;
 
 const StyledForm = styled.form`
