@@ -12,7 +12,16 @@ export const usePageRouting = () => {
       login: () => navigate(PATH.LOGIN),
       register: () => navigate(PATH.REGISTER),
       space: () => navigate(PATH.SPACE),
-      plan: () => navigate(PATH.PLAN),
+      plan: {
+        base: (id: string) => {
+          return {
+            waypoint: () => navigate(PATH.PLAN.WAYPOINT.replace(':id', id)),
+            traveler: () => navigate(PATH.PLAN.TRAVELER.replace(':id', id)),
+            map: () => navigate(PATH.PLAN.MAP.replace(':id', id)),
+            memo: () => navigate(PATH.PLAN.MEMO.replace(':id', id)),
+          };
+        },
+      },
       back: () => navigate(-1),
       //plan: (planId: string) => navigate(PATH.PLAN.replace(":planId", planId)),
     }),
