@@ -5,11 +5,9 @@ import { colorSystem } from '@/styles/colorSystem';
 import { usePageRouting } from '@/hooks/usePageRouting';
 import LoginButton from './LoginButton';
 import RegisterButton from './RegisterButton';
-import { useFlyingOrange } from './hooks/useFlyingOrange';
 
 function LandingPage() {
   const goto = usePageRouting();
-  useFlyingOrange();
 
   return (
     <LandingPageWrapper>
