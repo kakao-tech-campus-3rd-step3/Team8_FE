@@ -5,9 +5,6 @@ import styled, { type RuleSet } from 'styled-components';
 function FontPanel() {
   const testText = '다람쥐 헌 쳇바퀴에 타고파. 1234567890';
 
-  const fsTitle = Object.keys(fontSystem.title);
-  const fsBody = Object.keys(fontSystem.body);
-
   const toastify = (msg: string) =>
     toast(msg, {
       position: 'top-right',
