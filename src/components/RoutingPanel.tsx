@@ -13,7 +13,7 @@ function RoutingPanel() {
         <Button onClick={goto.login}>로그인</Button>
         <Button onClick={goto.register}>회원가입</Button>
         <Button onClick={goto.space}>스페이스</Button>
-        <Button onClick={goto.plan.base('1234').waypoint}>계획</Button>
+        <Button onClick={goto.plan('1234')}>계획</Button>
       </div>
     </RoutingPanelWrapper>
   );
