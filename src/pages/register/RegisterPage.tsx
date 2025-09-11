@@ -1,7 +1,7 @@
 import styled from 'styled-components';
-import { useRegisterForm } from './hooks/useRegisterForm';
+import { useRegisterForm } from '@/pages/register/hooks/useRegisterForm';
 import { FormInputField } from '@/components/FormInputField';
-import { mbtiTypes, type RegisterFormInputs } from './utils/registerValidation';
+import { mbtiTypes, type RegisterFormInputs } from '@/pages/register/utils/registerValidation';
 import { fontSystem } from '@/styles/fontSystem';
 import { colorSystem } from '@/styles/colorSystem';
 import { useNavigate } from 'react-router-dom';

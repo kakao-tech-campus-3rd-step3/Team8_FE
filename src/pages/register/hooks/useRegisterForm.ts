@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { registerSchema, type RegisterFormInputs } from '../utils/registerValidation';
+import { registerSchema, type RegisterFormInputs } from '@/pages/register/utils/registerValidation';
 import { useNavigate } from 'react-router-dom';
 
 export const useRegisterForm = () => {

@@ -2,11 +2,11 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 import type { ReactNode } from 'react';
 
-interface User {
-  id: string;
-  email: string;
-  name: string;
-}
+import { type MemberType } from '@/types/member';
+
+// AuthContext에서 사용할 User 타입. MemberType을 기준으로 삼습니다.
+
+type User = MemberType;
 
 interface AuthContextType {
   user: User | null;
