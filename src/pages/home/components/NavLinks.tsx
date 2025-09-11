@@ -3,7 +3,6 @@ import { colorSystem } from '../../../styles/colorSystem';
 import { fontSystem } from '../../../styles/fontSystem';
 import { usePageRouting } from '@/hooks/usePageRouting';
 
-
 const placeholderImages = {
   paperAirplane: 'https://i.pinimg.com/1200x/e2/6c/d7/e26cd7ead75785115a7144fdef259cef.jpg',
   windowSeat: 'https://i.pinimg.com/1200x/fd/14/47/fd1447fb3c91db32c1bc0ccbc4055a23.jpg',
