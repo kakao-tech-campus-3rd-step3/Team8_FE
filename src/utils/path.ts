@@ -4,7 +4,7 @@ const BASE = {
 
 export const PATH = {
   ROOT: '/',
-  LANDING: '/',
+  LANDING: '/landing',
   HOME: '/home',
   LOGIN: '/login',
   REGISTER: '/register',

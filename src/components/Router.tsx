@@ -17,11 +17,10 @@ import MemoPage from '@/pages/plan/subpages/MemoPage';
 
 function RootRedirect() {
   const isFirstVisit = localStorage.getItem('isFirstVisit');
-
   if (isFirstVisit === null) {
     // 첫 방문이면 localStorage에 기록하고 LandingPage 렌더링
     localStorage.setItem('isFirstVisit', 'false');
-    return <LandingPage />;
+    return <Navigate to={PATH.LANDING} replace />;
   } else {
     // 재방문이면 HomePage로 리다이렉트
     return <Navigate to={PATH.HOME} replace />;
@@ -37,9 +36,9 @@ function Router() {
       <ToastContainer />
       <Routes>
         {/* 2. 루트 경로('/')에 RootRedirect 컴포넌트를 연결 */}
-        <Route path={PATH.LANDING} element={<RootRedirect />} />
-        
-        {/* 나머지 라우트는 그대로 유지 */}
+        <Route path={PATH.ROOT} element={<RootRedirect />} />
+
+        <Route path={PATH.LANDING} element={<LandingPage />} />
         <Route path={PATH.HOME} element={<HomePage />} />
         <Route path={PATH.LOGIN} element={<LoginPage />} />
         <Route path={PATH.REGISTER} element={<RegisterPage />} />
