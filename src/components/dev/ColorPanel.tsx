@@ -1,20 +1,8 @@
 import { colorSystem } from '@styles/colorSystem';
-import { toast } from 'react-toastify';
 import styled from 'styled-components';
+import ColorBox from './ColorBox';
 
 function ColorPanel() {
-  const toastify = (msg: string) =>
-    toast(msg, {
-      position: 'top-right',
-      autoClose: 1000,
-      hideProgressBar: true,
-      closeOnClick: false,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: 'light',
-    });
-
   const colorBoxes = (colorType: keyof typeof colorSystem) => {
     const colorScheme = colorSystem[colorType];
 
@@ -22,24 +10,7 @@ function ColorPanel() {
       <ColorBoxWrapper>
         <div>{colorType}</div>
         {Object.keys(colorScheme).map((key) => {
-          const colorLevel = key as keyof typeof colorScheme;
-          const colorValue = colorScheme[colorLevel];
-          const colorText = colorLevel.replace('_', '');
-          const colorInt = parseInt(colorText);
-          return (
-            <ColorBox
-              key={colorLevel}
-              color={colorInt >= 500 ? 'white' : 'black'}
-              boxcolor={colorValue}
-              onClick={() => {
-                toastify(`colorSystem.${colorType}.${colorLevel}\n(${colorValue}) 복사됨`);
-
-                navigator.clipboard.writeText(`colorSystem.${colorType}.${colorLevel}`);
-              }}
-            >
-              {colorText}
-            </ColorBox>
-          );
+          return <ColorBox key={key} keyName={key} colorType={colorType} />;
         })}
       </ColorBoxWrapper>
     );
@@ -54,15 +25,6 @@ function ColorPanel() {
     </ColorPanelWrapper>
   );
 }
-
-const ColorBox = styled.button<{ boxcolor: string; color: string }>`
-  cursor: pointer;
-  background-color: ${({ boxcolor }) => boxcolor};
-  color: ${({ color }) => color};
-  padding: 8px;
-  border: none;
-  border-radius: 8px;
-`;
 
 const ColorBoxWrapper = styled.div`
   padding: 8px;
