@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { colorSystem } from '../../../styles/colorSystem';
 import { fontSystem } from '../../../styles/fontSystem';
+import { usePageRouting } from '@/hooks/usePageRouting';
 
 const placeholderImages = {
   paperAirplane: 'https://i.pinimg.com/1200x/e2/6c/d7/e26cd7ead75785115a7144fdef259cef.jpg',
@@ -8,12 +9,14 @@ const placeholderImages = {
 };
 
 export function NavLinks() {
+  const goto = usePageRouting();
+
   return (
     <NavLinksWrapper>
-      <NavLink image={placeholderImages.paperAirplane}>
+      <NavLink image={placeholderImages.paperAirplane} onClick={goto.space}>
         <span>모든 개인 스페이스 보기</span>
       </NavLink>
-      <NavLink image={placeholderImages.windowSeat}>
+      <NavLink image={placeholderImages.windowSeat} onClick={goto.space}>
         <span>Mypage</span>
       </NavLink>
     </NavLinksWrapper>

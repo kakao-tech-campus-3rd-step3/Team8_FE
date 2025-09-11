@@ -1,12 +1,15 @@
 import styled from 'styled-components';
 import { colorSystem } from '../../../styles/colorSystem';
 import { fontSystem } from '../../../styles/fontSystem';
+import { usePageRouting } from '@/hooks/usePageRouting'; // 훅 가져오기
 
 const placeholderImages = {
   newTripIcon: '🗺️',
 };
 
 export function Banner() {
+  const goto = usePageRouting(); // 훅 사용
+
   return (
     <BannerWrapper>
       <Title>
@@ -16,7 +19,9 @@ export function Banner() {
         lanner
       </Title>
       <Subtitle>나의 계획을 친구들에게 공유해보세요</Subtitle>
-      <NewTripButton>
+
+      {/*추후 계획 생성 기능 추가시 고유 ID로 변경 필요*/}
+      <NewTripButton onClick={goto.plan('1234')}>
         <span>{placeholderImages.newTripIcon}</span> 새 여행 계획하기
       </NewTripButton>
     </BannerWrapper>
