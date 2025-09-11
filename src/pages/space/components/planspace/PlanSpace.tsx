@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import type { PlanType } from '@/pages/space/types/plan';
 import PlanCard from './PlanCard';
 import Add from '@/assets/icons/Add';
+import NewPlanWindow from './NewPlanWindow';
+import { useModal } from '@/hooks/useModal';
 
 const dummyPlanResponse = {
   status: 200,
@@ -32,17 +34,18 @@ const dummyPlanResponse = {
 
 function PlanSpace() {
   const plans = dummyPlanResponse.plans;
-  // 가장 최근 수정한 플랜을 highlight하면 어떻까요?
-  const handleAddNewPlan = () => {
-    console.log('새 계획 생성 API 호출');
-  };
+
+  const [newPlanWindow, openNewPlanModal] = useModal({
+    ModalWindow: NewPlanWindow,
+  });
 
   return (
     <PlanSpaceWrapper>
+      {newPlanWindow}
       {plans.map((plan: PlanType) => {
         return <PlanCard key={plan.id} plan={plan} highlight={plan.id === 1234} />;
       })}
-      <AddButton onClick={handleAddNewPlan}>
+      <AddButton onClick={openNewPlanModal}>
         <Add />새 여행 계획하기
       </AddButton>
     </PlanSpaceWrapper>

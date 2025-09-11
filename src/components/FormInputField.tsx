@@ -6,7 +6,7 @@ import { colorSystem } from '@/styles/colorSystem';
 interface FormInputFieldProps<TFormValues extends Record<string, unknown>> {
   id: Path<TFormValues>;
   label: string;
-  type?: 'text' | 'email' | 'password';
+  type?: 'text' | 'email' | 'password' | 'date';
   placeholder?: string;
   register: UseFormRegister<TFormValues>;
   error?: FieldError;
