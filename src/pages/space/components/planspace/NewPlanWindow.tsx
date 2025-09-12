@@ -39,7 +39,6 @@ function NewPlanWindow({ closeModal }: ModalPropType) {
           <FormInputField<NewPlanFormInputs>
             id="title"
             label="제목"
-            type="email"
             placeholder="여행 제목을 입력해주세요"
             register={register}
             error={errors.title}
@@ -54,7 +53,6 @@ function NewPlanWindow({ closeModal }: ModalPropType) {
           <FormInputField<NewPlanFormInputs>
             id="startDate"
             label="시작일"
-            placeholder="여행 설명을 입력해주세요"
             register={register}
             error={errors.startDate}
             type="date"
@@ -62,7 +60,6 @@ function NewPlanWindow({ closeModal }: ModalPropType) {
           <FormInputField<NewPlanFormInputs>
             id="endDate"
             label="종료일"
-            placeholder="여행 설명을 입력해주세요"
             register={register}
             error={errors.endDate}
             type="date"
@@ -72,7 +69,7 @@ function NewPlanWindow({ closeModal }: ModalPropType) {
         <ControlBar>
           <CancelButton onClick={closeModal}>취소</CancelButton>
           <CompleteButton type="submit" disabled={!isValid} onClick={() => {}}>
-            수정
+            완료
           </CompleteButton>
         </ControlBar>
       </ModalWindowWrapper>
