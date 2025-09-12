@@ -2,12 +2,14 @@ import { usePageRouting } from '@/hooks/usePageRouting';
 import { fontSystem } from '@/styles/fontSystem';
 import { Outlet, useParams } from 'react-router-dom';
 import { styled } from 'styled-components';
+import InvitationPanel from './components/InvitationPanel'; // 컴포넌트 import
 
 function PlanPage() {
   const goto = usePageRouting();
   const id = useParams().id ?? '-1';
   return (
     <>
+      <InvitationPanel /> {/* 추가된 UI 컴포넌트 */}
       <TitleBar>
         <Title>일본여행</Title>
         <Description>OOO과 함께하는 일본 여행</Description>
