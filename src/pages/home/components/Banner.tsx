@@ -21,7 +21,7 @@ export function Banner() {
       <Subtitle>나의 계획을 친구들에게 공유해보세요</Subtitle>
 
       {/*추후 계획 생성 기능 추가시 고유 ID로 변경 필요*/}
-      <NewTripButton onClick={() => goto.plan('1234')}>
+      <NewTripButton onClick={goto.plan('1234')}>
         <span>{placeholderImages.newTripIcon}</span> 새 여행 계획하기
       </NewTripButton>
     </BannerWrapper>

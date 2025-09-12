@@ -4,11 +4,11 @@ import LoginPage from '@pages/login/LoginPage';
 import PlanPage from '@pages/plan/PlanPage';
 import RegisterPage from '@pages/register/RegisterPage';
 import SpacePage from '@pages/space/SpacePage';
-import RoutingPanel from '@components/RoutingPanel';
+import RoutingPanel from '@/components/dev/RoutingPanel';
 import { PATH } from '@utils/path';
-import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
-import ColorPanel from './ColorPanel';
-import FontPanel from './FontPanel';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import ColorPanel from './dev/ColorPanel';
+import FontPanel from './dev/FontPanel';
 import { ToastContainer } from 'react-toastify';
 import { useState, useEffect } from 'react';
 
