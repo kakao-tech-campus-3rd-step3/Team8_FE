@@ -25,7 +25,7 @@ function PlanCard({ plan, highlight = false }: { plan: PlanType; highlight?: boo
           </PlanDate>
         </PlanInfo>
         <ControlPanel>
-          <EditButton onClick={goto.plan}>
+          <EditButton onClick={goto.plan(`${plan.id}`)}>
             <Edit />
           </EditButton>
           <DeleteButton onClick={openDeletionConfirmWindow}>
