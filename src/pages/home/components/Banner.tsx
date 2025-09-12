@@ -1,7 +1,7 @@
 import styled from 'styled-components';
-import { colorSystem } from '../../../styles/colorSystem';
-import { fontSystem } from '../../../styles/fontSystem';
-import { usePageRouting } from '@/hooks/usePageRouting'; // 훅 가져오기
+import { colorSystem } from '@styles/colorSystem';
+import { fontSystem } from '@styles/fontSystem';
+import { usePageRouting } from '@hooks/usePageRouting'; // 훅 가져오기
 
 const placeholderImages = {
   newTripIcon: '🗺️',
