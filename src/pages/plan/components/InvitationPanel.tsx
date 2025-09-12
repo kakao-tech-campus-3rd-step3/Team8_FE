@@ -3,23 +3,9 @@ import styled, { css } from 'styled-components';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
 import Close from '@/assets/icons/Close';
+import type { User } from '../types/user';
+import { dummyUsers } from '../data/dummyUsers';
 
-// --- 타입 정의 ---
-type UserRole = 'creator' | 'editor' | 'viewer';
-type User = {
-  id: number;
-  name: string;
-  role: UserRole;
-};
-
-// --- 임시 데이터 ---
-const dummyUsers: User[] = [
-  { id: 1, name: '김성진', role: 'creator' },
-  { id: 2, name: '박수민', role: 'editor' },
-  { id: 3, name: '남규리', role: 'viewer' },
-];
-
-// --- 아이콘 컴포넌트 ---
 function PlusIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -45,7 +31,7 @@ function CollapseIcon({ isExpanded }: { isExpanded: boolean }) {
 }
 
 function InvitationPanel() {
-  const [users, setUsers] = useState(dummyUsers);
+  const [users, setUsers] = useState<User[]>(dummyUsers); 
   const [isExpanded, setIsExpanded] = useState(true);
 
   const removeUser = (id: number) => {
@@ -53,8 +39,7 @@ function InvitationPanel() {
   };
 
   const addUser = () => {
-    // 초대 모달을 열거나 입력 필드를 표시예정
-    console.log('새로운 사용자 추가');
+    console.log('새로운 사용자 추가 기능');
   };
 
   return (
@@ -90,10 +75,9 @@ function InvitationPanel() {
 
 export default InvitationPanel;
 
-
 const PanelWrapper = styled.div`
   position: fixed;
-  top: 20px;
+  top: 70px;
   left: 20px;
   width: 240px;
   background-color: ${colorSystem.tertiary_white._0};
