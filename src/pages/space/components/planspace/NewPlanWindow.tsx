@@ -11,8 +11,8 @@ import {
 } from '@/pages/space/styles/modalWindowStyle';
 import { styled } from 'styled-components';
 import { FormInputField } from '@/components/FormInputField';
-import { useNewPlanForm } from '../../hooks/useNewPlanForm';
-import type { NewPlanFormInputs } from '../../utils/planValidation';
+import { useNewPlanForm } from '@/pages/space/hooks/useNewPlanForm';
+import type { NewPlanFormInputs } from '@/pages/space/utils/planValidation';
 
 function NewPlanWindow({ closeModal }: ModalPropType) {
   const { register, handleSubmit, errors, isValid } = useNewPlanForm({
