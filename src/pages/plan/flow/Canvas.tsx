@@ -1,6 +1,8 @@
 import { Background, Controls, ReactFlow, useEdgesState, useNodesState } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { nodeTypes } from './nodeTypes';
+import EditGuard from './responsive/EditGuard';
+import { useResponsiveEditing } from './responsive/useResponsiveEditing';
 
 const initialNodes = [
   {
@@ -20,21 +22,28 @@ const initialNodes = [
 function Canvas() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const { canEdit } = useResponsiveEditing();
 
   return (
     <div style={{ height: '100vh', width: '100%' }}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        nodeTypes={nodeTypes}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        style={{ backgroundColor: '#B8CEFF' }}
-        fitView
-      >
-        <Background />
-        <Controls />
-      </ReactFlow>
+      <EditGuard enabled={!canEdit}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          /* 편집 이벤트는 canEdit일 때만 허용, 편집 제한 정책이 바뀌면 prop수정 필요 */
+          onNodesChange={canEdit ? onNodesChange : undefined}
+          onEdgesChange={canEdit ? onEdgesChange : undefined}
+          nodesDraggable={canEdit}
+          nodesConnectable={canEdit}
+          elementsSelectable={canEdit}
+          style={{ backgroundColor: '#B8CEFF', width: '100%', height: '100%' }}
+          fitView
+        >
+          <Background />
+          <Controls />
+        </ReactFlow>
+      </EditGuard>
     </div>
   );
 }
