@@ -44,16 +44,16 @@ function WaypointNode(props: any) {
     if (savedData) {
       const parsedData = JSON.parse(savedData);
       return {
-        title: parsedData.title || '인천 공항 ICN',
-        description: parsedData.description || '인천로 공항시',
+        title: parsedData.title || '장소',
+        description: parsedData.description || '상세주소',
         startTime: parsedData.startTime ? new Date(parsedData.startTime) : new Date(0, 0, 0, 10, 22),
         endTime: parsedData.endTime ? new Date(parsedData.endTime) : new Date(0, 0, 0, 12, 22),
         memo: parsedData.memo || '',
       };
     }
     return {
-        title: '인천 공항 ICN',
-        description: '인천로 공항시',
+        title: '장소',
+        description: '상세주소',
         startTime: new Date(0, 0, 0, 10, 22),
         endTime: new Date(0, 0, 0, 12, 22),
         memo: '',
