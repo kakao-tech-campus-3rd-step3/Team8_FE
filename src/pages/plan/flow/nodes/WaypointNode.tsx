@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-// input 너비를 동적으로 조절하는 커스텀 훅
 const useAutosizeInput = (value: string) => {
   const ref = useRef<HTMLInputElement>(null);
   const [width, setWidth] = useState(0);
@@ -18,7 +17,7 @@ const useAutosizeInput = (value: string) => {
       span.style.position = 'absolute';
       span.textContent = value || ref.current.placeholder;
       document.body.appendChild(span);
-      setWidth(span.offsetWidth + 10); // 여백 추가
+      setWidth(span.offsetWidth + 10);
       document.body.removeChild(span);
     }
   }, [value]);
@@ -26,7 +25,6 @@ const useAutosizeInput = (value: string) => {
   return { ref, style: { width: `${width}px` } };
 };
 
-// DatePicker의 customInput을 위한 컴포넌트
 const CustomTimeInput = forwardRef<HTMLButtonElement, { value?: string; onClick?: () => void }>(({ value, onClick }, ref) => (
   <TimeDisplay onClick={onClick} ref={ref}>
     {value}
@@ -35,10 +33,8 @@ const CustomTimeInput = forwardRef<HTMLButtonElement, { value?: string; onClick?
 CustomTimeInput.displayName = 'CustomTimeInput';
 
 function WaypointNode(props: any) {
-    // 컴포넌트별 고유 키 생성
   const localStorageKey = `waypoint-data-${props.id}`;
 
-  // localStorage에서 초기 데이터 불러오기
   const getInitialState = () => {
     const savedData = localStorage.getItem(localStorageKey);
     if (savedData) {
@@ -66,7 +62,6 @@ function WaypointNode(props: any) {
   const [endTime, setEndTime] = useState<Date | null>(getInitialState().endTime);
   const [memo, setMemo] = useState(getInitialState().memo);
 
-  // 상태가 변경될 때마다 localStorage에 저장
   useEffect(() => {
     const dataToSave = {
       title,
@@ -146,7 +141,6 @@ const TimeWrapper = styled.div`
   gap: 4px;
   margin-left: auto;
 
-  /* react-datepicker 커스텀 스타일 */
   .react-datepicker-wrapper {
     display: inline-block;
   }
