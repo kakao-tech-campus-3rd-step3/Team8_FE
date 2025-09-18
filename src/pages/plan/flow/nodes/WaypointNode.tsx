@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { categoryStyles, locationCategories } from './categoryStyles';
-import { useAutosizeInput } from './hooks';
+import { useAutosizeInput } from '../../hooks/useAutosizeInput';
 import { CustomTimeInput } from './CustomTimeInput';
 
 function WaypointNode(props: any) {
