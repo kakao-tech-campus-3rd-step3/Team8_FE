@@ -1,36 +1,12 @@
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
-import React, { useState, useLayoutEffect, useRef, forwardRef, useEffect } from 'react';
+import React, { useState, forwardRef, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-
-const useAutosizeInput = (value: string) => {
-  const ref = useRef<HTMLInputElement>(null);
-  const [width, setWidth] = useState(0);
-
-  useLayoutEffect(() => {
-    if (ref.current) {
-      const span = document.createElement('span');
-      span.style.font = window.getComputedStyle(ref.current).font;
-      span.style.visibility = 'hidden';
-      span.style.position = 'absolute';
-      span.textContent = value || ref.current.placeholder;
-      document.body.appendChild(span);
-      setWidth(span.offsetWidth + 10);
-      document.body.removeChild(span);
-    }
-  }, [value]);
-
-  return { ref, style: { width: `${width}px` } };
-};
-
-const CustomTimeInput = forwardRef<HTMLButtonElement, { value?: string; onClick?: () => void }>(({ value, onClick }, ref) => (
-  <TimeDisplay onClick={onClick} ref={ref}>
-    {value}
-  </TimeDisplay>
-));
-CustomTimeInput.displayName = 'CustomTimeInput';
+import { categoryStyles, locationCategories } from './categoryStyles';
+import { useAutosizeInput } from './hooks';
+import { CustomTimeInput } from './CustomTimeInput';
 
 function WaypointNode(props: any) {
   const localStorageKey = `waypoint-data-${props.id}`;
@@ -45,6 +21,7 @@ function WaypointNode(props: any) {
         startTime: parsedData.startTime ? new Date(parsedData.startTime) : new Date(0, 0, 0, 10, 22),
         endTime: parsedData.endTime ? new Date(parsedData.endTime) : new Date(0, 0, 0, 12, 22),
         memo: parsedData.memo || '',
+        category: parsedData.category || 'Default',
       };
     }
     return {
@@ -53,6 +30,7 @@ function WaypointNode(props: any) {
         startTime: new Date(0, 0, 0, 10, 22),
         endTime: new Date(0, 0, 0, 12, 22),
         memo: '',
+        category: 'Default',
     };
   };
 
@@ -61,26 +39,54 @@ function WaypointNode(props: any) {
   const [startTime, setStartTime] = useState<Date | null>(getInitialState().startTime);
   const [endTime, setEndTime] = useState<Date | null>(getInitialState().endTime);
   const [memo, setMemo] = useState(getInitialState().memo);
+  const [category, setCategory] = useState(getInitialState().category);
+  const [isCategorySelectorOpen, setCategorySelectorOpen] = useState(false);
+  const iconWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const dataToSave = {
-      title,
-      description,
-      startTime: startTime,
-      endTime: endTime,
-      memo,
-    };
+    const dataToSave = { title, description, startTime, endTime, memo, category };
     localStorage.setItem(localStorageKey, JSON.stringify(dataToSave));
-  }, [title, description, startTime, endTime, memo, localStorageKey]);
-
+  }, [title, description, startTime, endTime, memo, category, localStorageKey]);
+  
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+        if (iconWrapperRef.current && !iconWrapperRef.current.contains(event.target as Node)) {
+            setCategorySelectorOpen(false);
+        }
+    }
+    if (isCategorySelectorOpen) {
+        document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isCategorySelectorOpen]);
 
   const titleProps = useAutosizeInput(title);
   const descriptionProps = useAutosizeInput(description);
+  
+  const handleCategoryChange = (selectedCategory: string) => {
+    setCategory(selectedCategory);
+    setCategorySelectorOpen(false);
+  };
 
   return (
-    <WaypointNodeContainer>
+    <WaypointNodeContainer bgColor={categoryStyles[category].color}>
       <HorizontalLayout>
-        <IconPlaceholder />
+        <IconWrapper ref={iconWrapperRef}>
+            <IconPlaceholder onClick={() => setCategorySelectorOpen(prev => !prev)}>
+                {categoryStyles[category].icon}
+            </IconPlaceholder>
+            {isCategorySelectorOpen && (
+                 <CategoryDropdown>
+                    {locationCategories.map(cat => 
+                        <CategoryItem key={cat} onClick={() => handleCategoryChange(cat)}>
+                            {categoryStyles[cat].icon} {cat}
+                        </CategoryItem>
+                    )}
+                 </CategoryDropdown>
+            )}
+        </IconWrapper>
         <VerticalLayout>
           <Title
             as="input"
@@ -135,6 +141,38 @@ function WaypointNode(props: any) {
   );
 }
 
+const IconWrapper = styled.div`
+    position: relative;
+`;
+
+const CategoryDropdown = styled.div`
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
+    z-index: 10;
+    width: 150px;
+
+    background-color: white;
+    border: 1px solid ${colorSystem.tertiary_white._100};
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 4px;
+`;
+
+const CategoryItem = styled.div`
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: black;
+    font-size: 14px;
+    
+    &:hover {
+        background-color: ${colorSystem.tertiary_white._50};
+    }
+`;
+
+
 const TimeWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -168,19 +206,6 @@ const TimeWrapper = styled.div`
   }
 `;
 
-const TimeDisplay = styled.button`
-  ${fontSystem.title.large}
-  color: white;
-  cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 4px;
-  background-color: transparent;
-  border: none;
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
-`;
-
 const BaseInputStyles = `
   background-color: transparent;
   border: none;
@@ -208,12 +233,13 @@ const MemoTextarea = styled.textarea`
   width: 100%;
 `;
 
-const WaypointNodeContainer = styled.div`
+const WaypointNodeContainer = styled.div<{ bgColor: string }>`
   color: white;
-  background-color: ${colorSystem.tertiary_white._700};
+  background-color: ${({ bgColor }) => bgColor};
   padding: 12px;
   border-radius: 12px;
   min-width: 350px;
+  transition: background-color 0.3s ease;
 `;
 
 const HorizontalLayout = styled.div`
@@ -235,6 +261,11 @@ const IconPlaceholder = styled.div`
   height: 68px;
   border-radius: 50%;
   flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 32px;
+  cursor: pointer;
 `;
 
 export default WaypointNode;
