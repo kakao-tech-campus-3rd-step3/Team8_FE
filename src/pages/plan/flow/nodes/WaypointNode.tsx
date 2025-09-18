@@ -18,19 +18,21 @@ function WaypointNode(props: any) {
       return {
         title: parsedData.title || '장소',
         description: parsedData.description || '상세주소',
-        startTime: parsedData.startTime ? new Date(parsedData.startTime) : new Date(0, 0, 0, 10, 22),
+        startTime: parsedData.startTime
+          ? new Date(parsedData.startTime)
+          : new Date(0, 0, 0, 10, 22),
         endTime: parsedData.endTime ? new Date(parsedData.endTime) : new Date(0, 0, 0, 12, 22),
         memo: parsedData.memo || '',
         category: parsedData.category || 'Default',
       };
     }
     return {
-        title: '장소',
-        description: '상세주소',
-        startTime: new Date(0, 0, 0, 10, 22),
-        endTime: new Date(0, 0, 0, 12, 22),
-        memo: '',
-        category: 'Default',
+      title: '장소',
+      description: '상세주소',
+      startTime: new Date(0, 0, 0, 10, 22),
+      endTime: new Date(0, 0, 0, 12, 22),
+      memo: '',
+      category: 'Default',
     };
   };
 
@@ -47,24 +49,24 @@ function WaypointNode(props: any) {
     const dataToSave = { title, description, startTime, endTime, memo, category };
     localStorage.setItem(localStorageKey, JSON.stringify(dataToSave));
   }, [title, description, startTime, endTime, memo, category, localStorageKey]);
-  
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-        if (iconWrapperRef.current && !iconWrapperRef.current.contains(event.target as Node)) {
-            setCategorySelectorOpen(false);
-        }
+      if (iconWrapperRef.current && !iconWrapperRef.current.contains(event.target as Node)) {
+        setCategorySelectorOpen(false);
+      }
     }
     if (isCategorySelectorOpen) {
-        document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isCategorySelectorOpen]);
 
   const titleProps = useAutosizeInput(title);
   const descriptionProps = useAutosizeInput(description);
-  
+
   const handleCategoryChange = (selectedCategory: string) => {
     setCategory(selectedCategory);
     setCategorySelectorOpen(false);
@@ -74,18 +76,18 @@ function WaypointNode(props: any) {
     <WaypointNodeContainer bgColor={categoryStyles[category].color}>
       <HorizontalLayout>
         <IconWrapper ref={iconWrapperRef}>
-            <IconPlaceholder onClick={() => setCategorySelectorOpen(prev => !prev)}>
-                {categoryStyles[category].icon}
-            </IconPlaceholder>
-            {isCategorySelectorOpen && (
-                 <CategoryDropdown>
-                    {locationCategories.map(cat => 
-                        <CategoryItem key={cat} onClick={() => handleCategoryChange(cat)}>
-                            {categoryStyles[cat].icon} {cat}
-                        </CategoryItem>
-                    )}
-                 </CategoryDropdown>
-            )}
+          <IconPlaceholder onClick={() => setCategorySelectorOpen((prev) => !prev)}>
+            {categoryStyles[category].icon}
+          </IconPlaceholder>
+          {isCategorySelectorOpen && (
+            <CategoryDropdown>
+              {locationCategories.map((cat) => (
+                <CategoryItem key={cat} onClick={() => handleCategoryChange(cat)}>
+                  {categoryStyles[cat].icon} {cat}
+                </CategoryItem>
+              ))}
+            </CategoryDropdown>
+          )}
         </IconWrapper>
         <VerticalLayout>
           <Title
@@ -108,7 +110,7 @@ function WaypointNode(props: any) {
             <TimeWrapper>
               <DatePicker
                 selected={startTime}
-                onChange={(date: Date|null) => setStartTime(date)}
+                onChange={(date: Date | null) => setStartTime(date)}
                 showTimeSelect
                 showTimeSelectOnly
                 timeIntervals={1}
@@ -119,7 +121,7 @@ function WaypointNode(props: any) {
               ~
               <DatePicker
                 selected={endTime}
-                onChange={(date: Date|null) => setEndTime(date)}
+                onChange={(date: Date | null) => setEndTime(date)}
                 showTimeSelect
                 showTimeSelectOnly
                 timeIntervals={15}
@@ -142,36 +144,35 @@ function WaypointNode(props: any) {
 }
 
 const IconWrapper = styled.div`
-    position: relative;
+  position: relative;
 `;
 
 const CategoryDropdown = styled.div`
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 8px;
-    z-index: 10;
-    width: 150px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  z-index: 10;
+  width: 150px;
 
-    background-color: white;
-    border: 1px solid ${colorSystem.tertiary_white._100};
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 4px;
+  background-color: white;
+  border: 1px solid ${colorSystem.tertiary_white._100};
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 4px;
 `;
 
 const CategoryItem = styled.div`
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    color: black;
-    font-size: 14px;
-    
-    &:hover {
-        background-color: ${colorSystem.tertiary_white._50};
-    }
-`;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: black;
+  font-size: 14px;
 
+  &:hover {
+    background-color: ${colorSystem.tertiary_white._50};
+  }
+`;
 
 const TimeWrapper = styled.div`
   display: flex;
@@ -233,7 +234,9 @@ const MemoTextarea = styled.textarea`
   width: 100%;
 `;
 
-const WaypointNodeContainer = styled.div<{ bgColor: string }>`
+const WaypointNodeContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'bgColor',
+})<{ bgColor: string }>`
   color: white;
   background-color: ${({ bgColor }) => bgColor};
   padding: 12px;
