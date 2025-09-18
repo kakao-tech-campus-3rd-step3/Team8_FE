@@ -16,6 +16,7 @@
     "axios": "^1.11.0",
     "i": "^0.3.7",
     "npm": "^11.5.2",
+    "re-resizable": "^6.11.2",
     "react": "^19.1.1",
     "react-datepicker": "^8.7.0",
     "react-dom": "^19.1.1",
