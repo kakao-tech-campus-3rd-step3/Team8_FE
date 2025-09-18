@@ -2,7 +2,7 @@ import { Background, Controls, ReactFlow, useEdgesState, useNodesState } from '@
 import '@xyflow/react/dist/style.css';
 import { nodeTypes } from './nodeTypes';
 import EditGuard from './responsive/EditGuard';
-import { useResponsiveEditing } from './responsive/useResponsiveEditing';
+import { isMobile } from 'react-device-detect';
 
 const initialNodes = [
   {
@@ -22,7 +22,7 @@ const initialNodes = [
 function Canvas() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const { canEdit } = useResponsiveEditing();
+  const canEdit = !isMobile;
 
   return (
     <div style={{ height: '100vh', width: '100%' }}>
