@@ -108,7 +108,7 @@ function WaypointNode(props: any) {
             <TimeWrapper>
               <DatePicker
                 selected={startTime}
-                onChange={(date: Date) => setStartTime(date)}
+                onChange={(date: Date|null) => setStartTime(date)}
                 showTimeSelect
                 showTimeSelectOnly
                 timeIntervals={1}
@@ -119,7 +119,7 @@ function WaypointNode(props: any) {
               ~
               <DatePicker
                 selected={endTime}
-                onChange={(date: Date) => setEndTime(date)}
+                onChange={(date: Date|null) => setEndTime(date)}
                 showTimeSelect
                 showTimeSelectOnly
                 timeIntervals={15}
