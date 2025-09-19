@@ -1,4 +1,4 @@
-import type { LocationCategory } from '../../utils/Category';
+import type { LocationCategory } from '../utils/Category';
 
 export interface WaypointData {
   id: number;
