@@ -13,16 +13,13 @@ import Close from '@/assets/icons/Close';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
 
-
-function ExportSettings({
-  onClose,
-  onExport,
-  isLoading,
-}: {
+type ExportSettingsProps = {
   onClose: () => void;
   onExport: () => void;
   isLoading: boolean;
-}) {
+};
+
+function ExportSettings({ onClose, onExport, isLoading }: ExportSettingsProps) {
   return (
     <ModalWindowWrapper onClick={(e) => e.stopPropagation()}>
       <WindowTopBar>
@@ -65,7 +62,11 @@ function ExportLoading() {
   );
 }
 
-function ExportComplete({ onClose }: { onClose: () => void }) {
+type ExportCompleteProps = {
+  onClose: () => void;
+};
+
+function ExportComplete({ onClose }: ExportCompleteProps) {
   return (
     <ModalWindowWrapper>
       <p>완료되었습니다!</p>
@@ -74,8 +75,11 @@ function ExportComplete({ onClose }: { onClose: () => void }) {
   );
 }
 
+type ExportModalProps = {
+  onClose: () => void;
+};
 
-function ExportModal({ onClose }: { onClose: () => void }) {
+function ExportModal({ onClose }: ExportModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
 
