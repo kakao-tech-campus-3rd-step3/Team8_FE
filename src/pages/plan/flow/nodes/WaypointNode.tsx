@@ -1,54 +1,41 @@
-import { colorSystem } from '@/styles/colorSystem';
-import { fontSystem } from '@/styles/fontSystem';
-import React, { useState, forwardRef, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { categoryStyles, locationCategories } from '../../utils/Category';
+import { colorSystem } from '@/styles/colorSystem';
+import { fontSystem } from '@/styles/fontSystem';
+import { categoryStyles, locationCategories } from '@/pages/plan/utils/Category';
 import { useAutosizeInput } from '../../hooks/useAutosizeInput';
 import { CustomTimeInput } from './CustomTimeInput';
+import { defaultWaypointData, type WaypointNodeData } from '../canvasComponents/Waypoint';
 
 function WaypointNode(props: any) {
   const localStorageKey = `waypoint-data-${props.id}`;
 
-  const getInitialState = () => {
+  // 2. localStorage와 defaultWaypointData를 사용해 초기 상태를 설정하는 함수
+  const getInitialState = (): WaypointNodeData => {
     const savedData = localStorage.getItem(localStorageKey);
     if (savedData) {
       const parsedData = JSON.parse(savedData);
       return {
-        title: parsedData.title || '장소',
-        description: parsedData.description || '상세주소',
-        startTime: parsedData.startTime
-          ? new Date(parsedData.startTime)
-          : new Date(0, 0, 0, 10, 22),
-        endTime: parsedData.endTime ? new Date(parsedData.endTime) : new Date(0, 0, 0, 12, 22),
-        memo: parsedData.memo || '',
-        category: parsedData.category || 'Default',
+        ...defaultWaypointData,
+        ...parsedData,
+        startTime: parsedData.startTime ? new Date(parsedData.startTime) : defaultWaypointData.startTime,
+        endTime: parsedData.endTime ? new Date(parsedData.endTime) : defaultWaypointData.endTime,
       };
     }
-    return {
-      title: '장소',
-      description: '상세주소',
-      startTime: new Date(0, 0, 0, 10, 22),
-      endTime: new Date(0, 0, 0, 12, 22),
-      memo: '',
-      category: 'Default',
-    };
+    return defaultWaypointData;
   };
 
-  const [title, setTitle] = useState(getInitialState().title);
-  const [description, setDescription] = useState(getInitialState().description);
-  const [startTime, setStartTime] = useState<Date | null>(getInitialState().startTime);
-  const [endTime, setEndTime] = useState<Date | null>(getInitialState().endTime);
-  const [memo, setMemo] = useState(getInitialState().memo);
-  const [category, setCategory] = useState(getInitialState().category);
+  // 3. 여러 개의 state를 하나의 객체로 통합
+  const [data, setData] = useState<WaypointNodeData>(getInitialState);
   const [isCategorySelectorOpen, setCategorySelectorOpen] = useState(false);
   const iconWrapperRef = useRef<HTMLDivElement>(null);
 
+  // 4. data 객체가 변경될 때마다 localStorage에 저장
   useEffect(() => {
-    const dataToSave = { title, description, startTime, endTime, memo, category };
-    localStorage.setItem(localStorageKey, JSON.stringify(dataToSave));
-  }, [title, description, startTime, endTime, memo, category, localStorageKey]);
+    localStorage.setItem(localStorageKey, JSON.stringify(data));
+  }, [data, localStorageKey]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -64,20 +51,25 @@ function WaypointNode(props: any) {
     };
   }, [isCategorySelectorOpen]);
 
-  const titleProps = useAutosizeInput(title);
-  const descriptionProps = useAutosizeInput(description);
+  const titleProps = useAutosizeInput(data.title);
+  const descriptionProps = useAutosizeInput(data.description);
+
+  // 5. 이벤트 핸들러가 data 객체를 업데이트하도록 수정
+  const handleDataChange = (field: keyof WaypointNodeData, value: any) => {
+    setData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleCategoryChange = (selectedCategory: string) => {
-    setCategory(selectedCategory);
+    handleDataChange('category', selectedCategory);
     setCategorySelectorOpen(false);
   };
 
   return (
-    <WaypointNodeContainer bgColor={categoryStyles[category].color}>
+    <WaypointNodeContainer bgColor={categoryStyles[data.category].color}>
       <HorizontalLayout>
         <IconWrapper ref={iconWrapperRef}>
           <IconPlaceholder onClick={() => setCategorySelectorOpen((prev) => !prev)}>
-            {categoryStyles[category].icon}
+            {categoryStyles[data.category].icon}
           </IconPlaceholder>
           {isCategorySelectorOpen && (
             <CategoryDropdown>
@@ -90,11 +82,12 @@ function WaypointNode(props: any) {
           )}
         </IconWrapper>
         <VerticalLayout>
+          {/* 6. UI 요소들이 data state를 사용하도록 바인딩 수정 */}
           <Title
             as="input"
             type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={data.title}
+            onChange={(e) => handleDataChange('title', e.target.value)}
             className="nodrag"
             {...titleProps}
           />
@@ -102,15 +95,15 @@ function WaypointNode(props: any) {
             <Description
               as="input"
               type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={data.description}
+              onChange={(e) => handleDataChange('description', e.target.value)}
               className="nodrag"
               {...descriptionProps}
             />
             <TimeWrapper>
               <DatePicker
-                selected={startTime}
-                onChange={(date: Date | null) => setStartTime(date)}
+                selected={data.startTime}
+                onChange={(date: Date | null) => handleDataChange('startTime', date)}
                 showTimeSelect
                 showTimeSelectOnly
                 timeIntervals={1}
@@ -120,8 +113,8 @@ function WaypointNode(props: any) {
               />
               ~
               <DatePicker
-                selected={endTime}
-                onChange={(date: Date | null) => setEndTime(date)}
+                selected={data.endTime}
+                onChange={(date: Date | null) => handleDataChange('endTime', date)}
                 showTimeSelect
                 showTimeSelectOnly
                 timeIntervals={15}
@@ -134,14 +127,15 @@ function WaypointNode(props: any) {
           <MemoTextarea
             placeholder="메모..."
             className="nodrag"
-            value={memo}
-            onChange={(e) => setMemo(e.target.value)}
+            value={data.memo}
+            onChange={(e) => handleDataChange('memo', e.target.value)}
           />
         </VerticalLayout>
       </HorizontalLayout>
     </WaypointNodeContainer>
   );
 }
+
 
 const IconWrapper = styled.div`
   position: relative;
