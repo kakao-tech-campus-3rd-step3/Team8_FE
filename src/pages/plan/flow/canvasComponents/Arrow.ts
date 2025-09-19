@@ -1,4 +1,4 @@
-import type { TransportationCategory } from '../utils/Category';
+import type { TransportationCategory } from '../../utils/Category';
 
 export interface ArrowData {
   memoId: number;

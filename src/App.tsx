@@ -1,26 +1,21 @@
 import Router from '@components/Router';
 import styled from 'styled-components';
+import { BrowserRouter } from 'react-router-dom';
 
 function App() {
   return (
-    <DesktopBrowserFill>
-      <MobileRect>
+    <BrowserRouter>
+      <DesktopBrowserFill>
         <Router />
-      </MobileRect>
-    </DesktopBrowserFill>
+      </DesktopBrowserFill>
+    </BrowserRouter>
   );
 }
 
 const DesktopBrowserFill = styled.div`
   background-color: rgb(240, 240, 240);
   width: 100%;
-`;
-
-const MobileRect = styled.div`
-  margin: auto;
-  max-width: 768px;
   min-height: 100vh;
-  background-color: white;
 `;
 
 export default App;
