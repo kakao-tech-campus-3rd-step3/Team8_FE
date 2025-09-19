@@ -1,3 +1,18 @@
+import { colorSystem } from '@/styles/colorSystem';
+
+// categoryStyles.ts에서 가져온 내용
+export const categoryStyles: { [key: string]: { icon: string; color: string } } = {
+  Default: { icon: '📍', color: colorSystem.tertiary_white._700 },
+  Food: { icon: '🍔', color: '#ff6b6b' },
+  Culture: { icon: '🏛️', color: '#f06595' },
+  Accomodation: { icon: '🏨', color: '#cc5de8' },
+  Tour: { icon: '🌴', color: '#845ef7' },
+  Transportation: { icon: '✈️', color: '#5c7cfa' },
+};
+
+export const locationCategories = Object.keys(categoryStyles);
+
+// 기존 Category.ts에 있던 내용
 export namespace LocationCategory {
   export enum DEFAULT {
     DEFAULT = 'DEFAULT',
