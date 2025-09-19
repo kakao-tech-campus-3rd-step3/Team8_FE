@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, type LoginFormInputs } from '../utils/loginValidation';
+import { loginSchema, type LoginFormInputs } from '@/pages/login/utils/loginValidation';
 
 export const useLoginForm = () => {
   const navigate = useNavigate();

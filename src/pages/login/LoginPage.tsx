@@ -2,9 +2,9 @@ import styled from 'styled-components';
 import logo from '../../../public/logo.svg';
 import { fontSystem } from '@/styles/fontSystem';
 import { colorSystem } from '@/styles/colorSystem';
-import { useLoginForm } from './hooks/useLoginForm';
+import { useLoginForm } from '@/pages/login/hooks/useLoginForm';
 import { FormInputField } from '@/components/FormInputField';
-import type { LoginFormInputs } from './utils/loginValidation';
+import type { LoginFormInputs } from '@/pages/login/utils/loginValidation';
 import TopBar from '@/components/TopBar';
 
 function LoginPage() {

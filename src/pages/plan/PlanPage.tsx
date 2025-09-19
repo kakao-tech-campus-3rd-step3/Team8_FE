@@ -1,24 +1,32 @@
-import { usePageRouting } from '@/hooks/usePageRouting';
 import { fontSystem } from '@/styles/fontSystem';
-import { Outlet, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { styled } from 'styled-components';
+import InvitationPanel from './components/InvitationPanel';
+import ExportModal from './components/ExportModal';
+import { useState } from 'react';
+import { colorSystem } from '@/styles/colorSystem';
 
 function PlanPage() {
-  const goto = usePageRouting();
   const id = useParams().id ?? '-1';
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
+  const handleExportClick = () => {
+    setIsExportModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsExportModalOpen(false);
+  };
+
   return (
     <>
+      <InvitationPanel />
       <TitleBar>
         <Title>일본여행</Title>
         <Description>OOO과 함께하는 일본 여행</Description>
+        <ExportButton onClick={handleExportClick}>내보내기</ExportButton>
       </TitleBar>
-      <button onClick={goto.plan.base(id).waypoint}>웨이포인트 관리</button>
-      <button onClick={goto.plan.base(id).traveler}>여행자 관리</button>
-      <button onClick={goto.plan.base(id).map}>지도</button>
-      <button onClick={goto.plan.base(id).memo}>메모</button>
-      <div>
-        <Outlet />
-      </div>
+      {isExportModalOpen && <ExportModal onClose={handleCloseModal} />}
     </>
   );
 }
@@ -35,9 +43,22 @@ const Description = styled.div`
 const TitleBar = styled.div`
   padding: 16px;
   display: flex;
-
   align-items: baseline;
   flex-wrap: wrap;
+`;
+
+const ExportButton = styled.button`
+  margin-left: auto;
+  padding: 8px 16px;
+  background-color: ${colorSystem.primary_yellow._400};
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  ${fontSystem.body.medium}
+  &:hover {
+    background-color: ${colorSystem.primary_yellow._500};
+  }
 `;
 
 export default PlanPage;
