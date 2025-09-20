@@ -5,6 +5,7 @@ import InvitationPanel from './components/InvitationPanel';
 import ExportModal from './components/ExportModal';
 import { useState } from 'react';
 import { colorSystem } from '@/styles/colorSystem';
+import Canvas from './flow/Canvas';
 
 function PlanPage() {
   const id = useParams().id ?? '-1';
@@ -27,6 +28,7 @@ function PlanPage() {
         <ExportButton onClick={handleExportClick}>내보내기</ExportButton>
       </TitleBar>
       {isExportModalOpen && <ExportModal onClose={handleCloseModal} />}
+      <Canvas />
     </>
   );
 }
