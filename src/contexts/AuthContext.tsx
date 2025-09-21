@@ -39,23 +39,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     // 동일 탭 내에서 axiosInstance의 토큰 변경을 감지하기 위한 브라우저 이벤트 리스너 설정
-    const handleRefreshed = (e: Event) => {
-      const detail = (
-        e as CustomEvent<{ accessToken: string | null; refreshToken?: string | null }>
-      ).detail;
-      if (detail?.accessToken !== undefined) setAccessToken(detail.accessToken);
-      if (detail?.refreshToken !== undefined && detail.refreshToken !== null)
-        setRefreshToken(detail.refreshToken);
+    const handleRefreshed = (e: WindowEventMap['auth:tokenRefreshed']) => {
+      const { accessToken, refreshToken } = e.detail ?? {};
+      if (accessToken !== undefined) setAccessToken(accessToken);
+      if (refreshToken !== undefined && refreshToken !== null) setRefreshToken(refreshToken);
     };
-    const handleCleared = () => {
+    const handleCleared = (_e: WindowEventMap['auth:tokensCleared']) => {
       setAccessToken(null);
       setRefreshToken(null);
       setUser(null);
     };
-    window.addEventListener('auth:tokenRefreshed', handleRefreshed as EventListener);
+    window.addEventListener('auth:tokenRefreshed', handleRefreshed);
     window.addEventListener('auth:tokensCleared', handleCleared);
     return () => {
-      window.removeEventListener('auth:tokenRefreshed', handleRefreshed as EventListener);
+      window.removeEventListener('auth:tokenRefreshed', handleRefreshed);
       window.removeEventListener('auth:tokensCleared', handleCleared);
     };
   }, []);
