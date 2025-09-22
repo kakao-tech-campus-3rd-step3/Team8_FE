@@ -8,7 +8,7 @@ export interface WaypointData {
   startTime: string;
   endTime: string;
   memoID: number;
-  locationCategory: LocationCategory.type;
+  locationCategory: LocationCategory;
   xPosition: number;
   yPosition: number;
 }

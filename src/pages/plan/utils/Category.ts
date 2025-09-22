@@ -11,36 +11,34 @@ export const categoryStyles: { [key: string]: { icon: string; color: string } } 
 
 export const locationCategories = Object.keys(categoryStyles);
 
-export namespace LocationCategory {
-  export enum DEFAULT {
-    DEFAULT = 'DEFAULT',
-  }
-  export enum FOOD {
-    RESTAURANT = 'RESTAURANT',
-    CAFE = 'CAFE',
-    BAR = 'BAR',
-  }
-  export enum CULTURE {
-    MUSEUM = 'MUSEUM',
-    LIBRARY = 'LIBRARY',
-    CENTER = 'CENTER',
-  }
-  export enum ACCOMODATION {
-    HOTEL = 'HOTEL',
-  }
-  export enum TOUR {
-    STORE = 'STORE',
-    LANDMARK = 'LANDMARK',
-    ACTIVITY = 'ACTIVITY',
-  }
-  export enum TRANSPORTATION {
-    AIRPORT = 'AIRPORT',
-    TERMINAL = 'TERMINAL',
-    STATION = 'STATION',
-  }
-
-  export type type = DEFAULT | FOOD | CULTURE | ACCOMODATION | TOUR | TRANSPORTATION;
+export enum DEFAULT {
+  DEFAULT = 'DEFAULT',
 }
+export enum FOOD {
+  RESTAURANT = 'RESTAURANT',
+  CAFE = 'CAFE',
+  BAR = 'BAR',
+}
+export enum CULTURE {
+  MUSEUM = 'MUSEUM',
+  LIBRARY = 'LIBRARY',
+  CENTER = 'CENTER',
+}
+export enum ACCOMODATION {
+  HOTEL = 'HOTEL',
+}
+export enum TOUR {
+  STORE = 'STORE',
+  LANDMARK = 'LANDMARK',
+  ACTIVITY = 'ACTIVITY',
+}
+export enum TRANSPORTATION {
+  AIRPORT = 'AIRPORT',
+  TERMINAL = 'TERMINAL',
+  STATION = 'STATION',
+}
+
+export type LocationCategory = DEFAULT | FOOD | CULTURE | ACCOMODATION | TOUR | TRANSPORTATION;
 
 export enum TransportationCategory {
   DEFAULT = 'DEFAULT',
