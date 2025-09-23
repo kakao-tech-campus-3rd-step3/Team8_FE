@@ -38,9 +38,23 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 응답이 401(만료/인증실패)이면 refresh 시도 후 원래 요청 재시도
+// 응답이 401(만료/인증실패)이면 refresh 시도 후 원요청 재시도
 let isRefreshing = false;
-let refreshPromise: Promise<string | null> | null = null;
+let refreshSubscribers: Array<(token: string | null) => void> = [];
+
+function subscribeTokenRefresh(cb: (token: string | null) => void) {
+  refreshSubscribers.push(cb);
+}
+
+function notifyTokenRefreshed(token: string | null) {
+  const subs = refreshSubscribers;
+  refreshSubscribers = [];
+  subs.forEach((cb) => {
+    try {
+      cb(token);
+    } catch {}
+  });
+}
 
 async function refreshAccessToken(): Promise<string | null> {
   const refresh = getRefreshToken();
@@ -65,6 +79,9 @@ async function refreshAccessToken(): Promise<string | null> {
       );
     } catch {}
 
+    // 구독자들에게 새 토큰 전달
+    notifyTokenRefreshed(newAccess ?? null);
+
     return newAccess ?? null;
   } catch (e) {
     // Refresh 실패시 토큰 제거
@@ -72,6 +89,8 @@ async function refreshAccessToken(): Promise<string | null> {
     try {
       window.dispatchEvent(new Event('auth:tokensCleared'));
     } catch {}
+    // 구독자들에게 실패 전달(null)
+    notifyTokenRefreshed(null);
     return null;
   }
 }
@@ -84,23 +103,36 @@ axiosInstance.interceptors.response.use(
 
     if (response?.status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true;
-
-      if (!isRefreshing) {
-        isRefreshing = true;
-        refreshPromise = refreshAccessToken().finally(() => {
-          isRefreshing = false;
+      if (isRefreshing) {
+        // 이미 리프레시 중: 새 Promise를 만들어 결과를 구독
+        return new Promise((resolve, reject) => {
+          subscribeTokenRefresh((newAccess) => {
+            if (newAccess) {
+              originalRequest.headers = {
+                ...(originalRequest.headers || {}),
+                Authorization: `Bearer ${newAccess}`,
+              } as any;
+              resolve(axiosInstance(originalRequest));
+            } else {
+              reject(error);
+            }
+          });
         });
-      }
-
-      const newAccess = await (refreshPromise as Promise<string | null>);
-
-      if (newAccess) {
-        // 토큰 교체 후 재시도
-        originalRequest.headers = {
-          ...(originalRequest.headers || {}),
-          Authorization: `Bearer ${newAccess}`,
-        } as any;
-        return axiosInstance(originalRequest);
+      } else {
+        // 최초 한 번만 실제 리프레시 호출
+        isRefreshing = true;
+        try {
+          const newAccess = await refreshAccessToken();
+          if (newAccess) {
+            originalRequest.headers = {
+              ...(originalRequest.headers || {}),
+              Authorization: `Bearer ${newAccess}`,
+            } as any;
+            return axiosInstance(originalRequest);
+          }
+        } finally {
+          isRefreshing = false;
+        }
       }
     }
 
