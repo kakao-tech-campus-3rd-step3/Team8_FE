@@ -4,38 +4,34 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
-import { categoryStyles, locationCategories } from '@/pages/plan/utils/Category';
-import { useAutosizeInput } from '../../hooks/useAutosizeInput';
+import {
+  LocationType,
+  type LocationCategory,
+  LocationCategoryMeta,
+} from '@/pages/plan/utils/Category';
 import { CustomTimeInput } from './CustomTimeInput';
-import { defaultWaypointData, type WaypointNodeData } from '../canvasComponents/Waypoint';
+import { type WaypointData } from '../canvasComponents/Waypoint';
+import { useAutosizeInput } from '../../hooks/useAutosizeInput';
 
 function WaypointNode(props: any) {
-  const localStorageKey = `waypoint-data-${props.id}`;
-
-  // 2. localStorage와 defaultWaypointData를 사용해 초기 상태를 설정하는 함수
-  const getInitialState = (): WaypointNodeData => {
-    const savedData = localStorage.getItem(localStorageKey);
-    if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      return {
-        ...defaultWaypointData,
-        ...parsedData,
-        startTime: parsedData.startTime ? new Date(parsedData.startTime) : defaultWaypointData.startTime,
-        endTime: parsedData.endTime ? new Date(parsedData.endTime) : defaultWaypointData.endTime,
-      };
-    }
-    return defaultWaypointData;
-  };
-
-  // 3. 여러 개의 state를 하나의 객체로 통합
-  const [data, setData] = useState<WaypointNodeData>(getInitialState);
+  const [data, setData] = useState<WaypointData>({
+    id: 0,
+    title: '위치 제목',
+    description: '위치 설명',
+    address: '주소',
+    startTime: new Date(0, 0, 0, 0, 0),
+    endTime: new Date(0, 0, 0, 0, 0),
+    memoID: 0,
+    locationCategory: LocationType.DEFAULT.DEFAULT,
+    xPosition: 0,
+    yPosition: 0,
+  });
   const [isCategorySelectorOpen, setCategorySelectorOpen] = useState(false);
   const iconWrapperRef = useRef<HTMLDivElement>(null);
 
-  // 4. data 객체가 변경될 때마다 localStorage에 저장
   useEffect(() => {
-    localStorage.setItem(localStorageKey, JSON.stringify(data));
-  }, [data, localStorageKey]);
+    console.log(`웹 소켓 데이터 전송`, data);
+  }, [data]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -51,31 +47,33 @@ function WaypointNode(props: any) {
     };
   }, [isCategorySelectorOpen]);
 
-  const titleProps = useAutosizeInput(data.title);
-  const descriptionProps = useAutosizeInput(data.description);
-
-  // 5. 이벤트 핸들러가 data 객체를 업데이트하도록 수정
-  const handleDataChange = (field: keyof WaypointNodeData, value: any) => {
+  const handleDataChange = (field: keyof WaypointData, value: any) => {
     setData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleCategoryChange = (selectedCategory: string) => {
-    handleDataChange('category', selectedCategory);
+    handleDataChange('locationCategory', selectedCategory);
     setCategorySelectorOpen(false);
   };
 
+  const titleProps = useAutosizeInput(data.title);
+  const addressProps = useAutosizeInput(data.description);
+
   return (
-    <WaypointNodeContainer bgColor={categoryStyles[data.category].color}>
+    <WaypointNodeContainer bgColor={LocationCategoryMeta[data.locationCategory].color}>
       <HorizontalLayout>
         <IconWrapper ref={iconWrapperRef}>
           <IconPlaceholder onClick={() => setCategorySelectorOpen((prev) => !prev)}>
-            {categoryStyles[data.category].icon}
+            {LocationCategoryMeta[data.locationCategory].icon}
           </IconPlaceholder>
           {isCategorySelectorOpen && (
             <CategoryDropdown>
-              {locationCategories.map((cat) => (
-                <CategoryItem key={cat} onClick={() => handleCategoryChange(cat)}>
-                  {categoryStyles[cat].icon} {cat}
+              {Object.keys(LocationCategoryMeta).map((cat) => (
+                <CategoryItem
+                  key={cat}
+                  onClick={() => handleCategoryChange(cat as LocationCategory)}
+                >
+                  {LocationCategoryMeta[cat as LocationCategory].icon} {cat}
                 </CategoryItem>
               ))}
             </CategoryDropdown>
@@ -92,13 +90,13 @@ function WaypointNode(props: any) {
             {...titleProps}
           />
           <HorizontalLayout>
-            <Description
+            <Address
               as="input"
               type="text"
-              value={data.description}
-              onChange={(e) => handleDataChange('description', e.target.value)}
+              value={data.address}
+              onChange={(e) => handleDataChange('address', e.target.value)}
               className="nodrag"
-              {...descriptionProps}
+              {...addressProps}
             />
             <TimeWrapper>
               <DatePicker
@@ -117,25 +115,24 @@ function WaypointNode(props: any) {
                 onChange={(date: Date | null) => handleDataChange('endTime', date)}
                 showTimeSelect
                 showTimeSelectOnly
-                timeIntervals={15}
+                timeIntervals={1}
                 timeCaption="Time"
                 dateFormat="HH:mm"
                 customInput={<CustomTimeInput />}
               />
             </TimeWrapper>
           </HorizontalLayout>
-          <MemoTextarea
+          <DescriptionArea
             placeholder="메모..."
             className="nodrag"
-            value={data.memo}
-            onChange={(e) => handleDataChange('memo', e.target.value)}
+            value={data.description}
+            onChange={(e) => handleDataChange('description', e.target.value)}
           />
         </VerticalLayout>
       </HorizontalLayout>
     </WaypointNodeContainer>
   );
 }
-
 
 const IconWrapper = styled.div`
   position: relative;
@@ -215,12 +212,12 @@ const Title = styled.div`
   ${BaseInputStyles}
 `;
 
-const Description = styled.div`
+const Address = styled.div`
   ${fontSystem.body.small}
   ${BaseInputStyles}
 `;
 
-const MemoTextarea = styled.textarea`
+const DescriptionArea = styled.textarea`
   ${BaseInputStyles}
   ${fontSystem.body.small}
   margin-top: 4px;
