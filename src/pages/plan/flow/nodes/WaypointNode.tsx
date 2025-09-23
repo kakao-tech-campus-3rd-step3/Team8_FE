@@ -12,6 +12,7 @@ import {
 import { CustomTimeInput } from './CustomTimeInput';
 import { type WaypointData } from '../canvasComponents/Waypoint';
 import { useAutosizeInput } from '../../hooks/useAutosizeInput';
+import { Handle, Position } from '@xyflow/react';
 
 function WaypointNode(props: any) {
   const [data, setData] = useState<WaypointData>({
@@ -61,6 +62,7 @@ function WaypointNode(props: any) {
 
   return (
     <WaypointNodeContainer bgColor={LocationCategoryMeta[data.locationCategory].color}>
+      <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
       <HorizontalLayout>
         <IconWrapper ref={iconWrapperRef}>
           <IconPlaceholder onClick={() => setCategorySelectorOpen((prev) => !prev)}>
@@ -130,6 +132,7 @@ function WaypointNode(props: any) {
           />
         </VerticalLayout>
       </HorizontalLayout>
+      <Handle type="source" position={Position.Bottom} style={{ background: '#555' }} />
     </WaypointNodeContainer>
   );
 }
