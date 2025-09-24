@@ -14,7 +14,8 @@ import { type WaypointData } from '../canvasComponents/Waypoint';
 import { useAutosizeInput } from '../../hooks/useAutosizeInput';
 import { Handle, Position } from '@xyflow/react';
 
-function WaypointNode(props: any) {
+// props로 data 받아올 수 있습니다.
+function WaypointNode() {
   const [data, setData] = useState<WaypointData>({
     id: 0,
     title: '위치 제목',
