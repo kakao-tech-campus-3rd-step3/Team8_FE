@@ -12,8 +12,7 @@ import styled from 'styled-components';
 function Canvas() {
   const canEdit = !isMobile;
 
-  const { nodes, setNodes, onNodesChange, edges, setEdges, onEdgesChange, onConnect, addNode } =
-    useCanvas();
+  const { nodes, onNodesChange, edges, onEdgesChange, onConnect, addNode } = useCanvas();
 
   return (
     <CanvasWrapper>
@@ -40,7 +39,7 @@ function Canvas() {
           <Controls />
         </ReactFlow>
       </EditGuard>
-      
+
       <ControlBar addNode={addNode} />
     </CanvasWrapper>
   );

@@ -3,12 +3,17 @@ import { useParams } from 'react-router-dom';
 import { styled } from 'styled-components';
 import InvitationPanel from './components/InvitationPanel';
 import ExportModal from './components/ExportModal';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { colorSystem } from '@/styles/colorSystem';
 import Canvas from './flow/Canvas';
 
 function PlanPage() {
   const id = useParams().id ?? '-1';
+
+  useEffect(() => {
+    console.log(`백엔드 plan 정보 요청 (${id})`);
+  }, [id]);
+
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const handleExportClick = () => {

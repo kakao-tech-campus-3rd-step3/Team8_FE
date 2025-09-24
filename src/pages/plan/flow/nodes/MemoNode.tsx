@@ -2,7 +2,8 @@ import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
 import styled from 'styled-components';
 
-function MemoNode(props: any) {
+// props로 data 받아올 수 있습니다.
+function MemoNode() {
   return (
     <MemoNodeContainer>
       <MemoTitle type="text" className="nodrag" />
