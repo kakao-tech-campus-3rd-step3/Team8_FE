@@ -1,52 +1,22 @@
-import {
-  Background,
-  Controls,
-  ReactFlow,
-  addEdge,
-  useEdgesState,
-  useNodesState,
-  type Connection,
-  type Edge,
-} from '@xyflow/react';
+import { Background, Controls, ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { nodeTypes } from './nodeTypes';
 import EditGuard from './responsive/EditGuard';
 import { isMobile } from 'react-device-detect';
-import { useCallback } from 'react';
-
-const initialNodes = [
-  {
-    id: '1',
-    type: 'waypoint',
-    position: { x: 0, y: 0 },
-    data: { value: '123' },
-  },
-  {
-    id: '1-2',
-    type: 'waypoint',
-    position: { x: 0, y: 0 },
-    data: { value: '123' },
-  },
-  {
-    id: '2',
-    type: 'memo',
-    position: { x: 0, y: 0 },
-    data: { value: '123' },
-  },
-];
+import { colorSystem } from '@/styles/colorSystem';
+import ControlBar from '../components/ControlBar';
+import { useCanvas } from '../hooks/useCanvas';
+import styled from 'styled-components';
+// const initialNodes = [{ id: '1', type: 'waypoint', position: { x: 0, y: 0 }, data: { value: '123' } }, { id: '2', type: 'memo', position: { x: 0, y: 0 }, data: { value: '123' } }];
 
 function Canvas() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-  const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
-  );
-
   const canEdit = !isMobile;
 
+  const { nodes, setNodes, onNodesChange, edges, setEdges, onEdgesChange, onConnect, addNode } =
+    useCanvas();
+
   return (
-    <div style={{ height: '100vh', width: '100%' }}>
+    <CanvasWrapper>
       <EditGuard enabled={!canEdit}>
         <ReactFlow
           nodes={nodes}
@@ -61,13 +31,24 @@ function Canvas() {
           elementsSelectable={canEdit}
           style={{ backgroundColor: '#B8CEFF', width: '100%', height: '100%' }}
           fitView
+          defaultEdgeOptions={{
+            style: { stroke: `${colorSystem.secondary_green._500}`, strokeWidth: 4 },
+            animated: true,
+          }}
         >
           <Background />
           <Controls />
         </ReactFlow>
       </EditGuard>
-    </div>
+
+      <ControlBar addNode={addNode} />
+    </CanvasWrapper>
   );
 }
+
+const CanvasWrapper = styled.div`
+  height: 100vh;
+  width: 100%;
+`;
 
 export default Canvas;
