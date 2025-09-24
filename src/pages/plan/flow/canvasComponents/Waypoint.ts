@@ -1,6 +1,6 @@
 import type { LocationCategory } from '../../utils/Category';
 
-export interface WaypointData {
+export interface WaypointData extends Record<string, unknown> {
   id: number;
   title: string;
   description: string;
