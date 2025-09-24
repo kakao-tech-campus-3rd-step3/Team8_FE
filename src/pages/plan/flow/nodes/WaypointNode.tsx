@@ -1,114 +1,109 @@
-import { colorSystem } from '@/styles/colorSystem';
-import { fontSystem } from '@/styles/fontSystem';
-import React, { useState, forwardRef, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { categoryStyles, locationCategories } from './categoryStyles';
-import { useAutosizeInput } from './hooks';
+import { colorSystem } from '@/styles/colorSystem';
+import { fontSystem } from '@/styles/fontSystem';
+import {
+  LocationType,
+  type LocationCategory,
+  LocationCategoryMeta,
+} from '@/pages/plan/utils/Category';
 import { CustomTimeInput } from './CustomTimeInput';
+import { type WaypointData } from '../canvasComponents/Waypoint';
+import { useAutosizeInput } from '../../hooks/useAutosizeInput';
+import { Handle, Position } from '@xyflow/react';
 
 function WaypointNode(props: any) {
-  const localStorageKey = `waypoint-data-${props.id}`;
-
-  const getInitialState = () => {
-    const savedData = localStorage.getItem(localStorageKey);
-    if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      return {
-        title: parsedData.title || '장소',
-        description: parsedData.description || '상세주소',
-        startTime: parsedData.startTime ? new Date(parsedData.startTime) : new Date(0, 0, 0, 10, 22),
-        endTime: parsedData.endTime ? new Date(parsedData.endTime) : new Date(0, 0, 0, 12, 22),
-        memo: parsedData.memo || '',
-        category: parsedData.category || 'Default',
-      };
-    }
-    return {
-        title: '장소',
-        description: '상세주소',
-        startTime: new Date(0, 0, 0, 10, 22),
-        endTime: new Date(0, 0, 0, 12, 22),
-        memo: '',
-        category: 'Default',
-    };
-  };
-
-  const [title, setTitle] = useState(getInitialState().title);
-  const [description, setDescription] = useState(getInitialState().description);
-  const [startTime, setStartTime] = useState<Date | null>(getInitialState().startTime);
-  const [endTime, setEndTime] = useState<Date | null>(getInitialState().endTime);
-  const [memo, setMemo] = useState(getInitialState().memo);
-  const [category, setCategory] = useState(getInitialState().category);
+  const [data, setData] = useState<WaypointData>({
+    id: 0,
+    title: '위치 제목',
+    description: '위치 설명',
+    address: '주소',
+    startTime: new Date(0, 0, 0, 0, 0),
+    endTime: new Date(0, 0, 0, 0, 0),
+    memoID: 0,
+    locationCategory: LocationType.DEFAULT.DEFAULT,
+    xPosition: 0,
+    yPosition: 0,
+  });
   const [isCategorySelectorOpen, setCategorySelectorOpen] = useState(false);
   const iconWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const dataToSave = { title, description, startTime, endTime, memo, category };
-    localStorage.setItem(localStorageKey, JSON.stringify(dataToSave));
-  }, [title, description, startTime, endTime, memo, category, localStorageKey]);
-  
+    console.log(`웹 소켓 데이터 전송`, data);
+  }, [data]);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-        if (iconWrapperRef.current && !iconWrapperRef.current.contains(event.target as Node)) {
-            setCategorySelectorOpen(false);
-        }
+      if (iconWrapperRef.current && !iconWrapperRef.current.contains(event.target as Node)) {
+        setCategorySelectorOpen(false);
+      }
     }
     if (isCategorySelectorOpen) {
-        document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isCategorySelectorOpen]);
 
-  const titleProps = useAutosizeInput(title);
-  const descriptionProps = useAutosizeInput(description);
-  
+  const handleDataChange = (field: keyof WaypointData, value: any) => {
+    setData((prev) => ({ ...prev, [field]: value }));
+  };
+
   const handleCategoryChange = (selectedCategory: string) => {
-    setCategory(selectedCategory);
+    handleDataChange('locationCategory', selectedCategory);
     setCategorySelectorOpen(false);
   };
 
+  const titleProps = useAutosizeInput(data.title);
+  const addressProps = useAutosizeInput(data.description);
+
   return (
-    <WaypointNodeContainer bgColor={categoryStyles[category].color}>
+    <WaypointNodeContainer bgColor={LocationCategoryMeta[data.locationCategory].color}>
+      <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
       <HorizontalLayout>
         <IconWrapper ref={iconWrapperRef}>
-            <IconPlaceholder onClick={() => setCategorySelectorOpen(prev => !prev)}>
-                {categoryStyles[category].icon}
-            </IconPlaceholder>
-            {isCategorySelectorOpen && (
-                 <CategoryDropdown>
-                    {locationCategories.map(cat => 
-                        <CategoryItem key={cat} onClick={() => handleCategoryChange(cat)}>
-                            {categoryStyles[cat].icon} {cat}
-                        </CategoryItem>
-                    )}
-                 </CategoryDropdown>
-            )}
+          <IconPlaceholder onClick={() => setCategorySelectorOpen((prev) => !prev)}>
+            {LocationCategoryMeta[data.locationCategory].icon}
+          </IconPlaceholder>
+          {isCategorySelectorOpen && (
+            <CategoryDropdown>
+              {Object.keys(LocationCategoryMeta).map((cat) => (
+                <CategoryItem
+                  key={cat}
+                  onClick={() => handleCategoryChange(cat as LocationCategory)}
+                >
+                  {LocationCategoryMeta[cat as LocationCategory].icon} {cat}
+                </CategoryItem>
+              ))}
+            </CategoryDropdown>
+          )}
         </IconWrapper>
         <VerticalLayout>
+          {/* 6. UI 요소들이 data state를 사용하도록 바인딩 수정 */}
           <Title
             as="input"
             type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={data.title}
+            onChange={(e) => handleDataChange('title', e.target.value)}
             className="nodrag"
             {...titleProps}
           />
           <HorizontalLayout>
-            <Description
+            <Address
               as="input"
               type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={data.address}
+              onChange={(e) => handleDataChange('address', e.target.value)}
               className="nodrag"
-              {...descriptionProps}
+              {...addressProps}
             />
             <TimeWrapper>
               <DatePicker
-                selected={startTime}
-                onChange={(date: Date|null) => setStartTime(date)}
+                selected={data.startTime}
+                onChange={(date: Date | null) => handleDataChange('startTime', date)}
                 showTimeSelect
                 showTimeSelectOnly
                 timeIntervals={1}
@@ -118,60 +113,60 @@ function WaypointNode(props: any) {
               />
               ~
               <DatePicker
-                selected={endTime}
-                onChange={(date: Date|null) => setEndTime(date)}
+                selected={data.endTime}
+                onChange={(date: Date | null) => handleDataChange('endTime', date)}
                 showTimeSelect
                 showTimeSelectOnly
-                timeIntervals={15}
+                timeIntervals={1}
                 timeCaption="Time"
                 dateFormat="HH:mm"
                 customInput={<CustomTimeInput />}
               />
             </TimeWrapper>
           </HorizontalLayout>
-          <MemoTextarea
+          <DescriptionArea
             placeholder="메모..."
             className="nodrag"
-            value={memo}
-            onChange={(e) => setMemo(e.target.value)}
+            value={data.description}
+            onChange={(e) => handleDataChange('description', e.target.value)}
           />
         </VerticalLayout>
       </HorizontalLayout>
+      <Handle type="source" position={Position.Bottom} style={{ background: '#555' }} />
     </WaypointNodeContainer>
   );
 }
 
 const IconWrapper = styled.div`
-    position: relative;
+  position: relative;
 `;
 
 const CategoryDropdown = styled.div`
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 8px;
-    z-index: 10;
-    width: 150px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  z-index: 10;
+  width: 150px;
 
-    background-color: white;
-    border: 1px solid ${colorSystem.tertiary_white._100};
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 4px;
+  background-color: white;
+  border: 1px solid ${colorSystem.tertiary_white._100};
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 4px;
 `;
 
 const CategoryItem = styled.div`
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    color: black;
-    font-size: 14px;
-    
-    &:hover {
-        background-color: ${colorSystem.tertiary_white._50};
-    }
-`;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: black;
+  font-size: 14px;
 
+  &:hover {
+    background-color: ${colorSystem.tertiary_white._50};
+  }
+`;
 
 const TimeWrapper = styled.div`
   display: flex;
@@ -220,12 +215,12 @@ const Title = styled.div`
   ${BaseInputStyles}
 `;
 
-const Description = styled.div`
+const Address = styled.div`
   ${fontSystem.body.small}
   ${BaseInputStyles}
 `;
 
-const MemoTextarea = styled.textarea`
+const DescriptionArea = styled.textarea`
   ${BaseInputStyles}
   ${fontSystem.body.small}
   margin-top: 4px;
@@ -233,7 +228,9 @@ const MemoTextarea = styled.textarea`
   width: 100%;
 `;
 
-const WaypointNodeContainer = styled.div<{ bgColor: string }>`
+const WaypointNodeContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'bgColor',
+})<{ bgColor: string }>`
   color: white;
   background-color: ${({ bgColor }) => bgColor};
   padding: 12px;
