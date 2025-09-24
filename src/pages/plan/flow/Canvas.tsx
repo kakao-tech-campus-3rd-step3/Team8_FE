@@ -40,7 +40,7 @@ function Canvas() {
           <Controls />
         </ReactFlow>
       </EditGuard>
-
+      
       <ControlBar addNode={addNode} />
     </CanvasWrapper>
   );

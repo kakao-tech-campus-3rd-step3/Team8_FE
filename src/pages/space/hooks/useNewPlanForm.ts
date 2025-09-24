@@ -2,13 +2,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { planSchema, type NewPlanFormInputs } from '../utils/planValidation';
 
-export const useNewPlanForm = ({
-  defaultValues,
-  onSubmit,
-}: {
-  defaultValues: object;
+type UseNewPlanFormProps = {
+  defaultValues?: NewPlanFormInputs;
   onSubmit: (data: NewPlanFormInputs) => void;
-}) => {
+};
+
+export const useNewPlanForm = ({ defaultValues, onSubmit }: UseNewPlanFormProps) => {
   const {
     register,
     handleSubmit,

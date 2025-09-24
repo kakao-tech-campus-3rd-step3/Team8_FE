@@ -16,7 +16,6 @@ import type { NewPlanFormInputs } from '@/pages/space/utils/planValidation';
 
 function NewPlanWindow({ closeModal }: ModalPropType) {
   const { register, handleSubmit, errors, isValid } = useNewPlanForm({
-    defaultValues: {},
     onSubmit: (data: NewPlanFormInputs) => {
       // todo: POST API 호출
       console.log('서버로 전송할 데이터:', data);
