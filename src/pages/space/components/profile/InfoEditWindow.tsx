@@ -1,5 +1,5 @@
 import type { ModalPropType } from '@/hooks/useModal';
-import type { MemberType } from '@/pages/space/types/member';
+import type { MemberType } from '@/types/member';
 import Close from '@/assets/icons/Close';
 import {
   CancelButton,
