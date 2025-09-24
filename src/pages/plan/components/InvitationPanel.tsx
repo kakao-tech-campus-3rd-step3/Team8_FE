@@ -5,33 +5,11 @@ import { fontSystem } from '@/styles/fontSystem';
 import Close from '@/assets/icons/Close';
 import type { User } from '../types/user';
 import { dummyUsers } from '../data/dummyUsers';
-
-function PlusIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 5V19" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M5 12H19" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function CollapseIcon({ isExpanded }: { isExpanded: boolean }) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      style={{ transform: isExpanded ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s' }}
-    >
-      <path d="M7 14l5-5 5 5H7z" fill="black" />
-    </svg>
-  );
-}
+import PlusIcon from './icons/PlusIcon';
+import CollapseIcon from './icons/CollapseIcon';
 
 function InvitationPanel() {
-  const [users, setUsers] = useState<User[]>(dummyUsers); 
+  const [users, setUsers] = useState<User[]>(dummyUsers);
   const [isExpanded, setIsExpanded] = useState(true);
 
   const removeUser = (id: number) => {
