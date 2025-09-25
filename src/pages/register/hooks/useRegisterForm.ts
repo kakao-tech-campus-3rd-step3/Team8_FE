@@ -19,9 +19,14 @@ export const useRegisterForm = () => {
 
   const onSubmit = async (data: RegisterFormInputs) => {
     try {
-      // confirmPassword 제외, mbti가 빈 값이면 제거
-      const { confirmPassword, mbti, ...rest } = data;
-      const payload = { ...rest, ...(mbti ? { mbti } : {}) };
+      // 서버 스펙: { name, contact, email, password, mbti }
+      // confirmPassword 제외, phone -> contact로 매핑(하이픈 제거), mbti 빈 값이면 제외
+      const { confirmPassword, mbti, phone, ...rest } = data;
+      const payload = {
+        ...rest, // name, email, password
+        contact: phone.replace(/-/g, ''),
+        ...(mbti ? { mbti } : {}),
+      };
 
       await axiosInstance.post(ENDPOINTS.members.signup, payload);
 
