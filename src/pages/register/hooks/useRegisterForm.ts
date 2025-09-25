@@ -2,6 +2,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, type RegisterFormInputs } from '@/pages/register/utils/registerValidation';
 import { useNavigate } from 'react-router-dom';
+import axiosInstance from '@/api/axiosInstance';
+import { ENDPOINTS } from '@/api/endpoints';
 
 export const useRegisterForm = () => {
   const navigate = useNavigate();
@@ -15,13 +17,19 @@ export const useRegisterForm = () => {
     mode: 'onChange',
   });
 
-  const onSubmit = (data: RegisterFormInputs) => {
-    // todo: 회원가입 API 호출
-    const { confirmPassword, ...submissionData } = data;
-    console.log('서버로 전송할 데이터:', submissionData);
+  const onSubmit = async (data: RegisterFormInputs) => {
+    try {
+      // confirmPassword 제외, mbti가 빈 값이면 제거
+      const { confirmPassword, mbti, ...rest } = data;
+      const payload = { ...rest, ...(mbti ? { mbti } : {}) };
 
-    alert('회원가입이 완료되었습니다!');
-    navigate('/login');
+      await axiosInstance.post(ENDPOINTS.members.signup, payload);
+
+      alert('회원가입이 완료되었습니다!');
+      navigate('/login');
+    } catch (e) {
+      console.error(e); //이후 에러핸들링 로직 추가 예정
+    }
   };
 
   return {
