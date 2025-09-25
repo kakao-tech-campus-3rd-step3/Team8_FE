@@ -26,11 +26,25 @@ const clearTokens = () => {
   localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
 };
 
+// 로그인/회원가입은 Authorization 헤더 제외 대상 (member권한 필요없음)
+const AUTH_EXCLUDED_PATHS = new Set<string>(['/v1/members/login', '/v1/members/signup']);
+
+function isAuthExcluded(url?: string) {
+  if (!url) return false;
+  try {
+    const u = url.startsWith('http') ? new URL(url) : new URL(url, API_BASE_URL);
+    return AUTH_EXCLUDED_PATHS.has(u.pathname);
+  } catch {
+    return false;
+  }
+}
+
 // 매 요청에 access token 헤더를 자동으로 붙임
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const access = getAccessToken();
-    if (access) {
+    const skipAuth = isAuthExcluded(config.url);
+    if (access && !skipAuth) {
       config.headers.Authorization = `Bearer ${access}`;
     }
     return config;
@@ -62,7 +76,7 @@ async function refreshAccessToken(): Promise<string | null> {
 
   try {
     const res = await axios.post(
-      `${API_BASE_URL}/auth/refresh`, // 리프레시 엔드포인트가 어떻게 될지 모르겠어서 임시로 이렇게 했습니다.
+      `${API_BASE_URL}/v1/members/refresh`, // 리프레시 엔드포인트 수정 완료
       { refreshToken: refresh }, // 이부분도 API 스펙에 맞게 조정 필요합니다.
       { headers: { 'Content-Type': 'application/json' } }
     );
