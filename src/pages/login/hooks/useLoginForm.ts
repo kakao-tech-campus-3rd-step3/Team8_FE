@@ -35,7 +35,6 @@ export const useLoginForm = () => {
       }
 
       if (!user) {
-        // 로그인 POST 응답에 user 정보가 있다면 이 부분은 삭제
         localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
         localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
         const me = await axiosInstance.get(ENDPOINTS.members.me);
