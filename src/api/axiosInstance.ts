@@ -8,12 +8,12 @@ import type {
 import { STORAGE_KEYS } from '@/utils/storageKeys';
 
 // 환경변수로 베이스 URL 관리
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'; // 로컬 테스트용 기본값 추가
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
-  withCredentials: false, // 서버가 쿠키 기반 리프레시를 쓴다면 true로 변경해야함
+  withCredentials: true, // 서버가 쿠키 기반 리프레시를 쓴다면 true로 변경해야함
 });
 
 // 토큰 관리 유틸

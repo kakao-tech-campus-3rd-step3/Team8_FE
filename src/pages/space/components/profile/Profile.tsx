@@ -5,26 +5,24 @@ import styled from 'styled-components';
 import InfoEditWindow from '@/pages/space/components/profile/InfoEditWindow';
 import type { MemberType } from '@/types/member';
 import PhotoEditWindow from '@/pages/space/components/profile/PhotoEditWindow';
+import { useQuery } from '@tanstack/react-query';
+import axiosInstance from '@/api/axiosInstance';
 
-const dummyProfileResponse = {
-  status: 200,
-  message: '내 정보를 불러왔습니다.',
-  member: {
-    id: 1234,
-    email: 'example@test.com',
-    name: '홍길동',
-    contact: '010-1234-1234',
-    mbti: 'ISTP',
-  } as MemberType,
+const fetchMemberInfo = async () => {
+  const response = await axiosInstance.get('v1/members/me'); // API 엔드포인트는 실제 주소에 맞게 수정해주세요
+  return response.data;
 };
 
 function Profile() {
-  const member = dummyProfileResponse.member;
+  const { data: memberData, isLoading, isError } = useQuery({
+    queryKey: ['memberInfo'],
+    queryFn: fetchMemberInfo
+  });
 
   const [infoModalWindow, openInfoModal] = useModal({
     ModalWindow: InfoEditWindow,
     modalProps: {
-      member,
+      member: memberData?.member, // useQuery로부터 받은 데이터 사용
     },
   });
 
@@ -32,6 +30,11 @@ function Profile() {
     ModalWindow: PhotoEditWindow,
   });
 
+  if (isLoading) return <div>로딩 중...</div>;
+  if (isError || !memberData) return <div>오류가 발생했습니다.</div>;
+
+  const member = memberData.member;
+  
   return (
     <>
       {photoModalWindow}
@@ -67,7 +70,6 @@ function Profile() {
   );
 }
 
-//==============<사진 섹션>==============
 
 const VerticalLayout = styled.div`
   display: flex;
@@ -90,9 +92,6 @@ const EditPictureButton = styled.button`
   background-color: transparent;
 `;
 
-//==============<사진 섹션>==============
-
-//==============<정보 섹션>==============
 
 const EditInfoButton = styled.button`
   margin-top: 16px;
@@ -122,7 +121,6 @@ const InfoSection = styled.div`
   gap: 12px;
 `;
 
-//==============<정보 섹션>==============
 
 const HorizontalLayout = styled.div`
   display: flex;
@@ -133,7 +131,6 @@ const HorizontalLayout = styled.div`
   gap: 16px;
 `;
 
-// 반응형 깨지는 해상도 가로 픽셀 하한선: 320px
 const ProfileWrapper = styled.div`
   min-width: calc(100% - 2 * 40px); // 좌우 padding 값
   padding: 40px;

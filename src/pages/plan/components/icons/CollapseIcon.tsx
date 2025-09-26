@@ -1,5 +1,3 @@
-import React from 'react';
-
 function CollapseIcon({ isExpanded }: { isExpanded: boolean }) {
   return (
     <svg
