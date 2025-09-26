@@ -24,7 +24,7 @@ export const useRegisterForm = () => {
       const { confirmPassword, mbti, phone, ...rest } = data;
       const payload = {
         ...rest, // name, email, password
-        contact: phone.replace(/-/g, ''),
+        contact: phone,
         ...(mbti ? { mbti } : {}),
       };
 
