@@ -1,13 +1,13 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, type RegisterFormInputs } from '@/pages/register/utils/registerValidation';
-import { useNavigate } from 'react-router-dom';
+import { usePageRouting } from '@/hooks/usePageRouting';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 import { useAuth } from '@/hooks/useAuth';
 
 export const useRegisterForm = () => {
-  const navigate = useNavigate();
+  const routing = usePageRouting();
   const { login } = useAuth();
 
   const {
@@ -38,10 +38,10 @@ export const useRegisterForm = () => {
         // 회원가입 후 자동 로그인 처리 (user 정보는 사용하지 않음)
         login({ accessToken, refreshToken });
         alert('회원가입이 완료되어 자동으로 로그인되었습니다.');
-        navigate('/');
+        routing.home();
       } else {
         alert('회원가입이 완료되었습니다. 로그인해 주세요.');
-        navigate('/login');
+        routing.login();
       }
     } catch (e) {
       console.error(e); //이후 에러핸들링 로직 추가 예정

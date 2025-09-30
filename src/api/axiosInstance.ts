@@ -27,13 +27,15 @@ const clearTokens = () => {
 };
 
 // 로그인/회원가입은 Authorization 헤더 제외 대상 (member권한 필요없음)
-const AUTH_EXCLUDED_PATHS = new Set<string>(['/v1/members/login', '/v1/members/signup']);
+const AUTH_EXCLUDED_LIST = ['/v1/members/login', '/v1/members/signup'] as const;
+type AuthExcludedPath = (typeof AUTH_EXCLUDED_LIST)[number];
+const AUTH_EXCLUDED_PATHS = new Set<AuthExcludedPath>(AUTH_EXCLUDED_LIST);
 
 function isAuthExcluded(url?: string) {
   if (!url) return false;
   try {
     const u = url.startsWith('http') ? new URL(url) : new URL(url, API_BASE_URL);
-    return AUTH_EXCLUDED_PATHS.has(u.pathname);
+    return AUTH_EXCLUDED_PATHS.has(u.pathname as AuthExcludedPath);
   } catch {
     return false;
   }
@@ -52,7 +54,7 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 응답이 401(만료/인증실패)이면 refresh 시도 후 원요청 재시도
+// 응답이 401(만료/인증실패)이면 refresh 시도 후 원래 요청 재시도
 let isRefreshing = false;
 let refreshSubscribers: Array<(token: string | null) => void> = [];
 
