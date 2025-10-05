@@ -46,7 +46,7 @@ function Canvas() {
 }
 
 const CanvasWrapper = styled.div`
-  height: 100vh;
+  height: calc(100vh - 98px);
   width: 100%;
 `;
 
