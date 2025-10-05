@@ -1,3 +1,11 @@
+/*======================<React flow custom edge>/*======================*/
+.button-edge__label {
+  position: absolute;
+  pointer-events: all;
+  z-index: 10;
+}
+/*======================<React flow custom edge>/*======================*/
+
 /*======================<Pretendard Font>/*======================*/
 @import url('/fonts/pretendard/pretendardvariable.css');
 body {

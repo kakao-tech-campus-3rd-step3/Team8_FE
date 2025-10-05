@@ -19,7 +19,7 @@ export function useCanvas() {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
   const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
+    (params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, type: 'route' }, eds)),
     [setEdges]
   );
 
