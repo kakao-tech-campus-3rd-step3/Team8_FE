@@ -6,7 +6,7 @@ import ExportModal from './components/ExportModal';
 import { useEffect, useState } from 'react';
 import { colorSystem } from '@/styles/colorSystem';
 import Canvas from './flow/Canvas';
-import useSocketHandler from './hooks/useSocketHandler';
+import { SocketProvider } from './context/SocketContext';
 
 function PlanPage() {
   const id = useParams().id ?? '-1';
@@ -25,46 +25,8 @@ function PlanPage() {
     setIsExportModalOpen(false);
   };
 
-  const { client } = useSocketHandler({ planId: parseInt(id) });
-
   return (
-    <>
-      <>
-        <button
-          onClick={() => {
-            client.publish({
-              destination: `/app/plans/${id}/waypoints/init`,
-            });
-            console.log('초기 데이터 요청 완료');
-          }}
-        >
-          Publish init
-        </button>
-        <button
-          onClick={() => {
-            const newWaypoint = {
-              name: '새로운 경유지',
-              description: '경유지에 대한 설명입니다.',
-              address: '대구광역시 중구 동성로 1',
-              startTime: new Date().toISOString(),
-              endTime: new Date(Date.now() + 3600 * 1000).toISOString(),
-              locationCategory: 'FOOD',
-              locationSubCategory: 'CAFE',
-              xPosition: 0,
-              yPosition: 0,
-            };
-
-            client.publish({
-              destination: `/app/plans/${id}/waypoints/create`,
-              body: JSON.stringify(newWaypoint),
-            });
-
-            console.log('Create 요청 메시지 발행 완료:', newWaypoint);
-          }}
-        >
-          Publish Create
-        </button>
-      </>
+    <SocketProvider planId={parseInt(id)}>
       <InvitationPanel />
       <TitleBar>
         <Title>일본여행</Title>
@@ -73,7 +35,7 @@ function PlanPage() {
       </TitleBar>
       {isExportModalOpen && <ExportModal onClose={handleCloseModal} />}
       <Canvas />
-    </>
+    </SocketProvider>
   );
 }
 
