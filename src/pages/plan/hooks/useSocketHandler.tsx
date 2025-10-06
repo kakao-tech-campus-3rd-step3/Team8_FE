@@ -2,12 +2,16 @@ import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { useEffect, useMemo } from 'react';
 import StompURL from '../utils/StompURL';
+import type { WayPointResponseType, WayPointCreateType } from '../types/WaypointResponseBodyType';
+import type { MemoCreateType, MemoResponseType } from '../types/MemoResponseBodyType';
 
 const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
 
 type useSocketHandlerType = {
   planId: number;
 };
+
+export const socketEventBus = new EventTarget();
 
 export default function useSocketHandler({ planId }: useSocketHandlerType) {
   const client = useMemo(
@@ -45,10 +49,24 @@ export default function useSocketHandler({ planId }: useSocketHandlerType) {
       }
     });
     client.subscribe(StompURL.SUB.WAYPOINT(planId), (message) => {
-      console.log('WAYPOINT 메시지:', JSON.parse(message.body));
+      const wpData: WayPointResponseType = JSON.parse(message.body);
+      console.log('WAYPOINT 메시지:', wpData);
+      switch (wpData.type) {
+        case 'WAYPOINT_CREATE':
+          const wpCreate = wpData as WayPointCreateType;
+          socketEventBus.dispatchEvent(new CustomEvent('WAYPOINT_CREATE', { detail: wpCreate }));
+          break;
+      }
     });
     client.subscribe(StompURL.SUB.MEMO(planId), (message) => {
-      console.log('MEMO 메시지:', JSON.parse(message.body));
+      const memoData: MemoResponseType = JSON.parse(message.body);
+      console.log('WAYPOINT 메시지:', memoData);
+      switch (memoData.type) {
+        case 'MEMO_CREATE':
+          const memoCreate = memoData as MemoCreateType;
+          socketEventBus.dispatchEvent(new CustomEvent('MEMO_CREATE', { detail: memoCreate }));
+          break;
+      }
     });
     client.subscribe(StompURL.SUB.ROUTE(planId), (message) => {
       console.log('ROUTE 메시지:', JSON.parse(message.body));

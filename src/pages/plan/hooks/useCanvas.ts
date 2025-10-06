@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   addEdge,
   useEdgesState,
@@ -10,6 +10,9 @@ import {
 import type { WaypointData } from '../flow/canvasComponents/Waypoint';
 import type { MemoData } from '../flow/canvasComponents/Memo';
 import type { ArrowData } from '../flow/canvasComponents/Arrow';
+import { socketEventBus } from '../hooks/useSocketHandler';
+import type { WayPointCreateType } from '../types/WaypointResponseBodyType';
+import type { MemoCreateType } from '../types/MemoResponseBodyType';
 
 export type WaypointNodeType = Node<WaypointData, 'waypoint'>;
 export type MemoNodeType = Node<MemoData, 'memo'>;
@@ -56,7 +59,7 @@ export function useCanvas() {
             position: { x: Math.random() * 400, y: Math.random() * 400 },
             data: {
               id: 0,
-              title: '새 위치',
+              name: '새 위치',
               description: '설명',
               address: '주소',
               startTime: new Date(),
@@ -87,6 +90,54 @@ export function useCanvas() {
     },
     [setNodes]
   );
+
+  useEffect(() => {
+    function handleWaypointCreate(e: Event) {
+      const { detail } = e as CustomEvent<WayPointCreateType>;
+      const newWp = detail.waypoint;
+
+      setNodes((nds) => [
+        ...nds,
+        {
+          id: String(newWp.id),
+          type: 'waypoint',
+          position: { x: newWp.xPosition, y: newWp.yPosition },
+          data: {
+            ...newWp,
+          },
+        },
+      ]);
+    }
+
+    socketEventBus.addEventListener('WAYPOINT_CREATE', handleWaypointCreate);
+    return () => {
+      socketEventBus.removeEventListener('WAYPOINT_CREATE', handleWaypointCreate);
+    };
+  }, [setNodes]);
+
+  useEffect(() => {
+    function handleMemoCreate(e: Event) {
+      const { detail } = e as CustomEvent<MemoCreateType>;
+      const newMemo = detail.memo;
+
+      setNodes((nds) => [
+        ...nds,
+        {
+          id: String(newMemo.id),
+          type: 'memo',
+          position: { x: newMemo.xPosition, y: newMemo.yPosition },
+          data: {
+            ...newMemo,
+          },
+        },
+      ]);
+    }
+
+    socketEventBus.addEventListener('MEMO_CREATE', handleMemoCreate);
+    return () => {
+      socketEventBus.removeEventListener('MEMO_CREATE', handleMemoCreate);
+    };
+  }, [setNodes]);
 
   return {
     nodes,

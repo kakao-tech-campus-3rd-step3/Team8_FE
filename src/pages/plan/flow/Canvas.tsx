@@ -13,7 +13,7 @@ import { edgeTypes } from './edgeTypes';
 function Canvas() {
   const canEdit = !isMobile;
 
-  const { nodes, onNodesChange, edges, onEdgesChange, onConnect, addNode } = useCanvas();
+  const { nodes, onNodesChange, edges, onEdgesChange, onConnect } = useCanvas();
 
   return (
     <CanvasWrapper>
@@ -42,7 +42,7 @@ function Canvas() {
         </ReactFlow>
       </EditGuard>
 
-      <ControlBar addNode={addNode} />
+      <ControlBar />
     </CanvasWrapper>
   );
 }
