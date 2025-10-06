@@ -15,12 +15,13 @@ export default function useSocketHandler({ planId }: useSocketHandlerType) {
       new Client({
         webSocketFactory: () => new SockJS(`${API_BASE_URL}/ws`),
         onConnect: () => {
-          console.log('연결 성공');
           subscribeAll();
+          initAll();
+          console.log('Stomp 연결 성공');
         },
-        debug: (str) => {
-          console.log(new Date(), str);
-        },
+        // debug: (str) => {
+        //   console.log(new Date(), str);
+        // },
       }),
     [planId]
   );
@@ -55,6 +56,19 @@ export default function useSocketHandler({ planId }: useSocketHandlerType) {
     client.subscribe(StompURL.SUB.TRAVELER(planId), (message) => {
       console.log('TRAVELER 메시지:', JSON.parse(message.body));
     });
+  }
+
+  function initAll() {
+    client.publish({
+      destination: StompURL.PUB.WAYPOINT.INIT(planId),
+    });
+    client.publish({
+      destination: StompURL.PUB.MEMO.INIT(planId),
+    });
+    client.publish({
+      destination: StompURL.PUB.ROUTE.INIT(planId),
+    });
+    //TRAVELER init 작업 추후에 수행
   }
 
   useEffect(() => {
