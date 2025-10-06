@@ -4,11 +4,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
-import {
-  LocationType,
-  type LocationCategory,
-  LocationCategoryMeta,
-} from '@/pages/plan/utils/Category';
+import { type LocationCategory, LocationCategoryMeta } from '@/pages/plan/utils/Category';
 import { CustomTimeInput } from './CustomTimeInput';
 import { type WaypointData } from '../canvasComponents/Waypoint';
 import { useAutosizeInput } from '../../hooks/useAutosizeInput';
@@ -50,7 +46,7 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
     setCategorySelectorOpen(false);
   };
 
-  const titleProps = useAutosizeInput(data.title);
+  const nameProps = useAutosizeInput(data.name);
   const addressProps = useAutosizeInput(data.description);
 
   return (
@@ -76,13 +72,13 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
         </IconWrapper>
         <VerticalLayout>
           {/* 6. UI 요소들이 data state를 사용하도록 바인딩 수정 */}
-          <Title
+          <Name
             as="input"
             type="text"
-            value={data.title}
-            onChange={(e) => handleDataChange('title', e.target.value)}
+            value={data.name}
+            onChange={(e) => handleDataChange('name', e.target.value)}
             className="nodrag"
-            {...titleProps}
+            {...nameProps}
           />
           <HorizontalLayout>
             <Address
@@ -203,7 +199,7 @@ const BaseInputStyles = `
   min-width: 50px;
 `;
 
-const Title = styled.div`
+const Name = styled.div`
   ${fontSystem.title.xlarge}
   ${BaseInputStyles}
 `;
