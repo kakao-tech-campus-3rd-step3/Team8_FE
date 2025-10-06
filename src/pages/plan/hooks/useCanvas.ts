@@ -77,9 +77,9 @@ export function useCanvas() {
             position: { x: Math.random() * 400, y: Math.random() * 400 },
             data: {
               title: '새 메모',
-              text: '',
-              Xposition: 0,
-              Yposition: 0,
+              content: '',
+              xPosition: 0,
+              yPosition: 0,
             },
           },
         ]);
