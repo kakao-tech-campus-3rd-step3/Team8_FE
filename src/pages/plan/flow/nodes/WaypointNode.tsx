@@ -12,22 +12,10 @@ import {
 import { CustomTimeInput } from './CustomTimeInput';
 import { type WaypointData } from '../canvasComponents/Waypoint';
 import { useAutosizeInput } from '../../hooks/useAutosizeInput';
-import { Handle, Position } from '@xyflow/react';
+import { Handle, Position, useReactFlow } from '@xyflow/react';
 
-// props로 data 받아올 수 있습니다.
-function WaypointNode() {
-  const [data, setData] = useState<WaypointData>({
-    id: 0,
-    title: '위치 제목',
-    description: '위치 설명',
-    address: '주소',
-    startTime: new Date(0, 0, 0, 0, 0),
-    endTime: new Date(0, 0, 0, 0, 0),
-    memoID: 0,
-    locationCategory: LocationType.DEFAULT.DEFAULT,
-    xPosition: 0,
-    yPosition: 0,
-  });
+function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
+  const { setNodes } = useReactFlow();
   const [isCategorySelectorOpen, setCategorySelectorOpen] = useState(false);
   const iconWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -50,7 +38,11 @@ function WaypointNode() {
   }, [isCategorySelectorOpen]);
 
   const handleDataChange = (field: keyof WaypointData, value: any) => {
-    setData((prev) => ({ ...prev, [field]: value }));
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === id ? { ...node, data: { ...node.data, [field]: value } } : node
+      )
+    );
   };
 
   const handleCategoryChange = (selectedCategory: string) => {
