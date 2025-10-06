@@ -9,17 +9,37 @@ import {
 } from '@xyflow/react';
 import type { WaypointData } from '../flow/canvasComponents/Waypoint';
 import type { MemoData } from '../flow/canvasComponents/Memo';
+import type { ArrowData } from '../flow/canvasComponents/Arrow';
 
-export type WaypointNode = Node<WaypointData, 'waypoint'>;
-export type MemoNode = Node<MemoData, 'memo'>;
-export type CanvasNode = WaypointNode | MemoNode;
+export type WaypointNodeType = Node<WaypointData, 'waypoint'>;
+export type MemoNodeType = Node<MemoData, 'memo'>;
+export type CanvasNodes = WaypointNodeType | MemoNodeType;
+export type RouteEdgeType = Edge<ArrowData, 'route'>;
+export type CanvasEdges = RouteEdgeType;
 
 export function useCanvas() {
-  const [nodes, setNodes, onNodesChange] = useNodesState<CanvasNode>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<CanvasNodes>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<CanvasEdges>([]);
 
   const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((eds) => addEdge({ ...params, type: 'route' }, eds)),
+    (params: Connection) =>
+      setEdges((eds) =>
+        addEdge<RouteEdgeType>(
+          {
+            ...params,
+            type: 'route',
+            data: {
+              startId: -1,
+              endId: -1,
+              title: '새 경로',
+              description: '',
+              duration: 0,
+              transportationCategory: 'DEFAULT',
+            },
+          },
+          eds
+        )
+      ),
     [setEdges]
   );
 
