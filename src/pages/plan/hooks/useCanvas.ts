@@ -57,8 +57,8 @@ export function useCanvas() {
             data: {
               id: 0,
               title: '새 위치',
-              description: '',
-              address: '',
+              description: '설명',
+              address: '주소',
               startTime: new Date(),
               endTime: new Date(),
               memoID: 0,
