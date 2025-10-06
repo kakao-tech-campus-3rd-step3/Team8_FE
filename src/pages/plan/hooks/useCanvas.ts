@@ -119,7 +119,6 @@ export function useCanvas() {
     function handleMemoCreate(e: Event) {
       const { detail } = e as CustomEvent<MemoCreateType>;
       const newMemo = detail.memo;
-
       setNodes((nds) => [
         ...nds,
         {

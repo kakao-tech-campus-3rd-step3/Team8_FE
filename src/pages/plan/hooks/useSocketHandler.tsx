@@ -2,8 +2,12 @@ import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { useEffect, useMemo } from 'react';
 import StompURL from '../utils/StompURL';
-import type { WayPointResponseType, WayPointCreateType } from '../types/WaypointResponseBodyType';
-import type { MemoCreateType, MemoResponseType } from '../types/MemoResponseBodyType';
+import type {
+  WayPointResponseType,
+  WayPointCreateType,
+  WayPointInitType,
+} from '../types/WaypointResponseBodyType';
+import type { MemoCreateType, MemoInitType, MemoResponseType } from '../types/MemoResponseBodyType';
 
 const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
 
@@ -52,6 +56,15 @@ export default function useSocketHandler({ planId }: useSocketHandlerType) {
       const wpData: WayPointResponseType = JSON.parse(message.body);
       console.log('WAYPOINT 메시지:', wpData);
       switch (wpData.type) {
+        case 'WAYPOINT_INIT':
+          const wpInit = wpData as WayPointInitType;
+          for (let i = 0; i < wpInit.waypoints.length; i++) {
+            const waypoint = wpInit.waypoints[i];
+            socketEventBus.dispatchEvent(
+              new CustomEvent('WAYPOINT_CREATE', { detail: { waypoint } })
+            );
+          }
+          break;
         case 'WAYPOINT_CREATE':
           const wpCreate = wpData as WayPointCreateType;
           socketEventBus.dispatchEvent(new CustomEvent('WAYPOINT_CREATE', { detail: wpCreate }));
@@ -62,6 +75,13 @@ export default function useSocketHandler({ planId }: useSocketHandlerType) {
       const memoData: MemoResponseType = JSON.parse(message.body);
       console.log('WAYPOINT 메시지:', memoData);
       switch (memoData.type) {
+        case 'MEMO_INIT':
+          const memoInit = memoData as MemoInitType;
+          for (let i = 0; i < memoInit.memos.length; i++) {
+            const memo = memoInit.memos[i];
+            socketEventBus.dispatchEvent(new CustomEvent('MEMO_CREATE', { detail: { memo } }));
+          }
+          break;
         case 'MEMO_CREATE':
           const memoCreate = memoData as MemoCreateType;
           socketEventBus.dispatchEvent(new CustomEvent('MEMO_CREATE', { detail: memoCreate }));
