@@ -99,7 +99,7 @@ export function useCanvas() {
       setNodes((nds) => [
         ...nds,
         {
-          id: String(newWp.id),
+          id: `waypoint:${newWp.id}`,
           type: 'waypoint',
           position: { x: newWp.xPosition, y: newWp.yPosition },
           data: {
@@ -122,7 +122,7 @@ export function useCanvas() {
       setNodes((nds) => [
         ...nds,
         {
-          id: String(newMemo.id),
+          id: `memo:${newMemo.id}`,
           type: 'memo',
           position: { x: newMemo.xPosition, y: newMemo.yPosition },
           data: {
