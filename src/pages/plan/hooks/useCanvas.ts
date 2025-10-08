@@ -94,7 +94,7 @@ export function useCanvas() {
   useEffect(() => {
     function handleWaypointCreate(e: Event) {
       const { detail } = e as CustomEvent<WayPointCreateType>;
-      const newWp = detail.waypoint;
+      const newWp = detail.WAYPOINT;
 
       setNodes((nds) => [
         ...nds,
@@ -118,7 +118,8 @@ export function useCanvas() {
   useEffect(() => {
     function handleMemoCreate(e: Event) {
       const { detail } = e as CustomEvent<MemoCreateType>;
-      const newMemo = detail.memo;
+      const newMemo = detail.MEMO;
+
       setNodes((nds) => [
         ...nds,
         {

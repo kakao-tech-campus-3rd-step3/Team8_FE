@@ -1,15 +1,15 @@
 import { type WaypointData } from '../flow/canvasComponents/Waypoint';
 
 export type WayPointResponseType = {
-  type: `WAYPOINT_CREATE` | `WAYPOINT_INIT`;
+  type: `CREATE` | `INIT`;
 };
 
 export type WayPointCreateType = {
-  type: 'WAYPOINT_CREATE';
-  waypoint: WaypointData;
+  type: 'CREATE';
+  WAYPOINT: WaypointData;
 };
 
 export type WayPointInitType = {
-  type: 'WAYPOINT_INIT';
-  waypoints: WaypointData[];
+  type: 'INIT';
+  WAYPOINT: WaypointData[];
 };
