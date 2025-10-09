@@ -7,34 +7,38 @@ import type { MemberType } from '@/types/member';
 import PhotoEditWindow from '@/pages/space/components/profile/PhotoEditWindow';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
+import { ENDPOINTS } from '@/api/endpoints';
 
-const fetchMemberInfo = async () => {
-  const response = await axiosInstance.get('v1/members/me'); // API 엔드포인트는 실제 주소에 맞게 수정해주세요
-  return response.data;
+const fetchMemberInfo = async (): Promise<MemberType> => {
+  const { data } = await axiosInstance.get<{ member: MemberType }>(ENDPOINTS.members.me);
+  return data.member;
 };
 
 function Profile() {
-  const { data: memberData, isLoading, isError } = useQuery({
+  const { data: member, isLoading, isError } = useQuery({
     queryKey: ['memberInfo'],
-    queryFn: fetchMemberInfo
-  });
-
-  const [infoModalWindow, openInfoModal] = useModal({
-    ModalWindow: InfoEditWindow,
-    modalProps: {
-      member: memberData?.member, // useQuery로부터 받은 데이터 사용
-    },
+    queryFn: fetchMemberInfo,
   });
 
   const [photoModalWindow, openPhotoModal] = useModal({
     ModalWindow: PhotoEditWindow,
   });
 
-  if (isLoading) return <div>로딩 중...</div>;
-  if (isError || !memberData) return <div>오류가 발생했습니다.</div>;
+  const [infoModalWindow, openInfoModal] = useModal(
+    member
+      ? {
+          ModalWindow: InfoEditWindow,
+          modalProps: {
+            member,
+          },
+        }
+      : { ModalWindow: () => null },
+  );
 
-  const member = memberData.member;
-  
+  if (isLoading) return <ProfileWrapper>프로필 로딩 중...</ProfileWrapper>;
+  if (isError) return <ProfileWrapper>프로필을 불러오는데 실패했습니다.</ProfileWrapper>;
+  if (!member) return <ProfileWrapper>프로필 데이터가 없습니다.</ProfileWrapper>;
+
   return (
     <>
       {photoModalWindow}
@@ -70,6 +74,7 @@ function Profile() {
   );
 }
 
+//==============<사진 섹션>==============
 
 const VerticalLayout = styled.div`
   display: flex;
@@ -92,6 +97,9 @@ const EditPictureButton = styled.button`
   background-color: transparent;
 `;
 
+//==============<사진 섹션>==============
+
+//==============<정보 섹션>==============
 
 const EditInfoButton = styled.button`
   margin-top: 16px;
@@ -121,6 +129,7 @@ const InfoSection = styled.div`
   gap: 12px;
 `;
 
+//==============<정보 섹션>==============
 
 const HorizontalLayout = styled.div`
   display: flex;
@@ -131,6 +140,7 @@ const HorizontalLayout = styled.div`
   gap: 16px;
 `;
 
+// 반응형 깨지는 해상도 가로 픽셀 하한선: 320px
 const ProfileWrapper = styled.div`
   min-width: calc(100% - 2 * 40px); // 좌우 padding 값
   padding: 40px;

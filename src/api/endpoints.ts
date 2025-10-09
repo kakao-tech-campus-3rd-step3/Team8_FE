@@ -6,6 +6,10 @@ export const ENDPOINTS = {
     signup: `${API_PREFIX}/members/signup`,
     me: `${API_PREFIX}/members/me`,
   },
+  plans: {
+    base: `${API_PREFIX}/plans`,
+    byId: (id: number | string) => `${API_PREFIX}/plans/${id}`,
+  },
 } as const;
 
 export type Endpoints = typeof ENDPOINTS;
