@@ -47,7 +47,7 @@ function WaypointNode() {
     };
   }, [isCategorySelectorOpen]);
 
-  const handleDataChange = (field: keyof WaypointData, value: any) => {
+  const handleDataChange = <K extends keyof WaypointData>(field: K, value: WaypointData[K]) => {
     setData((prev) => ({ ...prev, [field]: value }));
   };
 
