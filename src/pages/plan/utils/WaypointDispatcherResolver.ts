@@ -3,6 +3,7 @@ import type {
   WayPointCreateType,
   WayPointInitType,
   WayPointResponseType,
+  WayPointUpdateType,
 } from '../types/WaypointResponseBodyType';
 
 export function WaypointDispatcherResolver(message: any) {
@@ -22,6 +23,12 @@ export function WaypointDispatcherResolver(message: any) {
       const wpCreate = (wpData as WayPointCreateType).WAYPOINT;
       socketEventBus.dispatchEvent(
         new CustomEvent('WAYPOINT_CREATE', { detail: { WAYPOINT: { ...wpCreate } } })
+      );
+      break;
+    case 'UPDATE':
+      const wpUpdate = (wpData as WayPointUpdateType).WAYPOINT;
+      socketEventBus.dispatchEvent(
+        new CustomEvent('WAYPOINT_UPDATE', { detail: { WAYPOINT: { ...wpUpdate } } })
       );
       break;
   }

@@ -11,7 +11,7 @@ import type { WaypointData } from '../flow/canvasComponents/Waypoint';
 import type { MemoData } from '../flow/canvasComponents/Memo';
 import type { ArrowData } from '../flow/canvasComponents/Arrow';
 import { socketEventBus } from '../hooks/useSocketHandler';
-import type { WayPointCreateType } from '../types/WaypointResponseBodyType';
+import type { WayPointCreateType, WayPointUpdateType } from '../types/WaypointResponseBodyType';
 import type { MemoCreateType } from '../types/MemoResponseBodyType';
 
 export type WaypointNodeType = Node<WaypointData, 'waypoint'>;
@@ -112,6 +112,42 @@ export function useCanvas() {
     socketEventBus.addEventListener('WAYPOINT_CREATE', handleWaypointCreate);
     return () => {
       socketEventBus.removeEventListener('WAYPOINT_CREATE', handleWaypointCreate);
+    };
+  }, [setNodes]);
+
+  useEffect(() => {
+    function handleWaypointUpdate(e: Event) {
+      const { detail } = e as CustomEvent<WayPointUpdateType>;
+      const newWp = detail.WAYPOINT;
+
+      setNodes((nds) => {
+        const nodeId = `waypoint:${newWp.id}`;
+        const existingNode = nds.find((node) => node.id === nodeId);
+
+        if (!existingNode) {
+          console.error('정보를 동기화하는 과정에서 문제가 있었습니다.');
+        }
+
+        return nds.map((node) =>
+          node.id === nodeId
+            ? ({
+                ...node,
+                position: {
+                  x: newWp.xPosition ?? node.position.x,
+                  y: newWp.yPosition ?? node.position.y,
+                },
+                data: {
+                  ...newWp,
+                },
+              } as WaypointNodeType)
+            : node
+        );
+      });
+    }
+
+    socketEventBus.addEventListener('WAYPOINT_UPDATE', handleWaypointUpdate);
+    return () => {
+      socketEventBus.removeEventListener('WAYPOINT_UPDATE', handleWaypointUpdate);
     };
   }, [setNodes]);
 
