@@ -13,6 +13,8 @@ import type { ArrowData } from '../flow/canvasComponents/Arrow';
 import { socketEventBus } from '../hooks/useSocketHandler';
 import type { WayPointCreateType, WayPointUpdateType } from '../types/WaypointResponseBodyType';
 import type { MemoCreateType } from '../types/MemoResponseBodyType';
+import { useSocket } from './useSocket';
+import StompURL from '../utils/StompURL';
 
 export type WaypointNodeType = Node<WaypointData, 'waypoint'>;
 export type MemoNodeType = Node<MemoData, 'memo'>;
@@ -175,6 +177,26 @@ export function useCanvas() {
     };
   }, [setNodes]);
 
+  const { planId, client } = useSocket();
+
+  const onNodeDragStop = (event: React.MouseEvent, node: CanvasNodes) => {
+    switch (node.type) {
+      case 'waypoint':
+        client.publish({
+          destination: StompURL.PUB.WAYPOINT.UPDATE(planId, node.data.id),
+          body: JSON.stringify({
+            ...node.data,
+            xPosition: node.position.x,
+            yPosition: node.position.y,
+          } as WaypointData),
+        });
+        break;
+      case 'memo':
+        // TBD
+        break;
+    }
+  };
+
   return {
     nodes,
     setNodes,
@@ -184,5 +206,6 @@ export function useCanvas() {
     onEdgesChange,
     onConnect,
     addNode,
+    onNodeDragStop,
   };
 }
