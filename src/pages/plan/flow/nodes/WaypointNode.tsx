@@ -9,11 +9,14 @@ import { CustomTimeInput } from './CustomTimeInput';
 import { type WaypointData } from '../canvasComponents/Waypoint';
 import { useAutosizeInput } from '../../hooks/useAutosizeInput';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
+import { useDataSyncWaypoint } from '../../hooks/useDataSyncWaypoint';
 
 function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
   const { setNodes } = useReactFlow();
   const [isCategorySelectorOpen, setCategorySelectorOpen] = useState(false);
   const iconWrapperRef = useRef<HTMLDivElement>(null);
+
+  useDataSyncWaypoint({ data });
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
