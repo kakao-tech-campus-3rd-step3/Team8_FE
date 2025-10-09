@@ -16,10 +16,6 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
   const iconWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log(`웹 소켓 데이터 전송`, data);
-  }, [data]);
-
-  useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (iconWrapperRef.current && !iconWrapperRef.current.contains(event.target as Node)) {
         setCategorySelectorOpen(false);
@@ -91,7 +87,7 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
             />
             <TimeWrapper>
               <DatePicker
-                selected={data.startTime}
+                selected={new Date(data.startTime)}
                 onChange={(date: Date | null) => handleDataChange('startTime', date)}
                 showTimeSelect
                 showTimeSelectOnly
@@ -102,7 +98,7 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
               />
               ~
               <DatePicker
-                selected={data.endTime}
+                selected={new Date(data.endTime)}
                 onChange={(date: Date | null) => handleDataChange('endTime', date)}
                 showTimeSelect
                 showTimeSelectOnly
