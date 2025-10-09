@@ -8,15 +8,14 @@ import { type LocationCategory, LocationCategoryMeta } from '@/pages/plan/utils/
 import { CustomTimeInput } from './CustomTimeInput';
 import { type WaypointData } from '../canvasComponents/Waypoint';
 import { useAutosizeInput } from '../../hooks/useAutosizeInput';
-import { Handle, Position, useReactFlow } from '@xyflow/react';
+import { Handle, Position } from '@xyflow/react';
 import { useDataSyncWaypoint } from '../../hooks/useDataSyncWaypoint';
 
 function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
-  const { setNodes } = useReactFlow();
   const [isCategorySelectorOpen, setCategorySelectorOpen] = useState(false);
   const iconWrapperRef = useRef<HTMLDivElement>(null);
 
-  useDataSyncWaypoint({ data });
+  const { handleLocalDataChange } = useDataSyncWaypoint({ id, data });
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -32,16 +31,8 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
     };
   }, [isCategorySelectorOpen]);
 
-  const handleDataChange = (field: keyof WaypointData, value: any) => {
-    setNodes((nds) =>
-      nds.map((node) =>
-        node.id === id ? { ...node, data: { ...node.data, [field]: value } } : node
-      )
-    );
-  };
-
   const handleCategoryChange = (selectedCategory: string) => {
-    handleDataChange('locationCategory', selectedCategory);
+    handleLocalDataChange('locationCategory', selectedCategory);
     setCategorySelectorOpen(false);
   };
 
@@ -75,7 +66,7 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
             as="input"
             type="text"
             value={data.name}
-            onChange={(e) => handleDataChange('name', e.target.value)}
+            onChange={(e) => handleLocalDataChange('name', e.target.value)}
             className="nodrag"
             {...nameProps}
           />
@@ -84,14 +75,14 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
               as="input"
               type="text"
               value={data.address}
-              onChange={(e) => handleDataChange('address', e.target.value)}
+              onChange={(e) => handleLocalDataChange('address', e.target.value)}
               className="nodrag"
               {...addressProps}
             />
             <TimeWrapper>
               <DatePicker
                 selected={new Date(data.startTime)}
-                onChange={(date: Date | null) => handleDataChange('startTime', date)}
+                onChange={(date: Date | null) => handleLocalDataChange('startTime', date)}
                 showTimeSelect
                 showTimeSelectOnly
                 timeIntervals={1}
@@ -102,7 +93,7 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
               ~
               <DatePicker
                 selected={new Date(data.endTime)}
-                onChange={(date: Date | null) => handleDataChange('endTime', date)}
+                onChange={(date: Date | null) => handleLocalDataChange('endTime', date)}
                 showTimeSelect
                 showTimeSelectOnly
                 timeIntervals={1}
@@ -116,7 +107,7 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
             placeholder="메모..."
             className="nodrag"
             value={data.description}
-            onChange={(e) => handleDataChange('description', e.target.value)}
+            onChange={(e) => handleLocalDataChange('description', e.target.value)}
           />
         </VerticalLayout>
       </HorizontalLayout>
