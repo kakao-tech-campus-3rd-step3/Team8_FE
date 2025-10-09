@@ -179,7 +179,7 @@ export function useCanvas() {
 
   const { planId, client } = useSocket();
 
-  const onNodeDragStop = (event: React.MouseEvent, node: CanvasNodes) => {
+  const onNodeDragStop = (_event: React.MouseEvent, node: CanvasNodes) => {
     switch (node.type) {
       case 'waypoint':
         client.publish({
