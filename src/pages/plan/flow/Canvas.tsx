@@ -40,10 +40,9 @@ function Canvas() {
         >
           <Background />
           <Controls />
+          <ControlBar />
         </ReactFlow>
       </EditGuard>
-
-      <ControlBar />
     </CanvasWrapper>
   );
 }

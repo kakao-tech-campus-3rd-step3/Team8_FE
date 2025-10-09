@@ -4,11 +4,24 @@ import NoteAlt from '@/assets/icons/NoteAlt';
 import { useSocket } from '../context/SocketContext';
 import StompURL from '../utils/StompURL';
 import type { MemoData } from '../flow/canvasComponents/Memo';
+import { useViewport } from '@xyflow/react';
 
 function ControlBar() {
   const { client, planId } = useSocket();
+  const { x, y, zoom } = useViewport();
+
+  const getCenter = () => {
+    const screenCenter = {
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+    };
+    const canvasX = (screenCenter.x - x) / zoom;
+    const canvasY = (screenCenter.y - y) / zoom;
+    return { x: canvasX, y: canvasY };
+  };
 
   const createNewWaypoint = () => {
+    const { x, y } = getCenter();
     const newWaypoint = {
       name: '새 위치',
       description: '설명',
@@ -17,8 +30,8 @@ function ControlBar() {
       endTime: new Date(Date.now() + 3600 * 1000).toISOString(),
       locationCategory: 'DEFAULT',
       locationSubCategory: 'DEFAULT',
-      xPosition: 0,
-      yPosition: 0,
+      xPosition: x,
+      yPosition: y,
     };
 
     client.publish({
@@ -28,11 +41,12 @@ function ControlBar() {
   };
 
   const createNewMemo = () => {
+    const { x, y } = getCenter();
     const newMemo: MemoData = {
       title: '새 메모',
       content: '내용',
-      xPosition: 0,
-      yPosition: 0,
+      xPosition: x,
+      yPosition: y,
     };
 
     client.publish({
@@ -64,6 +78,7 @@ const ControlBarWrapper = styled.div`
   padding: 10px 20px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 4;
 `;
 
 const NewNodeButton = styled.button`
