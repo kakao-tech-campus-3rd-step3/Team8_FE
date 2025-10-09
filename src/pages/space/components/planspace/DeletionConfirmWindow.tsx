@@ -4,11 +4,30 @@ import { styled } from 'styled-components';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
 import type { PlanType } from '../../types/plan';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axiosInstance from '@/api/axiosInstance';
+import { ENDPOINTS } from '@/api/endpoints';
+
+const deletePlanApi = async (planId: number) => {
+  const response = await axiosInstance.delete(ENDPOINTS.plans.byId(planId));
+  return response.data;
+};
 
 function DeletionConfirmWindow({ closeModal, plan }: ModalPropType & { plan: PlanType }) {
-  const deletePlan = () => {
-    console.log(`API call for deleting plan ${plan.id}`);
-    closeModal();
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: deletePlanApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['plans'] });
+      closeModal();
+    },
+    onError: () => {
+      alert('삭제에 실패했습니다.');
+    },
+  });
+
+  const handleDelete = () => {
+    mutation.mutate(plan.id);
   };
 
   return (
@@ -29,7 +48,9 @@ function DeletionConfirmWindow({ closeModal, plan }: ModalPropType & { plan: Pla
       </PlanWrapper>
 
       <ControlBar>
-        <DeleteButton onClick={deletePlan}>삭제</DeleteButton>
+        <DeleteButton onClick={handleDelete} disabled={mutation.isPending}>
+          {mutation.isPending ? '삭제 중...' : '삭제'}
+        </DeleteButton>
         <CancelButton onClick={closeModal}>취소</CancelButton>
       </ControlBar>
     </ModalWindowWrapper>
@@ -95,6 +116,10 @@ const DeleteButton = styled.button`
 
   transition: all 0.25s;
   cursor: pointer;
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 `;
 
 const CancelButton = styled.button`
