@@ -12,7 +12,6 @@ const fetchPlans = async (): Promise<PlanType[]> => {
   const response = await axiosInstance.get<{ plans: PlanType[] }>(ENDPOINTS.plans.base);
   console.log('📦 fetchPlans response:', response.data);
 
-  // ✅ 반드시 undefined가 아닌 배열을 반환해야 함
   return response.data?.plans ?? [];
 };
 

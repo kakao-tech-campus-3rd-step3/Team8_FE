@@ -13,7 +13,6 @@ const fetchMemberInfo = async (): Promise<MemberType> => {
   const response = await axiosInstance.get<{ member?: MemberType }>(ENDPOINTS.members.me);
   console.log('👤 fetchMemberInfo response:', response.data);
 
-  // member가 없을 경우 빈 객체나 기본값 반환 (undefined 방지)
   return response.data?.member ?? {} as MemberType;
 };
 

@@ -4,7 +4,7 @@ export const ENDPOINTS = {
   auth: {
     login: `${API_PREFIX}/members/login`,
     signup: `${API_PREFIX}/members/signup`,
-    refresh: `${API_PREFIX}/members/refresh`, // 리프레시 엔드포인트 추가
+    refresh: `${API_PREFIX}/members/refresh`,
   },
   members: {
     me: `${API_PREFIX}/members/me`,
