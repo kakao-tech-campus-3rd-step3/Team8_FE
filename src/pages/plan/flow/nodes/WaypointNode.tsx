@@ -49,11 +49,14 @@ function WaypointNode() {
     };
   }, [isCategorySelectorOpen]);
 
-  const handleDataChange = (field: keyof WaypointData, value: any) => {
+  const handleDataChange = <K extends keyof WaypointData>(
+    field: K,
+    value: WaypointData[K],
+  ) => {
     setData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleCategoryChange = (selectedCategory: string) => {
+  const handleCategoryChange = (selectedCategory: LocationCategory) => {
     handleDataChange('locationCategory', selectedCategory);
     setCategorySelectorOpen(false);
   };
