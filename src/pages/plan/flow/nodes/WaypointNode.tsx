@@ -4,11 +4,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
-import {
-  LocationType,
-  type LocationCategory,
-  LocationCategoryMeta,
-} from '@/pages/plan/utils/Category';
+import { LocationType, flattenLocationTypes } from '@/pages/plan/utils/Category';
 import { CustomTimeInput } from './CustomTimeInput';
 import { type WaypointData } from '../canvasComponents/Waypoint';
 import { useAutosizeInput } from '../../hooks/useAutosizeInput';
@@ -16,6 +12,8 @@ import { Handle, Position } from '@xyflow/react';
 
 // props로 data 받아올 수 있습니다.
 function WaypointNode() {
+  const FlatLocationTypes = flattenLocationTypes(LocationType);
+
   const [data, setData] = useState<WaypointData>({
     id: 0,
     title: '위치 제목',
@@ -49,7 +47,7 @@ function WaypointNode() {
     };
   }, [isCategorySelectorOpen]);
 
-  const handleDataChange = (field: keyof WaypointData, value: any) => {
+  const handleDataChange = <K extends keyof WaypointData>(field: K, value: WaypointData[K]) => {
     setData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -57,26 +55,24 @@ function WaypointNode() {
     handleDataChange('locationCategory', selectedCategory);
     setCategorySelectorOpen(false);
   };
+  const currentCategory = FlatLocationTypes[data.locationCategory] || LocationType.DEFAULT.DEFAULT;
 
   const titleProps = useAutosizeInput(data.title);
   const addressProps = useAutosizeInput(data.description);
 
   return (
-    <WaypointNodeContainer bgColor={LocationCategoryMeta[data.locationCategory].color}>
+    <WaypointNodeContainer bgColor={currentCategory.color}>
       <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
       <HorizontalLayout>
         <IconWrapper ref={iconWrapperRef}>
           <IconPlaceholder onClick={() => setCategorySelectorOpen((prev) => !prev)}>
-            {LocationCategoryMeta[data.locationCategory].icon}
+            {currentCategory.icon}
           </IconPlaceholder>
           {isCategorySelectorOpen && (
             <CategoryDropdown>
-              {Object.keys(LocationCategoryMeta).map((cat) => (
-                <CategoryItem
-                  key={cat}
-                  onClick={() => handleCategoryChange(cat as LocationCategory)}
-                >
-                  {LocationCategoryMeta[cat as LocationCategory].icon} {cat}
+              {Object.entries(FlatLocationTypes).map(([key, value]) => (
+                <CategoryItem key={key} onClick={() => handleCategoryChange(key)}>
+                  {value.icon} {key}
                 </CategoryItem>
               ))}
             </CategoryDropdown>
