@@ -5,16 +5,14 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
 import {
-  LocationType,
+  LocationCategoryInfo,
   type LocationCategory,
-  LocationCategoryMeta,
 } from '@/pages/plan/utils/Category';
 import { CustomTimeInput } from './CustomTimeInput';
 import { type WaypointData } from '../canvasComponents/Waypoint';
 import { useAutosizeInput } from '../../hooks/useAutosizeInput';
 import { Handle, Position } from '@xyflow/react';
 
-// props로 data 받아올 수 있습니다.
 function WaypointNode() {
   const [data, setData] = useState<WaypointData>({
     id: 0,
@@ -24,7 +22,7 @@ function WaypointNode() {
     startTime: new Date(0, 0, 0, 0, 0),
     endTime: new Date(0, 0, 0, 0, 0),
     memoID: 0,
-    locationCategory: LocationType.DEFAULT.DEFAULT,
+    locationCategory: 'DEFAULT', // LocationType 제거하고 직접 문자열 할당
     xPosition: 0,
     yPosition: 0,
   });
@@ -65,28 +63,31 @@ function WaypointNode() {
   const addressProps = useAutosizeInput(data.description);
 
   return (
-    <WaypointNodeContainer bgColor={LocationCategoryMeta[data.locationCategory].color}>
+    // LocationCategoryInfo 사용
+    <WaypointNodeContainer bgColor={LocationCategoryInfo[data.locationCategory].color}>
       <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
       <HorizontalLayout>
         <IconWrapper ref={iconWrapperRef}>
           <IconPlaceholder onClick={() => setCategorySelectorOpen((prev) => !prev)}>
-            {LocationCategoryMeta[data.locationCategory].icon}
+            {/* LocationCategoryInfo 사용 */}
+            {LocationCategoryInfo[data.locationCategory].icon}
           </IconPlaceholder>
           {isCategorySelectorOpen && (
             <CategoryDropdown>
-              {Object.keys(LocationCategoryMeta).map((cat) => (
+              {/* Object.keys(LocationCategoryInfo) 사용 */}
+              {(Object.keys(LocationCategoryInfo) as LocationCategory[]).map((cat) => (
                 <CategoryItem
                   key={cat}
-                  onClick={() => handleCategoryChange(cat as LocationCategory)}
+                  onClick={() => handleCategoryChange(cat)}
                 >
-                  {LocationCategoryMeta[cat as LocationCategory].icon} {cat}
+                  {/* LocationCategoryInfo 사용 */}
+                  {LocationCategoryInfo[cat].icon} {cat}
                 </CategoryItem>
               ))}
             </CategoryDropdown>
           )}
         </IconWrapper>
         <VerticalLayout>
-          {/* 6. UI 요소들이 data state를 사용하도록 바인딩 수정 */}
           <Title
             as="input"
             type="text"
