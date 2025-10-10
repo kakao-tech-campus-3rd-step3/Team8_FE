@@ -10,8 +10,8 @@ import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 
 const fetchMemberInfo = async (): Promise<MemberType> => {
-  const { data } = await axiosInstance.get<{ member: MemberType }>(ENDPOINTS.members.me);
-  return data.member;
+  const { data } = await axiosInstance.get(ENDPOINTS.members.me);
+  return data;
 };
 
 function Profile() {
