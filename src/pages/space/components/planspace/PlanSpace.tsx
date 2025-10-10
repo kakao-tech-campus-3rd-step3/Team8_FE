@@ -9,11 +9,13 @@ import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 
 const fetchPlans = async (): Promise<PlanType[]> => {
-  // 1. API 응답 데이터의 타입을 명시해줍니다.
-  const { data } = await axiosInstance.get<{ plans: PlanType[] }>(ENDPOINTS.plans.base);
-  // 2. data 객체에서 실제 배열인 data.plans를 반환합니다.
-  return data.plans;
+  const response = await axiosInstance.get<{ plans: PlanType[] }>(ENDPOINTS.plans.base);
+  console.log('📦 fetchPlans response:', response.data);
+
+  // ✅ 반드시 undefined가 아닌 배열을 반환해야 함
+  return response.data?.plans ?? [];
 };
+
 
 function PlanSpace() {
   const { data: plans, isLoading, isError } = useQuery({

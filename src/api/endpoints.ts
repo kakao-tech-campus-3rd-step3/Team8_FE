@@ -1,9 +1,12 @@
-const API_PREFIX = '/v1' as const; //api 프리픽스 수정시 이곳만 수정
+const API_PREFIX = '/v1' as const;
 
 export const ENDPOINTS = {
-  members: {
+  auth: {
     login: `${API_PREFIX}/members/login`,
     signup: `${API_PREFIX}/members/signup`,
+    refresh: `${API_PREFIX}/members/refresh`, // 리프레시 엔드포인트 추가
+  },
+  members: {
     me: `${API_PREFIX}/members/me`,
   },
   plans: {
