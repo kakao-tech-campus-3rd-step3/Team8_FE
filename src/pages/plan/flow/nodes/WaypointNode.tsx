@@ -14,6 +14,8 @@ import { useAutosizeInput } from '../../hooks/useAutosizeInput';
 import { Handle, Position } from '@xyflow/react';
 
 function WaypointNode() {
+  const FlatLocationTypes = flattenLocationTypes(LocationType);
+
   const [data, setData] = useState<WaypointData>({
     id: 0,
     title: '위치 제목',
@@ -58,6 +60,7 @@ function WaypointNode() {
     handleDataChange('locationCategory', selectedCategory);
     setCategorySelectorOpen(false);
   };
+  const currentCategory = FlatLocationTypes[data.locationCategory] || LocationType.DEFAULT.DEFAULT;
 
   const titleProps = useAutosizeInput(data.title);
   const addressProps = useAutosizeInput(data.description);

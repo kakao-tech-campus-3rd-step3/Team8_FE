@@ -10,7 +10,7 @@ type EditGuardProps = {
   children: ReactNode;
 };
 
-export default function EditGuard({ enabled, message, children }: EditGuardProps) {
+export default function EditGuard({ enabled = false, message, children }: EditGuardProps) {
   return (
     <GuardWrapper>
       {children}
