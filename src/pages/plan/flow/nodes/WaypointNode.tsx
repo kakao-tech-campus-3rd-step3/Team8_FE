@@ -4,18 +4,13 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
-import {
-  LocationCategoryInfo,
-  type LocationCategory,
-} from '@/pages/plan/utils/Category';
+import { LocationCategoryInfo, type LocationCategory } from '@/pages/plan/utils/Category';
 import { CustomTimeInput } from './CustomTimeInput';
 import { type WaypointData } from '../canvasComponents/Waypoint';
 import { useAutosizeInput } from '../../hooks/useAutosizeInput';
 import { Handle, Position } from '@xyflow/react';
 
 function WaypointNode() {
-  const FlatLocationTypes = flattenLocationTypes(LocationType);
-
   const [data, setData] = useState<WaypointData>({
     id: 0,
     title: '위치 제목',
@@ -49,10 +44,7 @@ function WaypointNode() {
     };
   }, [isCategorySelectorOpen]);
 
-  const handleDataChange = <K extends keyof WaypointData>(
-    field: K,
-    value: WaypointData[K],
-  ) => {
+  const handleDataChange = <K extends keyof WaypointData>(field: K, value: WaypointData[K]) => {
     setData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -60,8 +52,6 @@ function WaypointNode() {
     handleDataChange('locationCategory', selectedCategory);
     setCategorySelectorOpen(false);
   };
-  const currentCategory = FlatLocationTypes[data.locationCategory] || LocationType.DEFAULT.DEFAULT;
-
   const titleProps = useAutosizeInput(data.title);
   const addressProps = useAutosizeInput(data.description);
 
@@ -79,10 +69,7 @@ function WaypointNode() {
             <CategoryDropdown>
               {/* Object.keys(LocationCategoryInfo) 사용 */}
               {(Object.keys(LocationCategoryInfo) as LocationCategory[]).map((cat) => (
-                <CategoryItem
-                  key={cat}
-                  onClick={() => handleCategoryChange(cat)}
-                >
+                <CategoryItem key={cat} onClick={() => handleCategoryChange(cat)}>
                   {/* LocationCategoryInfo 사용 */}
                   {LocationCategoryInfo[cat].icon} {cat}
                 </CategoryItem>
