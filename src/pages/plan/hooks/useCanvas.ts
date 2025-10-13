@@ -147,7 +147,14 @@ export function useCanvas() {
         });
         break;
       case 'memo':
-        // TBD
+        client.publish({
+          destination: StompURL.PUB.MEMO.UPDATE(planId, node.data.id),
+          body: JSON.stringify({
+            ...node.data,
+            xPosition: node.position.x,
+            yPosition: node.position.y,
+          } as MemoData),
+        });
         break;
     }
   };
