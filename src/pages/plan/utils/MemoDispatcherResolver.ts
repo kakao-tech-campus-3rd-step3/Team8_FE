@@ -1,5 +1,10 @@
 import { socketEventBus } from '../hooks/useSocketHandler';
-import type { MemoCreateType, MemoInitType, MemoResponseType } from '../types/MemoResponseBodyType';
+import type {
+  MemoCreateType,
+  MemoInitType,
+  MemoResponseType,
+  MemoUpdateType,
+} from '../types/MemoResponseBodyType';
 
 export function MemoDispatcherResolver(message: any) {
   const memoData: MemoResponseType = JSON.parse(message.body);
@@ -18,6 +23,12 @@ export function MemoDispatcherResolver(message: any) {
       const memoCreate = (memoData as MemoCreateType).MEMO;
       socketEventBus.dispatchEvent(
         new CustomEvent('MEMO_CREATE', { detail: { MEMO: { ...memoCreate } } })
+      );
+      break;
+    case 'UPDATE':
+      const memoUpdate = (memoData as MemoUpdateType).MEMO;
+      socketEventBus.dispatchEvent(
+        new CustomEvent('MEMO_UPDATE', { detail: { MEMO: { ...memoUpdate } } })
       );
       break;
   }

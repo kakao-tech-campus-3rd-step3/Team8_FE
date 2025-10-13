@@ -12,7 +12,7 @@ import type { MemoData } from '../flow/canvasComponents/Memo';
 import type { ArrowData } from '../flow/canvasComponents/Arrow';
 import { socketEventBus } from '../hooks/useSocketHandler';
 import type { WayPointCreateType, WayPointUpdateType } from '../types/WaypointResponseBodyType';
-import type { MemoCreateType } from '../types/MemoResponseBodyType';
+import type { MemoCreateType, MemoUpdateType } from '../types/MemoResponseBodyType';
 import { useSocket } from './useSocket';
 import StompURL from '../utils/StompURL';
 
@@ -129,6 +129,42 @@ export function useCanvas() {
     socketEventBus.addEventListener('MEMO_CREATE', handleMemoCreate);
     return () => {
       socketEventBus.removeEventListener('MEMO_CREATE', handleMemoCreate);
+    };
+  }, [setNodes]);
+
+  useEffect(() => {
+    function handleMemoUpdate(e: Event) {
+      const { detail } = e as CustomEvent<MemoUpdateType>;
+      const newMemo = detail.MEMO;
+
+      setNodes((nds) => {
+        const nodeId = `memo:${newMemo.id}`;
+        const existingNode = nds.find((node) => node.id === nodeId);
+
+        if (!existingNode) {
+          console.error('정보를 동기화하는 과정에서 문제가 있었습니다.');
+        }
+
+        return nds.map((node) =>
+          node.id === nodeId
+            ? ({
+                ...node,
+                position: {
+                  x: newMemo.xPosition ?? node.position.x,
+                  y: newMemo.yPosition ?? node.position.y,
+                },
+                data: {
+                  ...newMemo,
+                },
+              } as MemoNodeType)
+            : node
+        );
+      });
+    }
+
+    socketEventBus.addEventListener('MEMO_UPDATE', handleMemoUpdate);
+    return () => {
+      socketEventBus.removeEventListener('MEMO_UPDATE', handleMemoUpdate);
     };
   }, [setNodes]);
 

@@ -1,7 +1,7 @@
 import type { MemoData } from '../flow/canvasComponents/Memo';
 
 export type MemoResponseType = {
-  type: `CREATE` | `INIT`;
+  type: `CREATE` | `INIT` | `UPDATE`;
 };
 
 export type MemoCreateType = {
@@ -12,4 +12,9 @@ export type MemoCreateType = {
 export type MemoInitType = {
   type: 'INIT';
   MEMO: MemoData[];
+};
+
+export type MemoUpdateType = {
+  type: 'UPDATE';
+  MEMO: MemoData;
 };
