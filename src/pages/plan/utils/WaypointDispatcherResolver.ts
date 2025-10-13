@@ -18,6 +18,7 @@ export function WaypointDispatcherResolver(message: any) {
           new CustomEvent('WAYPOINT_CREATE', { detail: { WAYPOINT: { ...waypoint } } })
         );
       }
+      socketEventBus.dispatchEvent(new Event('WAYPOINT_INIT_DONE'));
       break;
     case 'CREATE':
       const wpCreate = (wpData as WayPointCreateType).WAYPOINT;

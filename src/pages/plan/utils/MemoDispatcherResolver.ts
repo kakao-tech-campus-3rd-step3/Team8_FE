@@ -18,6 +18,7 @@ export function MemoDispatcherResolver(message: any) {
           new CustomEvent('MEMO_CREATE', { detail: { MEMO: { ...memo } } })
         );
       }
+      socketEventBus.dispatchEvent(new Event('MEMO_INIT_DONE'));
       break;
     case 'CREATE':
       const memoCreate = (memoData as MemoCreateType).MEMO;

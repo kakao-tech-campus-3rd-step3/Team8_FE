@@ -3,6 +3,8 @@ import { useEffect, useMemo } from 'react';
 import StompURL from '../utils/StompURL';
 import { WaypointDispatcherResolver } from '../utils/WaypointDispatcherResolver';
 import { MemoDispatcherResolver } from '../utils/MemoDispatcherResolver';
+import { initDependencies } from '../utils/InitDependencies';
+import { topologicalSort } from '../utils/Topology';
 
 const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
 
@@ -57,17 +59,46 @@ export default function useSocketHandler({ planId }: useSocketHandlerType) {
     });
   }
 
-  function initAll() {
-    client.publish({
-      destination: StompURL.PUB.WAYPOINT.INIT(planId),
+  function waitForInitComplete(eventName: string, timeout = 5000): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const handler = () => {
+        socketEventBus.removeEventListener(eventName, handler);
+        clearTimeout(timer);
+        resolve();
+      };
+      const timer = setTimeout(() => {
+        socketEventBus.removeEventListener(eventName, handler);
+        reject(new Error(`${eventName} timeout`));
+      }, timeout);
+
+      socketEventBus.addEventListener(eventName, handler);
     });
-    client.publish({
-      destination: StompURL.PUB.MEMO.INIT(planId),
-    });
-    client.publish({
-      destination: StompURL.PUB.ROUTE.INIT(planId),
-    });
-    //TRAVELER init 작업 추후에 수행
+  }
+
+  async function initAll() {
+    const sorted = topologicalSort(initDependencies);
+    console.log('Init 순서:', sorted);
+
+    for (const target of sorted) {
+      switch (target) {
+        case 'WAYPOINT':
+          client.publish({ destination: StompURL.PUB.WAYPOINT.INIT(planId) });
+          await waitForInitComplete('WAYPOINT_INIT_DONE');
+          break;
+        case 'MEMO':
+          client.publish({ destination: StompURL.PUB.MEMO.INIT(planId) });
+          await waitForInitComplete('MEMO_INIT_DONE');
+          break;
+        case 'ROUTE':
+          client.publish({ destination: StompURL.PUB.ROUTE.INIT(planId) });
+          // TBD: await waitForInitComplete('ROUTE_INIT_DONE');
+          break;
+        case 'TRAVELER':
+          // TBD
+          break;
+      }
+      console.log(`[INIT] ${target} 초기화 완료`);
+    }
   }
 
   useEffect(() => {
