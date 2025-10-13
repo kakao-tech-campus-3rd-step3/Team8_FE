@@ -46,7 +46,7 @@ export function useDataSyncMemo({ id, data }: { id: string; data: MemoData }) {
     };
   }, [data]);
 
-  const handleLocalDataChange = (field: keyof MemoData, value: any) => {
+  const handleLocalDataChange = <K extends keyof MemoData>(field: K, value: MemoData[K]) => {
     localUpdateRef.current = true;
     setNodes((nds) =>
       nds.map((node) =>

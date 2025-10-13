@@ -46,7 +46,10 @@ export function useDataSyncWaypoint({ id, data }: { id: string; data: WaypointDa
     };
   }, [data]);
 
-  const handleLocalDataChange = (field: keyof WaypointData, value: any) => {
+  const handleLocalDataChange = <K extends keyof WaypointData>(
+    field: K,
+    value: WaypointData[K]
+  ) => {
     localUpdateRef.current = true;
     setNodes((nds) =>
       nds.map((node) =>
