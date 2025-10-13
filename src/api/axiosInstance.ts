@@ -26,11 +26,27 @@ const clearTokens = () => {
   localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
 };
 
+// 로그인/회원가입은 Authorization 헤더 제외 대상 (member권한 필요없음)
+const AUTH_EXCLUDED_LIST = ['/v1/members/login', '/v1/members/signup'] as const;
+type AuthExcludedPath = (typeof AUTH_EXCLUDED_LIST)[number];
+const AUTH_EXCLUDED_PATHS = new Set<AuthExcludedPath>(AUTH_EXCLUDED_LIST);
+
+function isAuthExcluded(url?: string) {
+  if (!url) return false;
+  try {
+    const u = url.startsWith('http') ? new URL(url) : new URL(url, API_BASE_URL);
+    return AUTH_EXCLUDED_PATHS.has(u.pathname as AuthExcludedPath);
+  } catch {
+    return false;
+  }
+}
+
 // 매 요청에 access token 헤더를 자동으로 붙임
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const access = getAccessToken();
-    if (access) {
+    const skipAuth = isAuthExcluded(config.url);
+    if (access && !skipAuth) {
       config.headers.Authorization = `Bearer ${access}`;
     }
     return config;
@@ -40,7 +56,21 @@ axiosInstance.interceptors.request.use(
 
 // 응답이 401(만료/인증실패)이면 refresh 시도 후 원래 요청 재시도
 let isRefreshing = false;
-let refreshPromise: Promise<string | null> | null = null;
+let refreshSubscribers: Array<(token: string | null) => void> = [];
+
+function subscribeTokenRefresh(cb: (token: string | null) => void) {
+  refreshSubscribers.push(cb);
+}
+
+function notifyTokenRefreshed(token: string | null) {
+  const subs = refreshSubscribers;
+  refreshSubscribers = [];
+  subs.forEach((cb) => {
+    try {
+      cb(token);
+    } catch {}
+  });
+}
 
 async function refreshAccessToken(): Promise<string | null> {
   const refresh = getRefreshToken();
@@ -48,7 +78,7 @@ async function refreshAccessToken(): Promise<string | null> {
 
   try {
     const res = await axios.post(
-      `${API_BASE_URL}/auth/refresh`, // 리프레시 엔드포인트가 어떻게 될지 모르겠어서 임시로 이렇게 했습니다.
+      `${API_BASE_URL}/v1/members/refresh`, // 리프레시 엔드포인트 수정 완료
       { refreshToken: refresh }, // 이부분도 API 스펙에 맞게 조정 필요합니다.
       { headers: { 'Content-Type': 'application/json' } }
     );
@@ -65,6 +95,9 @@ async function refreshAccessToken(): Promise<string | null> {
       );
     } catch {}
 
+    // 구독자들에게 새 토큰 전달
+    notifyTokenRefreshed(newAccess ?? null);
+
     return newAccess ?? null;
   } catch (e) {
     // Refresh 실패시 토큰 제거
@@ -72,6 +105,8 @@ async function refreshAccessToken(): Promise<string | null> {
     try {
       window.dispatchEvent(new Event('auth:tokensCleared'));
     } catch {}
+    // 구독자들에게 실패 전달(null)
+    notifyTokenRefreshed(null);
     return null;
   }
 }
@@ -84,23 +119,36 @@ axiosInstance.interceptors.response.use(
 
     if (response?.status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true;
-
-      if (!isRefreshing) {
-        isRefreshing = true;
-        refreshPromise = refreshAccessToken().finally(() => {
-          isRefreshing = false;
+      if (isRefreshing) {
+        // 이미 리프레시 중: 새 Promise를 만들어 결과를 구독
+        return new Promise((resolve, reject) => {
+          subscribeTokenRefresh((newAccess) => {
+            if (newAccess) {
+              originalRequest.headers = {
+                ...(originalRequest.headers || {}),
+                Authorization: `Bearer ${newAccess}`,
+              } as any;
+              resolve(axiosInstance(originalRequest));
+            } else {
+              reject(error);
+            }
+          });
         });
-      }
-
-      const newAccess = await (refreshPromise as Promise<string | null>);
-
-      if (newAccess) {
-        // 토큰 교체 후 재시도
-        originalRequest.headers = {
-          ...(originalRequest.headers || {}),
-          Authorization: `Bearer ${newAccess}`,
-        } as any;
-        return axiosInstance(originalRequest);
+      } else {
+        // 최초 한 번만 실제 리프레시 호출
+        isRefreshing = true;
+        try {
+          const newAccess = await refreshAccessToken();
+          if (newAccess) {
+            originalRequest.headers = {
+              ...(originalRequest.headers || {}),
+              Authorization: `Bearer ${newAccess}`,
+            } as any;
+            return axiosInstance(originalRequest);
+          }
+        } finally {
+          isRefreshing = false;
+        }
       }
     }
 
