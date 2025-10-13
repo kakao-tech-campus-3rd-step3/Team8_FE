@@ -1,14 +1,29 @@
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
 import styled from 'styled-components';
+import { useDataSyncMemo } from '../../hooks/useDataSyncMemo';
+import type { MemoData } from '../canvasComponents/Memo';
 
 // props로 data 받아올 수 있습니다.
-function MemoNode() {
+function MemoNode({ id, data }: { id: string; data: MemoData }) {
+  const { handleLocalDataChange } = useDataSyncMemo({ id, data });
+
   return (
     <MemoNodeContainer>
-      <MemoTitle type="text" className="nodrag" />
+      <MemoTitle
+        type="text"
+        className="nodrag"
+        onChange={(e) => {
+          handleLocalDataChange('title', e.target.value);
+        }}
+      />
       <ContentDivider />
-      <MemoArea className="nodrag" />
+      <MemoArea
+        className="nodrag"
+        onChange={(e) => {
+          handleLocalDataChange('content', e.target.value);
+        }}
+      />
     </MemoNodeContainer>
   );
 }
