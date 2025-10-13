@@ -48,51 +48,6 @@ export function useCanvas() {
     [setEdges]
   );
 
-  const addNode = useCallback(
-    (type: 'waypoint' | 'memo') => {
-      const id = crypto.randomUUID();
-
-      if (type === 'waypoint') {
-        setNodes((nds) => [
-          ...nds,
-          {
-            id,
-            type: 'waypoint',
-            position: { x: Math.random() * 400, y: Math.random() * 400 },
-            data: {
-              id: 0,
-              name: '새 위치',
-              description: '설명',
-              address: '주소',
-              startTime: new Date(),
-              endTime: new Date(),
-              memoID: 0,
-              locationCategory: 'DEFAULT',
-              xPosition: 0,
-              yPosition: 0,
-            },
-          },
-        ]);
-      } else {
-        setNodes((nds) => [
-          ...nds,
-          {
-            id,
-            type: 'memo',
-            position: { x: Math.random() * 400, y: Math.random() * 400 },
-            data: {
-              title: '새 메모',
-              content: '',
-              xPosition: 0,
-              yPosition: 0,
-            },
-          },
-        ]);
-      }
-    },
-    [setNodes]
-  );
-
   useEffect(() => {
     function handleWaypointCreate(e: Event) {
       const { detail } = e as CustomEvent<WayPointCreateType>;
@@ -205,7 +160,6 @@ export function useCanvas() {
     setEdges,
     onEdgesChange,
     onConnect,
-    addNode,
     onNodeDragStop,
   };
 }
