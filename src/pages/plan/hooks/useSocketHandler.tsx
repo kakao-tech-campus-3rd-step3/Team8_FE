@@ -1,4 +1,3 @@
-import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { useEffect, useMemo } from 'react';
 import StompURL from '../utils/StompURL';
@@ -17,7 +16,7 @@ export default function useSocketHandler({ planId }: useSocketHandlerType) {
   const client = useMemo(
     () =>
       new Client({
-        webSocketFactory: () => new SockJS(`${API_BASE_URL}/ws`),
+        webSocketFactory: () => new WebSocket(`${API_BASE_URL}/ws`),
         onConnect: () => {
           subscribeAll();
           initAll();
