@@ -13,6 +13,7 @@ function MemoNode({ id, data }: { id: string; data: MemoData }) {
       <MemoTitle
         type="text"
         className="nodrag"
+        value={data.title}
         onChange={(e) => {
           handleLocalDataChange('title', e.target.value);
         }}
@@ -20,6 +21,7 @@ function MemoNode({ id, data }: { id: string; data: MemoData }) {
       <ContentDivider />
       <MemoArea
         className="nodrag"
+        value={data.content}
         onChange={(e) => {
           handleLocalDataChange('content', e.target.value);
         }}
