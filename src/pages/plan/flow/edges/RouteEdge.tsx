@@ -7,11 +7,7 @@ import {
 } from '@xyflow/react';
 import { useState } from 'react';
 import styled from 'styled-components';
-import {
-  TransportationCategory,
-  TransportationCategoryMeta,
-  type TransportationCategory as CategoryType,
-} from '../../utils/Category';
+import { TransportationCategoryInfo, type TransportationCategory } from '../../utils/Category';
 import type { ArrowData } from '../canvasComponents/Arrow';
 import type { RouteEdgeType } from '../../hooks/useCanvas';
 
@@ -46,10 +42,10 @@ export default function RouteEdge({
     title: data?.title ?? '새 경로',
     description: data?.description ?? '',
     duration: data?.duration ?? 0,
-    transportationCategory: data?.transportationCategory ?? TransportationCategory.DEFAULT,
+    transportationCategory: data?.transportationCategory ?? 'DEFAULT',
   };
 
-  const vehicleMeta = TransportationCategoryMeta[mergedData.transportationCategory];
+  const vehicleMeta = TransportationCategoryInfo[mergedData.transportationCategory];
   const mergedStyle = {
     ...style,
     stroke: vehicleMeta.color,
@@ -115,12 +111,12 @@ export default function RouteEdge({
                 <select
                   value={mergedData.transportationCategory}
                   onChange={(e) =>
-                    onUpdateData('transportationCategory', e.target.value as CategoryType)
+                    onUpdateData('transportationCategory', e.target.value as TransportationCategory)
                   }
                 >
-                  {Object.values(TransportationCategory).map((v) => (
-                    <option key={v} value={v}>
-                      {TransportationCategoryMeta[v].icon} {v}
+                  {Object.entries(TransportationCategoryInfo).map(([key, info]) => (
+                    <option key={key} value={key}>
+                      {info.icon} {key}
                     </option>
                   ))}
                 </select>
