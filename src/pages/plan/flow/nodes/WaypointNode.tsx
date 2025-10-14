@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
-import { type LocationCategory, LocationCategoryMeta } from '@/pages/plan/utils/Category';
+import { LocationCategoryInfo, type LocationCategory } from '@/pages/plan/utils/Category';
 import { CustomTimeInput } from './CustomTimeInput';
 import { type WaypointData } from '../canvasComponents/Waypoint';
 import { useAutosizeInput } from '../../hooks/useAutosizeInput';
@@ -40,21 +40,22 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
   const addressProps = useAutosizeInput(data.description);
 
   return (
-    <WaypointNodeContainer bgColor={LocationCategoryMeta[data.locationCategory].color}>
+    // LocationCategoryInfo 사용
+    <WaypointNodeContainer bgColor={LocationCategoryInfo[data.locationCategory].color}>
       <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
       <HorizontalLayout>
         <IconWrapper ref={iconWrapperRef}>
           <IconPlaceholder onClick={() => setCategorySelectorOpen((prev) => !prev)}>
-            {LocationCategoryMeta[data.locationCategory].icon}
+            {/* LocationCategoryInfo 사용 */}
+            {LocationCategoryInfo[data.locationCategory].icon}
           </IconPlaceholder>
           {isCategorySelectorOpen && (
             <CategoryDropdown>
-              {Object.keys(LocationCategoryMeta).map((cat) => (
-                <CategoryItem
-                  key={cat}
-                  onClick={() => handleCategoryChange(cat as LocationCategory)}
-                >
-                  {LocationCategoryMeta[cat as LocationCategory].icon} {cat}
+              {/* Object.keys(LocationCategoryInfo) 사용 */}
+              {(Object.keys(LocationCategoryInfo) as LocationCategory[]).map((cat) => (
+                <CategoryItem key={cat} onClick={() => handleCategoryChange(cat)}>
+                  {/* LocationCategoryInfo 사용 */}
+                  {LocationCategoryInfo[cat].icon} {cat}
                 </CategoryItem>
               ))}
             </CategoryDropdown>
