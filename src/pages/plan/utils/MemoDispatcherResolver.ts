@@ -1,3 +1,4 @@
+import type { Message } from '@stomp/stompjs';
 import { socketEventBus } from '../hooks/useSocketHandler';
 import type {
   MemoCreateType,
@@ -6,7 +7,7 @@ import type {
   MemoUpdateType,
 } from '../types/MemoResponseBodyType';
 
-export function MemoDispatcherResolver(message: any) {
+export function MemoDispatcherResolver(message: Message) {
   const memoData: MemoResponseType = JSON.parse(message.body);
   console.log('MEMO 메시지:', memoData);
   switch (memoData.type) {
