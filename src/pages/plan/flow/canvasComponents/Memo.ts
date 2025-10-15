@@ -1,6 +1,7 @@
 export interface MemoData extends Record<string, unknown> {
+  id: number;
   title: string;
-  text: string;
-  Xposition: number;
-  Yposition: number;
+  content: string;
+  xPosition: number;
+  yPosition: number;
 }

@@ -1,10 +1,18 @@
-/*======================<Pretendard Font>/*======================*/
+/*======================<Pretendard Font>======================*/
 @import url('/fonts/pretendard/pretendardvariable.css');
 body {
   font-family: 'Pretendard Variable', sans-serif;
   font-weight: 400;
 }
-/*======================<Pretendard Font>/*======================*/
+/*======================<Pretendard Font>======================*/
+
+/*======================<React flow custom edge>======================*/
+.button-edge__label {
+  position: absolute;
+  pointer-events: all;
+  z-index: 10;
+}
+/*======================<React flow custom edge>======================*/
 
 /*! 
 https://serp.co/tools/css-reset/
