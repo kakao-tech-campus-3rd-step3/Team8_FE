@@ -5,6 +5,7 @@ import { useSocket } from '../context/SocketContext';
 import StompURL from '../utils/StompURL';
 import type { MemoData } from '../flow/canvasComponents/Memo';
 import { useViewport } from '@xyflow/react';
+import type { WaypointData } from '../flow/canvasComponents/Waypoint';
 
 function ControlBar() {
   const { client, planId } = useSocket();
@@ -22,7 +23,7 @@ function ControlBar() {
 
   const createNewWaypoint = () => {
     const { x, y } = getCenter();
-    const newWaypoint = {
+    const newWaypoint: Omit<WaypointData, 'id'> = {
       name: '새 위치',
       description: '설명',
       address: '주소',
@@ -42,7 +43,7 @@ function ControlBar() {
 
   const createNewMemo = () => {
     const { x, y } = getCenter();
-    const newMemo: MemoData = {
+    const newMemo: Omit<MemoData, 'id'> = {
       title: '새 메모',
       content: '내용',
       xPosition: x,
