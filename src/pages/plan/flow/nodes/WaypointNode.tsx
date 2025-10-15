@@ -32,7 +32,7 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
   }, [isCategorySelectorOpen]);
 
   const handleCategoryChange = (selectedCategory: string) => {
-    handleLocalDataChange('locationCategory', selectedCategory);
+    handleLocalDataChange('locationCategory', selectedCategory as LocationCategory);
     setCategorySelectorOpen(false);
   };
 
@@ -82,7 +82,7 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
             />
             <TimeWrapper>
               <DatePicker
-                selected={new Date(data.startTime)}
+                selected={new Date(data.startTime!)}
                 onChange={(date: Date | null) => handleLocalDataChange('startTime', date)}
                 showTimeSelect
                 showTimeSelectOnly
@@ -93,7 +93,7 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
               />
               ~
               <DatePicker
-                selected={new Date(data.endTime)}
+                selected={new Date(data.endTime!)}
                 onChange={(date: Date | null) => handleLocalDataChange('endTime', date)}
                 showTimeSelect
                 showTimeSelectOnly
