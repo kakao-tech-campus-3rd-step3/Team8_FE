@@ -1,5 +1,11 @@
 import axios, { type AxiosError } from 'axios';
 
+interface ApiErrorBody {
+  code?: string;
+  message?: string;
+  fieldErrors?: Record<string, string>;
+}
+
 export type AppErrorType =
   | 'auth' // 401 (실제 처리는 axiosInstance에서 처리)
   | 'validation' // 400
@@ -19,7 +25,7 @@ export interface AppError {
   raw?: unknown;
 }
 
-interface UseApiErrorOptions {
+export interface UseApiErrorOptions {
   // 각 페이지별 커스터마이즈 기능
   codeMessages?: Record<string, string>;
   typeMessages?: Partial<Record<AppErrorType, string>>;
@@ -27,16 +33,12 @@ interface UseApiErrorOptions {
 }
 
 function normalizeAxiosError(e: unknown, opts?: UseApiErrorOptions): AppError {
-  if (axios.isAxiosError(e)) {
-    const err = e as AxiosError<any>;
+  if (axios.isAxiosError<ApiErrorBody>(e)) {
+    const err = e as AxiosError<ApiErrorBody>;
     const status = err.response?.status;
-    const data = err.response?.data as any | undefined;
-    const serverCode = (data && typeof data === 'object' ? data.code : undefined) as
-      | string
-      | undefined;
-    const serverMsg =
-      (data && typeof data === 'object' ? (data.message as string | undefined) : undefined) ||
-      err.message;
+    const data = err.response?.data;
+    const serverCode = data?.code;
+    const serverMsg = data?.message ?? err.message;
 
     const byCodeMsg = serverCode ? opts?.codeMessages?.[serverCode] : undefined;
 
@@ -99,7 +101,7 @@ function normalizeAxiosError(e: unknown, opts?: UseApiErrorOptions): AppError {
     if (err.code === 'ECONNABORTED') {
       return { type: 'network', code: err.code, message: '요청이 시간 초과되었습니다.', raw: e };
     }
-    if ((err as any).code === 'ERR_CANCELED') {
+    if (err.code === 'ERR_CANCELED') {
       return { type: 'cancelled', message: '요청이 취소되었습니다.', raw: e };
     }
 
