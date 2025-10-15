@@ -29,7 +29,9 @@ export const useRegisterForm = () => {
         ...(mbti ? { mbti } : {}),
       };
 
-      const res = await axiosInstance.post(ENDPOINTS.members.signup, payload);
+      // const res = await axiosInstance.post(ENDPOINTS.members.signup, payload);
+      const res = await axiosInstance.post(ENDPOINTS.auth.signup, payload);
+
 
       const accessToken = res.data?.accessToken as string | undefined;
       const refreshToken = res.data?.refreshToken as string | undefined;

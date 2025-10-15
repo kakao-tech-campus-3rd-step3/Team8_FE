@@ -8,32 +8,11 @@ import PhotoEditWindow from '@/pages/space/components/profile/PhotoEditWindow';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
-import { STORAGE_KEYS } from '@/utils/storageKeys'; // 토큰 키 import
 
-//const fetchMemberInfo = async (): Promise<MemberType> => {
-//  const response = await axiosInstance.get<{ member?: MemberType }>(ENDPOINTS.members.me);
-//  console.log('👤 fetchMemberInfo response:', response.data);
-//
-//  return response.data?.member ?? {} as MemberType;
-//};
 const fetchMemberInfo = async (): Promise<MemberType> => {
-  const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-
-  const response = await fetch(`/api${ENDPOINTS.members.me}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      // 인증 토큰이 있을 경우에만 헤더 추가
-      ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error('프로필 정보를 불러오는데 실패했습니다.');
-  }
-
-  const data = await response.json();
-  return data;
+  const response = await axiosInstance.get(ENDPOINTS.members.me);
+  // API 응답에서 member 객체를 직접 반환하도록 수정
+  return response.data.member;
 };
 
 function Profile() {
@@ -54,7 +33,7 @@ function Profile() {
             member,
           },
         }
-      : { ModalWindow: () => null },
+      : { ModalWindow: () => null }
   );
 
   if (isLoading) return <ProfileWrapper>프로필 로딩 중...</ProfileWrapper>;

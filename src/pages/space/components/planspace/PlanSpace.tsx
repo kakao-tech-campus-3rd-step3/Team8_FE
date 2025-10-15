@@ -7,32 +7,11 @@ import { useModal } from '@/hooks/useModal';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
-import { STORAGE_KEYS } from '@/utils/storageKeys'; // 토큰 키 import
-
-// const fetchPlans = async (): Promise<PlanType[]> => {
-//  const response = await axiosInstance.get<{ plans: PlanType[] }>(ENDPOINTS.plans.base);
-//  console.log('📦 fetchPlans response:', response.data);
-
-//  return response.data?.plans ?? [];
-// };
 
 const fetchPlans = async (): Promise<PlanType[]> => {
-  const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-
-  const response = await fetch(`/api${ENDPOINTS.plans.base}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error('계획 목록을 불러오는데 실패했습니다.');
-  }
-  const data = await response.json();
-  // API 응답 구조에 따라 data.plans를 반환해야 할 수 있습니다.
-  return data.plans ?? [];
+  const response = await axiosInstance.get(ENDPOINTS.plans.base);
+  // API 응답에서 plans 배열을 직접 반환하도록 수정
+  return response.data.plans ?? [];
 };
 
 function PlanSpace() {

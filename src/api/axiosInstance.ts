@@ -4,7 +4,8 @@ import { STORAGE_KEYS } from '@/utils/storageKeys';
 import { ENDPOINTS } from './endpoints'; // ENDPOINTS를 import 합니다.
 
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: 'http://3.133.89.210:8080',
+  // 👇 baseURL을 '/api'로 변경하여 Vite 프록시를 타도록 수정합니다.
+  baseURL: '/api', 
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
 });
@@ -18,7 +19,12 @@ const clearTokens = () => {
   localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
 };
 
-const AUTH_EXCLUDED_PATHS = new Set<string>([ENDPOINTS.auth.login, ENDPOINTS.auth.signup]);
+// vite.config.ts에서 rewrite 설정을 했으므로, axiosInstance에서는 /api 접두사를 그대로 사용합니다.
+const AUTH_EXCLUDED_PATHS = new Set<string>([
+  `/api${ENDPOINTS.auth.login}`, 
+  `/api${ENDPOINTS.auth.signup}`
+]);
+
 function isAuthExcluded(url?: string) {
   if (!url) return false;
   return AUTH_EXCLUDED_PATHS.has(url);
@@ -27,6 +33,7 @@ function isAuthExcluded(url?: string) {
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const access = getAccessToken();
+    // config.url에는 baseURL이 포함되어 있으므로, isAuthExcluded 검사를 수정합니다.
     const skipAuth = isAuthExcluded(config.url);
     if (access && !skipAuth) {
       config.headers.Authorization = `Bearer ${access}`;
@@ -53,8 +60,9 @@ async function refreshAccessToken(): Promise<string | null> {
   if (!refresh) return null;
 
   try {
+    // refresh 요청은 baseURL을 사용하지 않도록 전체 URL을 명시합니다.
     const res = await axios.post(
-      ENDPOINTS.auth.refresh,
+      `/api${ENDPOINTS.auth.refresh}`,
       { refreshToken: refresh },
       { headers: { 'Content-Type': 'application/json' } },
     );
