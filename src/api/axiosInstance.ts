@@ -27,17 +27,26 @@ const clearTokens = () => {
 };
 
 // 로그인/회원가입은 Authorization 헤더 제외 대상 (member권한 필요없음)
-const AUTH_EXCLUDED_LIST = ['/v1/members/login', '/v1/members/signup'] as const;
+const AUTH_EXCLUDED_LIST = ['/v1/auth/login', '/v1/auth/signup'] as const;
 type AuthExcludedPath = (typeof AUTH_EXCLUDED_LIST)[number];
 const AUTH_EXCLUDED_PATHS = new Set<AuthExcludedPath>(AUTH_EXCLUDED_LIST);
 
 function isAuthExcluded(url?: string) {
   if (!url) return false;
   try {
-    const u = url.startsWith('http') ? new URL(url) : new URL(url, API_BASE_URL);
+    // 기존 구현 (CORS 해결 시 복구 가능)
+    // const u = url.startsWith('http') ? new URL(url) : new URL(url, API_BASE_URL);
+    // return AUTH_EXCLUDED_PATHS.has(u.pathname as AuthExcludedPath);
+
+    // 프록시 환경(/api)에서도 동작하도록 base를 절대 URL로 보정
+    const absBase = API_BASE_URL.startsWith('http')
+      ? API_BASE_URL
+      : `${window.location.origin}${API_BASE_URL}`;
+    const u = url.startsWith('http') ? new URL(url) : new URL(url, absBase);
     return AUTH_EXCLUDED_PATHS.has(u.pathname as AuthExcludedPath);
   } catch {
-    return false;
+    // 최후 폴백: 문자열 비교 (오타 방지를 위해 Set의 유니온 타입과 맞춰 캐스팅)
+    return AUTH_EXCLUDED_PATHS.has(url as AuthExcludedPath);
   }
 }
 
@@ -78,7 +87,7 @@ async function refreshAccessToken(): Promise<string | null> {
 
   try {
     const res = await axios.post(
-      `${API_BASE_URL}/v1/members/refresh`, // 리프레시 엔드포인트 수정 완료
+      `${API_BASE_URL}/v1/auth/refresh`, // 리프레시 엔드포인트 수정 완료
       { refreshToken: refresh }, // 이부분도 API 스펙에 맞게 조정 필요합니다.
       { headers: { 'Content-Type': 'application/json' } }
     );
