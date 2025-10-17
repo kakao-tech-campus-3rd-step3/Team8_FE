@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import type { PlanType } from '@/pages/space/types/plan';
+import type { Plan } from '@/pages/space/types/plan';
 import PlanCard from './PlanCard';
 import Add from '@/assets/icons/Add';
 import NewPlanWindow from './NewPlanWindow';
@@ -8,14 +8,23 @@ import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 
-const fetchPlans = async (): Promise<PlanType[]> => {
-  // axiosInstance를 사용하여 API 호출하고, 응답 데이터 구조에 맞게 바로 plans를 가져옵니다.
-  const response = await axiosInstance.get<{ plans: PlanType[] }>(ENDPOINTS.plans.base);
-  return response.data.plans ?? [];
+// API 응답 데이터 타입 정의
+interface PlansResponse {
+  content: Plan[];
+}
+
+const fetchPlans = async (): Promise<Plan[]> => {
+  // API 응답 구조에 맞게 response.data.content를 사용하도록 수정합니다.
+  const response = await axiosInstance.get<PlansResponse>(ENDPOINTS.plans.base);
+  return response.data.content ?? [];
 };
 
 function PlanSpace() {
-  const { data: plans, isLoading, isError } = useQuery({
+  const {
+    data: plans,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['plans'],
     queryFn: fetchPlans,
   });
@@ -27,11 +36,16 @@ function PlanSpace() {
   if (isLoading) return <PlanSpaceWrapper>계획 로딩 중...</PlanSpaceWrapper>;
   if (isError) return <PlanSpaceWrapper>계획을 불러오는데 실패했습니다.</PlanSpaceWrapper>;
 
+const latestPlanId = plans && plans.length > 0
+    ? Math.max(...plans.map(p => p.id))
+    : null;
+
   return (
     <PlanSpaceWrapper>
       {newPlanWindow}
-      {plans?.map((plan: PlanType) => {
-        return <PlanCard key={plan.id} plan={plan} />;
+      {plans?.map((plan: Plan) => {
+        // 현재 plan이 최신 plan이면 highlight를 true로 설정합니다.
+        return <PlanCard key={plan.id} plan={plan} highlight={plan.id === latestPlanId} />;
       })}
       <AddButton onClick={openNewPlanModal}>
         <Add />새 여행 계획하기
@@ -44,12 +58,9 @@ const AddButton = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-
   padding: 20px;
-
   border-radius: 16px;
   box-shadow: 0 2px 12px rgba(255, 192, 77, 0.3);
-
   cursor: pointer;
 `;
 
