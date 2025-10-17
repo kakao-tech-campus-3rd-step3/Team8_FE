@@ -57,7 +57,7 @@ function Profile() {
             </Entry>
             <Entry>
               <Section>이름</Section>
-              <div>{member.name}</div>
+              <div>{member.username}</div>
             </Entry>
             <Entry>
               <Section>연락처</Section>

@@ -25,6 +25,11 @@ export const ENDPOINTS = {
     login: `${API_PREFIX}/auth/login`,
     signup: `${API_PREFIX}/auth/signup`,
     me: `${API_PREFIX}/members/me`,
+    
+  },
+  plans: {
+    base: `${API_PREFIX}/plans`,
+    byId: (id: number | string) => `${API_PREFIX}/plans/${id}`,
   },
 } as const;
 
