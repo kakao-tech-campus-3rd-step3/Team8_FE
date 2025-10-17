@@ -10,9 +10,9 @@ import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 
 const fetchMemberInfo = async (): Promise<MemberType> => {
-  const response = await axiosInstance.get(ENDPOINTS.members.me);
-  // API 응답에서 member 객체를 직접 반환하도록 수정
-  return response.data.member;
+  // axiosInstance를 사용하여 API 호출
+  const response = await axiosInstance.get<MemberType>(ENDPOINTS.members.me);
+  return response.data;
 };
 
 function Profile() {

@@ -1,14 +1,18 @@
+// src/api/axiosInstance.ts
+
 import axios from 'axios';
 import type { AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 import { STORAGE_KEYS } from '@/utils/storageKeys';
-import { ENDPOINTS } from './endpoints'; // ENDPOINTS를 import 합니다.
+import { ENDPOINTS } from './endpoints';
 
+
+// ✅ baseURL을 실제 서버 주소로 변경
 const axiosInstance: AxiosInstance = axios.create({
-  // 👇 baseURL을 '/api'로 변경하여 Vite 프록시를 타도록 수정합니다.
-  baseURL: '/api', 
+  baseURL: 'http://3.133.89.210:8080', 
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
 });
+
 
 const getAccessToken = () => localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
 const getRefreshToken = () => localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
@@ -19,10 +23,11 @@ const clearTokens = () => {
   localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
 };
 
-// vite.config.ts에서 rewrite 설정을 했으므로, axiosInstance에서는 /api 접두사를 그대로 사용합니다.
+// baseURL이 합쳐지기 전의 상대 경로와 비교해야 하므로 /api 접두사 제거
 const AUTH_EXCLUDED_PATHS = new Set<string>([
-  `/api${ENDPOINTS.auth.login}`, 
-  `/api${ENDPOINTS.auth.signup}`
+  ENDPOINTS.auth.login,
+  ENDPOINTS.auth.signup,
+  ENDPOINTS.auth.refresh, // 토큰 재발급 요청도 인증이 필요 없습니다.
 ]);
 
 function isAuthExcluded(url?: string) {
@@ -33,7 +38,6 @@ function isAuthExcluded(url?: string) {
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const access = getAccessToken();
-    // config.url에는 baseURL이 포함되어 있으므로, isAuthExcluded 검사를 수정합니다.
     const skipAuth = isAuthExcluded(config.url);
     if (access && !skipAuth) {
       config.headers.Authorization = `Bearer ${access}`;
@@ -60,11 +64,10 @@ async function refreshAccessToken(): Promise<string | null> {
   if (!refresh) return null;
 
   try {
-    // refresh 요청은 baseURL을 사용하지 않도록 전체 URL을 명시합니다.
-    const res = await axios.post(
-      `/api${ENDPOINTS.auth.refresh}`,
-      { refreshToken: refresh },
-      { headers: { 'Content-Type': 'application/json' } },
+    // 이 요청도 일관성을 위해 axiosInstance를 사용하도록 변경합니다.
+    const res = await axiosInstance.post(
+      ENDPOINTS.auth.refresh,
+      { refreshToken: refresh }
     );
     const newAccess = res.data?.accessToken;
     const newRefresh = res.data?.refreshToken;
@@ -72,10 +75,12 @@ async function refreshAccessToken(): Promise<string | null> {
     if (newAccess) setAccessToken(newAccess);
     if (newRefresh) setRefreshToken(newRefresh);
 
+    window.dispatchEvent(new CustomEvent('auth:tokenRefreshed', { detail: { accessToken: newAccess, refreshToken: newRefresh } }));
     notifyTokenRefreshed(newAccess ?? null);
     return newAccess ?? null;
   } catch (e) {
     clearTokens();
+    window.dispatchEvent(new Event('auth:tokensCleared'));
     notifyTokenRefreshed(null);
     return null;
   }

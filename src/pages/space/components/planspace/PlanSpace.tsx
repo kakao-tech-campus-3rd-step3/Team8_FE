@@ -9,8 +9,8 @@ import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 
 const fetchPlans = async (): Promise<PlanType[]> => {
-  const response = await axiosInstance.get(ENDPOINTS.plans.base);
-  // API 응답에서 plans 배열을 직접 반환하도록 수정
+  // axiosInstance를 사용하여 API 호출하고, 응답 데이터 구조에 맞게 바로 plans를 가져옵니다.
+  const response = await axiosInstance.get<{ plans: PlanType[] }>(ENDPOINTS.plans.base);
   return response.data.plans ?? [];
 };
 
