@@ -5,11 +5,12 @@ export function topologicalSort(dependencies: Record<InitTask, InitTask[]>): Ini
   const graph = new Map<InitTask, InitTask[]>();
 
   Object.keys(dependencies).forEach((node) => {
-    const deps = dependencies[node as InitTask];
-    indegree.set(node as InitTask, deps.length);
+    const InitNode = node as InitTask;
+    const deps = dependencies[InitNode];
+    indegree.set(InitNode, deps.length);
     deps.forEach((dep) => {
       if (!graph.has(dep)) graph.set(dep, []);
-      graph.get(dep)!.push(node as InitTask);
+      graph.get(dep)!.push(InitNode);
     });
   });
 

@@ -11,8 +11,8 @@ import type { WaypointData } from '../flow/canvasComponents/Waypoint';
 import type { MemoData } from '../flow/canvasComponents/Memo';
 import type { ArrowData } from '../flow/canvasComponents/Arrow';
 import { socketEventBus } from '../hooks/useSocketHandler';
-import type { WayPointCreateType, WayPointUpdateType } from '../types/WaypointResponseBodyType';
-import type { MemoCreateType, MemoUpdateType } from '../types/MemoResponseBodyType';
+import type { WayPointResponseType } from '../types/WaypointResponseBodyType';
+import type { MemoResponseType } from '../types/MemoResponseBodyType';
 import { useSocket } from './useSocket';
 import StompURL from '../utils/StompURL';
 
@@ -49,123 +49,113 @@ export function useCanvas() {
   );
 
   useEffect(() => {
-    function handleWaypointCreate(e: Event) {
-      const { detail } = e as CustomEvent<WayPointCreateType>;
-      const newWp = detail.WAYPOINT;
+    function handleWaypointEvent(e: Event) {
+      const { detail } = e as CustomEvent<WayPointResponseType>;
 
-      setNodes((nds) => [
-        ...nds,
-        {
-          id: `waypoint:${newWp.id}`,
-          type: 'waypoint',
-          position: { x: newWp.xPosition, y: newWp.yPosition },
-          data: {
-            ...newWp,
-          },
-        },
-      ]);
+      switch (detail.type) {
+        case 'INIT': {
+          const newWps: WaypointNodeType[] = detail.WAYPOINT.map((wp) => ({
+            id: `waypoint:${wp.id}`,
+            type: 'waypoint',
+            position: { x: wp.xPosition, y: wp.yPosition },
+            data: wp,
+          }));
+          setNodes((nds) => [...nds, ...newWps]);
+          socketEventBus.dispatchEvent(new Event('WAYPOINT_INIT_DONE'));
+          break;
+        }
+        case 'CREATE': {
+          const wp = detail.WAYPOINT;
+          setNodes((nds) => [
+            ...nds,
+            {
+              id: `waypoint:${wp.id}`,
+              type: 'waypoint',
+              position: { x: wp.xPosition, y: wp.yPosition },
+              data: wp,
+            },
+          ]);
+          break;
+        }
+        case 'UPDATE': {
+          const wp = detail.WAYPOINT;
+          setNodes((nds) =>
+            nds.map((node) =>
+              node.id === `waypoint:${wp.id}`
+                ? ({
+                    ...node,
+                    position: {
+                      x: wp.xPosition ?? node.position.x,
+                      y: wp.yPosition ?? node.position.y,
+                    },
+                    data: wp,
+                  } as WaypointNodeType)
+                : node
+            )
+          );
+          break;
+        }
+      }
     }
 
-    socketEventBus.addEventListener('WAYPOINT_CREATE', handleWaypointCreate);
-    return () => {
-      socketEventBus.removeEventListener('WAYPOINT_CREATE', handleWaypointCreate);
-    };
+    socketEventBus.addEventListener('WAYPOINT_EVENT', handleWaypointEvent);
+    return () => socketEventBus.removeEventListener('WAYPOINT_EVENT', handleWaypointEvent);
   }, [setNodes]);
 
   useEffect(() => {
-    function handleWaypointUpdate(e: Event) {
-      const { detail } = e as CustomEvent<WayPointUpdateType>;
-      const newWp = detail.WAYPOINT;
+    function handleMemoEvent(e: Event) {
+      const { detail } = e as CustomEvent<MemoResponseType>;
 
-      setNodes((nds) => {
-        const nodeId = `waypoint:${newWp.id}`;
-        const existingNode = nds.find((node) => node.id === nodeId);
-
-        if (!existingNode) {
-          console.error('정보를 동기화하는 과정에서 문제가 있었습니다.');
+      switch (detail.type) {
+        case 'INIT': {
+          const newMemos: MemoNodeType[] = detail.MEMO.map((memo) => ({
+            id: `memo:${memo.id}`,
+            type: 'memo',
+            position: { x: memo.xPosition, y: memo.yPosition },
+            data: memo,
+          }));
+          setNodes((nds) => [...nds, ...newMemos]);
+          socketEventBus.dispatchEvent(new Event('MEMO_INIT_DONE'));
+          break;
         }
 
-        return nds.map((node) =>
-          node.id === nodeId
-            ? ({
-                ...node,
-                position: {
-                  x: newWp.xPosition ?? node.position.x,
-                  y: newWp.yPosition ?? node.position.y,
-                },
-                data: {
-                  ...newWp,
-                },
-              } as WaypointNodeType)
-            : node
-        );
-      });
-    }
-
-    socketEventBus.addEventListener('WAYPOINT_UPDATE', handleWaypointUpdate);
-    return () => {
-      socketEventBus.removeEventListener('WAYPOINT_UPDATE', handleWaypointUpdate);
-    };
-  }, [setNodes]);
-
-  useEffect(() => {
-    function handleMemoCreate(e: Event) {
-      const { detail } = e as CustomEvent<MemoCreateType>;
-      const newMemo = detail.MEMO;
-
-      setNodes((nds) => [
-        ...nds,
-        {
-          id: `memo:${newMemo.id}`,
-          type: 'memo',
-          position: { x: newMemo.xPosition, y: newMemo.yPosition },
-          data: {
-            ...newMemo,
-          },
-        },
-      ]);
-    }
-
-    socketEventBus.addEventListener('MEMO_CREATE', handleMemoCreate);
-    return () => {
-      socketEventBus.removeEventListener('MEMO_CREATE', handleMemoCreate);
-    };
-  }, [setNodes]);
-
-  useEffect(() => {
-    function handleMemoUpdate(e: Event) {
-      const { detail } = e as CustomEvent<MemoUpdateType>;
-      const newMemo = detail.MEMO;
-
-      setNodes((nds) => {
-        const nodeId = `memo:${newMemo.id}`;
-        const existingNode = nds.find((node) => node.id === nodeId);
-
-        if (!existingNode) {
-          console.error('정보를 동기화하는 과정에서 문제가 있었습니다.');
+        case 'CREATE': {
+          const memo = detail.MEMO;
+          setNodes((nds) => [
+            ...nds,
+            {
+              id: `memo:${memo.id}`,
+              type: 'memo',
+              position: { x: memo.xPosition, y: memo.yPosition },
+              data: memo,
+            },
+          ]);
+          break;
         }
 
-        return nds.map((node) =>
-          node.id === nodeId
-            ? ({
-                ...node,
-                position: {
-                  x: newMemo.xPosition ?? node.position.x,
-                  y: newMemo.yPosition ?? node.position.y,
-                },
-                data: {
-                  ...newMemo,
-                },
-              } as MemoNodeType)
-            : node
-        );
-      });
+        case 'UPDATE': {
+          const memo = detail.MEMO;
+          setNodes((nds) =>
+            nds.map((node) =>
+              node.id === `memo:${memo.id}`
+                ? ({
+                    ...node,
+                    position: {
+                      x: memo.xPosition ?? node.position.x,
+                      y: memo.yPosition ?? node.position.y,
+                    },
+                    data: memo,
+                  } as MemoNodeType)
+                : node
+            )
+          );
+          break;
+        }
+      }
     }
 
-    socketEventBus.addEventListener('MEMO_UPDATE', handleMemoUpdate);
-    return () => {
-      socketEventBus.removeEventListener('MEMO_UPDATE', handleMemoUpdate);
-    };
+    socketEventBus.addEventListener('MEMO_EVENT', handleMemoEvent);
+    return () => socketEventBus.removeEventListener('MEMO_EVENT', handleMemoEvent);
   }, [setNodes]);
 
   const { planId, client } = useSocket();

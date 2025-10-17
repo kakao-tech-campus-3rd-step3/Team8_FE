@@ -31,8 +31,8 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
     };
   }, [isCategorySelectorOpen]);
 
-  const handleCategoryChange = (selectedCategory: string) => {
-    handleLocalDataChange('locationCategory', selectedCategory as LocationCategory);
+  const handleCategoryChange = (selectedCategory: LocationCategory) => {
+    handleLocalDataChange('locationCategory', selectedCategory);
     setCategorySelectorOpen(false);
   };
 
