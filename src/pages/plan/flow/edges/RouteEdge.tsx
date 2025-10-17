@@ -8,11 +8,11 @@ import {
 import { useState } from 'react';
 import styled from 'styled-components';
 import {
-  TransportationCategoryInfo,
-  TransportationCategoryOptions,
-  type TransportationCategory,
+  VehicleCategoryInfo,
+  vehicleCategoryOptions,
+  type VehicleCategory,
 } from '../../utils/Category';
-import type { ArrowData } from '../canvasComponents/Arrow';
+import type { RouteData } from '../canvasComponents/Route';
 import type { RouteEdgeType } from '../../hooks/useCanvas';
 
 export default function RouteEdge({
@@ -40,16 +40,16 @@ export default function RouteEdge({
   const [open, setOpen] = useState(false);
 
   // 기본 데이터 안전 처리
-  const mergedData: ArrowData = {
-    startId: data?.startId ?? -1,
-    endId: data?.endId ?? -1,
+  const mergedData: RouteData = {
+    fromWaypointId: data?.fromWaypointId ?? -1,
+    toWaypointId: data?.toWaypointId ?? -1,
     title: data?.title ?? '새 경로',
     description: data?.description ?? '',
-    duration: data?.duration ?? 0,
-    transportationCategory: data?.transportationCategory ?? 'DEFAULT',
+    duration: data?.duration ?? 1,
+    vehicleCategory: data?.vehicleCategory ?? 'DEFAULT',
   };
 
-  const vehicleMeta = TransportationCategoryInfo[mergedData.transportationCategory];
+  const vehicleMeta = VehicleCategoryInfo[mergedData.vehicleCategory];
   const mergedStyle = {
     ...style,
     stroke: vehicleMeta.color,
@@ -60,7 +60,7 @@ export default function RouteEdge({
     setEdges((edges) => edges.filter((edge) => edge.id !== id));
   };
 
-  const onUpdateData = <K extends keyof ArrowData>(key: K, value: ArrowData[K]) => {
+  const onUpdateData = <K extends keyof RouteData>(key: K, value: RouteData[K]) => {
     setEdges((edges) =>
       edges.map((edge) =>
         edge.id === id ? { ...edge, data: { ...edge.data, [key]: value } } : edge
@@ -113,12 +113,12 @@ export default function RouteEdge({
               <FormRow>
                 <label>이동수단</label>
                 <select
-                  value={mergedData.transportationCategory}
+                  value={mergedData.vehicleCategory}
                   onChange={(e) =>
-                    onUpdateData('transportationCategory', e.target.value as TransportationCategory)
+                    onUpdateData('vehicleCategory', e.target.value as VehicleCategory)
                   }
                 >
-                  {TransportationCategoryOptions}
+                  {vehicleCategoryOptions}
                 </select>
               </FormRow>
               <FormActions>
