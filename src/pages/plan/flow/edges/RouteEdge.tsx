@@ -7,7 +7,11 @@ import {
 } from '@xyflow/react';
 import { useState } from 'react';
 import styled from 'styled-components';
-import { TransportationCategoryInfo, type TransportationCategory } from '../../utils/Category';
+import {
+  TransportationCategoryInfo,
+  TransportationCategoryOptions,
+  type TransportationCategory,
+} from '../../utils/Category';
 import type { ArrowData } from '../canvasComponents/Arrow';
 import type { RouteEdgeType } from '../../hooks/useCanvas';
 
@@ -114,11 +118,7 @@ export default function RouteEdge({
                     onUpdateData('transportationCategory', e.target.value as TransportationCategory)
                   }
                 >
-                  {Object.entries(TransportationCategoryInfo).map(([key, info]) => (
-                    <option key={key} value={key}>
-                      {info.icon} {key}
-                    </option>
-                  ))}
+                  {TransportationCategoryOptions}
                 </select>
               </FormRow>
               <FormActions>
