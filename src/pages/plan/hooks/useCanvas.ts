@@ -9,17 +9,18 @@ import {
 } from '@xyflow/react';
 import type { WaypointData } from '../flow/canvasComponents/Waypoint';
 import type { MemoData } from '../flow/canvasComponents/Memo';
-import type { ArrowData } from '../flow/canvasComponents/Arrow';
+import type { RouteData } from '../flow/canvasComponents/Route';
 import { socketEventBus } from '../hooks/useSocketHandler';
 import type { WayPointResponseType } from '../types/WaypointResponseBodyType';
 import type { MemoResponseType } from '../types/MemoResponseBodyType';
 import { useSocket } from './useSocket';
 import StompURL from '../utils/StompURL';
+import type { RouteResponseType } from '../types/RouteResponseBodyType';
 
 export type WaypointNodeType = Node<WaypointData, 'waypoint'>;
 export type MemoNodeType = Node<MemoData, 'memo'>;
 export type CanvasNodes = WaypointNodeType | MemoNodeType;
-export type RouteEdgeType = Edge<ArrowData, 'route'>;
+export type RouteEdgeType = Edge<RouteData, 'route'>;
 export type CanvasEdges = RouteEdgeType;
 
 export function useCanvas() {
@@ -27,24 +28,40 @@ export function useCanvas() {
   const [edges, setEdges, onEdgesChange] = useEdgesState<CanvasEdges>([]);
 
   const onConnect = useCallback(
-    (params: Connection) =>
-      setEdges((eds) =>
-        addEdge<RouteEdgeType>(
-          {
-            ...params,
-            type: 'route',
-            data: {
-              startId: -1,
-              endId: -1,
-              title: '새 경로',
-              description: '',
-              duration: 0,
-              transportationCategory: 'DEFAULT',
-            },
-          },
-          eds
-        )
-      ),
+    (params: Connection) => {
+      const newRoute: Omit<RouteData, 'id'> = {
+        fromWaypointId: parseInt(params.source.split(':')[1]),
+        toWaypointId: parseInt(params.target.split(':')[1]),
+        title: '새 경로',
+        description: '',
+        duration: 1,
+        vehicleCategory: 'DEFAULT',
+      };
+
+      client.publish({
+        destination: StompURL.PUB.ROUTE.CREATE(planId),
+        body: JSON.stringify(newRoute),
+      });
+
+      // setEdges((eds) =>
+      //   addEdge<RouteEdgeType>(
+      //     {
+      //       ...params,
+      //       type: 'route',
+      //       data: {
+      //         fromWaypointId: parseInt(params.source.split(':')[1]),
+      //         toWaypointId: parseInt(params.target.split(':')[1]),
+      //         title: '새 경로',
+      //         description: '',
+      //         duration: 1,
+      //         vehicleCategory: 'DEFAULT',
+      //       },
+      //     },
+      //     eds
+      //   )
+      // );
+    },
+
     [setEdges]
   );
 
@@ -156,6 +173,46 @@ export function useCanvas() {
 
     socketEventBus.addEventListener('MEMO_EVENT', handleMemoEvent);
     return () => socketEventBus.removeEventListener('MEMO_EVENT', handleMemoEvent);
+  }, [setNodes]);
+
+  useEffect(() => {
+    function handleRouteEvent(e: Event) {
+      const { detail } = e as CustomEvent<RouteResponseType>;
+
+      switch (detail.type) {
+        case 'INIT': {
+          const newRoute: RouteEdgeType[] = detail.ROUTE.map((route) => ({
+            id: `route:${route.id}`,
+            source: `waypoint:${route.fromWaypointId}`,
+            target: `waypoint:${route.toWaypointId}`,
+            type: 'route',
+            data: route,
+          }));
+          setEdges((eds) => [...eds, ...newRoute]);
+          socketEventBus.dispatchEvent(new Event('MEMO_INIT_DONE'));
+          break;
+        }
+        case 'CREATE': {
+          const newRoute = detail.ROUTE;
+          setEdges((eds) =>
+            addEdge<RouteEdgeType>(
+              {
+                id: `route:${newRoute.id}`,
+                source: `waypoint:${newRoute.fromWaypointId}`,
+                target: `waypoint:${newRoute.toWaypointId}`,
+                type: 'route',
+                data: newRoute,
+              },
+              eds
+            )
+          );
+          break;
+        }
+      }
+    }
+
+    socketEventBus.addEventListener('ROUTE_EVENT', handleRouteEvent);
+    return () => socketEventBus.removeEventListener('ROUTE_EVENT', handleRouteEvent);
   }, [setNodes]);
 
   const { planId, client } = useSocket();
