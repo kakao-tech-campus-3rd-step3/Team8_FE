@@ -25,7 +25,6 @@ export const LocationCategoryInfo = {
 
 export type LocationCategory = keyof typeof LocationCategoryInfo;
 
-
 export const TransportationCategoryInfo = {
   DEFAULT: { icon: '🚗', color: '#adb5bd' },
   WALK: { icon: '🚶', color: '#40c057' },
@@ -41,3 +40,11 @@ export const TransportationCategoryInfo = {
 } as const;
 
 export type TransportationCategory = keyof typeof TransportationCategoryInfo;
+
+export const TransportationCategoryOptions = Object.entries(TransportationCategoryInfo).map(
+  ([key, info]) => (
+    <option key={key} value={key}>
+      {info.icon} {key}
+    </option>
+  )
+);
