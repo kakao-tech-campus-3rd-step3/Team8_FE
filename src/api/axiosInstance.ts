@@ -1,22 +1,19 @@
+// src/api/axiosInstance.ts
+
 import axios from 'axios';
-import type {
-  AxiosError,
-  AxiosInstance,
-  AxiosRequestConfig,
-  InternalAxiosRequestConfig,
-} from 'axios';
+import type { AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 import { STORAGE_KEYS } from '@/utils/storageKeys';
+import { ENDPOINTS } from './endpoints';
 
-// 환경변수로 베이스 URL 관리
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
 
+// ✅ baseURL을 실제 서버 주소로 변경
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: 'http://3.133.89.210:8080', 
   headers: { 'Content-Type': 'application/json' },
-  withCredentials: false, // 서버가 쿠키 기반 리프레시를 쓴다면 true로 변경해야함
+  withCredentials: true,
 });
 
-// 토큰 관리 유틸
+
 const getAccessToken = () => localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
 const getRefreshToken = () => localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
 const setAccessToken = (token: string) => localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
@@ -50,7 +47,6 @@ function isAuthExcluded(url?: string) {
   }
 }
 
-// 매 요청에 access token 헤더를 자동으로 붙임
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const access = getAccessToken();
@@ -60,25 +56,19 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
-// 응답이 401(만료/인증실패)이면 refresh 시도 후 원래 요청 재시도
 let isRefreshing = false;
-let refreshSubscribers: Array<(token: string | null) => void> = [];
+const refreshSubscribers: Array<(token: string | null) => void> = [];
 
 function subscribeTokenRefresh(cb: (token: string | null) => void) {
   refreshSubscribers.push(cb);
 }
 
 function notifyTokenRefreshed(token: string | null) {
-  const subs = refreshSubscribers;
-  refreshSubscribers = [];
-  subs.forEach((cb) => {
-    try {
-      cb(token);
-    } catch {}
-  });
+  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers.length = 0;
 }
 
 async function refreshAccessToken(): Promise<string | null> {
@@ -91,30 +81,18 @@ async function refreshAccessToken(): Promise<string | null> {
       { refreshToken: refresh }, // 이부분도 API 스펙에 맞게 조정 필요합니다.
       { headers: { 'Content-Type': 'application/json' } }
     );
-    const newAccess = res.data?.accessToken as string | undefined;
-    const newRefresh = (res.data?.refreshToken as string | undefined) ?? undefined;
+    const newAccess = res.data?.accessToken;
+    const newRefresh = res.data?.refreshToken;
 
     if (newAccess) setAccessToken(newAccess);
     if (newRefresh) setRefreshToken(newRefresh);
-    try {
-      window.dispatchEvent(
-        new CustomEvent('auth:tokenRefreshed', {
-          detail: { accessToken: newAccess ?? null, refreshToken: newRefresh ?? null },
-        })
-      );
-    } catch {}
 
-    // 구독자들에게 새 토큰 전달
+    window.dispatchEvent(new CustomEvent('auth:tokenRefreshed', { detail: { accessToken: newAccess, refreshToken: newRefresh } }));
     notifyTokenRefreshed(newAccess ?? null);
-
     return newAccess ?? null;
   } catch (e) {
-    // Refresh 실패시 토큰 제거
     clearTokens();
-    try {
-      window.dispatchEvent(new Event('auth:tokensCleared'));
-    } catch {}
-    // 구독자들에게 실패 전달(null)
+    window.dispatchEvent(new Event('auth:tokensCleared'));
     notifyTokenRefreshed(null);
     return null;
   }
@@ -129,14 +107,10 @@ axiosInstance.interceptors.response.use(
     if (response?.status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true;
       if (isRefreshing) {
-        // 이미 리프레시 중: 새 Promise를 만들어 결과를 구독
         return new Promise((resolve, reject) => {
           subscribeTokenRefresh((newAccess) => {
-            if (newAccess) {
-              originalRequest.headers = {
-                ...(originalRequest.headers || {}),
-                Authorization: `Bearer ${newAccess}`,
-              } as any;
+            if (newAccess && originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${newAccess}`;
               resolve(axiosInstance(originalRequest));
             } else {
               reject(error);
@@ -144,15 +118,11 @@ axiosInstance.interceptors.response.use(
           });
         });
       } else {
-        // 최초 한 번만 실제 리프레시 호출
         isRefreshing = true;
         try {
           const newAccess = await refreshAccessToken();
-          if (newAccess) {
-            originalRequest.headers = {
-              ...(originalRequest.headers || {}),
-              Authorization: `Bearer ${newAccess}`,
-            } as any;
+          if (newAccess && originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${newAccess}`;
             return axiosInstance(originalRequest);
           }
         } finally {
@@ -162,7 +132,7 @@ axiosInstance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;

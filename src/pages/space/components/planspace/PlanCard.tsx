@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import type { PlanType } from '@/pages/space/types/plan';
+import type { Plan } from '@/pages/space/types/plan';
 import { fontSystem } from '@/styles/fontSystem';
 import Edit from '@/assets/icons/Edit';
 import { usePageRouting } from '@/hooks/usePageRouting';
@@ -7,7 +7,7 @@ import Delete from '@/assets/icons/Delete';
 import DeletionConfirmWindow from './DeletionConfirmWindow';
 import { useModal } from '@/hooks/useModal';
 
-function PlanCard({ plan, highlight = false }: { plan: PlanType; highlight?: boolean }) {
+function PlanCard({ plan, highlight = false }: { plan: Plan; highlight?: boolean }) {
   const goto = usePageRouting();
   const [deletionConfirmModal, openDeletionConfirmWindow] = useModal({
     ModalWindow: DeletionConfirmWindow,

@@ -12,7 +12,7 @@ function PlanPage() {
   const id = useParams().id ?? '-1';
 
   useEffect(() => {
-    console.log(`백엔드 plan 정보 요청 (${id})`);
+    // console.log(`백엔드 plan 정보 요청 (${id})`);
   }, [id]);
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);

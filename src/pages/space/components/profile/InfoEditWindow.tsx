@@ -15,16 +15,35 @@ import { FormInputField } from '@/components/FormInputField';
 import { FormSelectField } from '@/components/FormSelectField';
 import { useEditForm } from '../../hooks/useEditForm';
 import { mbtiTypes, type EditFormInputs } from '../../utils/editValidation';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axiosInstance from '@/api/axiosInstance';
+import { ENDPOINTS } from '@/api/endpoints';
+
+const updateMemberInfo = async (data: EditFormInputs) => {
+  const { phone, ...rest } = data;
+  const payload = { ...rest, contact: phone };
+  const response = await axiosInstance.patch(ENDPOINTS.members.me, payload);
+  return response.data;
+};
 
 function InfoEditWindow({ closeModal, member }: ModalPropType & { member: MemberType }) {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: updateMemberInfo,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['memberInfo'] });
+      alert('회원정보 수정이 완료되었습니다!');
+      closeModal();
+    },
+    onError: () => {
+      alert('정보 수정에 실패했습니다.');
+    },
+  });
+
   const { register, handleSubmit, errors, isValid } = useEditForm({
     defaultValues: { ...member, phone: member.contact },
     onSubmit: (data: EditFormInputs) => {
-      // todo: PATCH API 호출
-      console.log('서버로 전송할 데이터:', data);
-
-      alert('회원정보 수정이 완료되었습니다!');
-      closeModal();
+      mutation.mutate(data);
     },
   });
 
@@ -38,7 +57,6 @@ function InfoEditWindow({ closeModal, member }: ModalPropType & { member: Member
           </CloseButton>
         </WindowTopBar>
 
-        {/* 병합 후 수정 필요 */}
         <FieldWrapper>
           <FormInputField<EditFormInputs>
             id="email"
@@ -73,9 +91,9 @@ function InfoEditWindow({ closeModal, member }: ModalPropType & { member: Member
         </FieldWrapper>
 
         <ControlBar>
-          <CancelButton onClick={closeModal}>취소</CancelButton>
-          <CompleteButton type="submit" disabled={!isValid} onClick={() => {}}>
-            수정
+          <CancelButton type="button" onClick={closeModal}>취소</CancelButton>
+          <CompleteButton type="submit" disabled={!isValid || mutation.isPending}>
+            {mutation.isPending ? '수정 중...' : '수정'}
           </CompleteButton>
         </ControlBar>
       </ModalWindowWrapper>
