@@ -5,6 +5,7 @@ import { WaypointDispatcherResolver } from '../utils/WaypointDispatcherResolver'
 import { MemoDispatcherResolver } from '../utils/MemoDispatcherResolver';
 import { initDependencies } from '../utils/InitDependencies';
 import { topologicalSort } from '../utils/Topology';
+import { RouteDispatcherResolver } from '../utils/RouteDispatcherResolver';
 
 const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
 
@@ -51,9 +52,7 @@ export default function useSocketHandler({ planId }: useSocketHandlerType) {
     });
     client.subscribe(StompURL.SUB.WAYPOINT(planId), WaypointDispatcherResolver);
     client.subscribe(StompURL.SUB.MEMO(planId), MemoDispatcherResolver);
-    client.subscribe(StompURL.SUB.ROUTE(planId), (message) => {
-      console.log('ROUTE 메시지:', JSON.parse(message.body));
-    });
+    client.subscribe(StompURL.SUB.ROUTE(planId), RouteDispatcherResolver);
     client.subscribe(StompURL.SUB.TRAVELER(planId), (message) => {
       console.log('TRAVELER 메시지:', JSON.parse(message.body));
     });
