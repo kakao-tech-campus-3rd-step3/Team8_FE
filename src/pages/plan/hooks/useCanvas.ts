@@ -189,7 +189,7 @@ export function useCanvas() {
             data: route,
           }));
           setEdges((eds) => [...eds, ...newRoute]);
-          socketEventBus.dispatchEvent(new Event('MEMO_INIT_DONE'));
+          socketEventBus.dispatchEvent(new Event('ROUTE_INIT_DONE'));
           break;
         }
         case 'CREATE': {

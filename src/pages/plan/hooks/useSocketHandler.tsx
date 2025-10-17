@@ -90,7 +90,7 @@ export default function useSocketHandler({ planId }: useSocketHandlerType) {
           break;
         case 'ROUTE':
           client.publish({ destination: StompURL.PUB.ROUTE.INIT(planId) });
-          // TBD: await waitForInitComplete('ROUTE_INIT_DONE');
+          await waitForInitComplete('ROUTE_INIT_DONE');
           break;
         case 'TRAVELER':
           // TBD
