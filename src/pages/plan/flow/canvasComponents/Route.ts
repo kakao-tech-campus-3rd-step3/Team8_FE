@@ -1,6 +1,7 @@
 import type { VehicleCategory } from '../../utils/Category';
 
 export interface RouteData extends Record<string, unknown> {
+  id: number;
   fromWaypointId: number;
   toWaypointId: number;
   title: string;
