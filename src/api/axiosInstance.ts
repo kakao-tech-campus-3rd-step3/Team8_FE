@@ -23,16 +23,28 @@ const clearTokens = () => {
   localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
 };
 
-// baseURL이 합쳐지기 전의 상대 경로와 비교해야 하므로 /api 접두사 제거
-const AUTH_EXCLUDED_PATHS = new Set<string>([
-  ENDPOINTS.auth.login,
-  ENDPOINTS.auth.signup,
-  ENDPOINTS.auth.refresh, // 토큰 재발급 요청도 인증이 필요 없습니다.
-]);
+// 로그인/회원가입은 Authorization 헤더 제외 대상 (member권한 필요없음)
+const AUTH_EXCLUDED_LIST = ['/v1/auth/login', '/v1/auth/signup'] as const;
+type AuthExcludedPath = (typeof AUTH_EXCLUDED_LIST)[number];
+const AUTH_EXCLUDED_PATHS = new Set<AuthExcludedPath>(AUTH_EXCLUDED_LIST);
 
 function isAuthExcluded(url?: string) {
   if (!url) return false;
-  return AUTH_EXCLUDED_PATHS.has(url);
+  try {
+    // 기존 구현 (CORS 해결 시 복구 가능)
+    // const u = url.startsWith('http') ? new URL(url) : new URL(url, API_BASE_URL);
+    // return AUTH_EXCLUDED_PATHS.has(u.pathname as AuthExcludedPath);
+
+    // 프록시 환경(/api)에서도 동작하도록 base를 절대 URL로 보정
+    const absBase = API_BASE_URL.startsWith('http')
+      ? API_BASE_URL
+      : `${window.location.origin}${API_BASE_URL}`;
+    const u = url.startsWith('http') ? new URL(url) : new URL(url, absBase);
+    return AUTH_EXCLUDED_PATHS.has(u.pathname as AuthExcludedPath);
+  } catch {
+    // 최후 폴백: 문자열 비교 (오타 방지를 위해 Set의 유니온 타입과 맞춰 캐스팅)
+    return AUTH_EXCLUDED_PATHS.has(url as AuthExcludedPath);
+  }
 }
 
 axiosInstance.interceptors.request.use(
@@ -64,10 +76,10 @@ async function refreshAccessToken(): Promise<string | null> {
   if (!refresh) return null;
 
   try {
-    // 이 요청도 일관성을 위해 axiosInstance를 사용하도록 변경합니다.
-    const res = await axiosInstance.post(
-      ENDPOINTS.auth.refresh,
-      { refreshToken: refresh }
+    const res = await axios.post(
+      `${API_BASE_URL}/v1/auth/refresh`, // 리프레시 엔드포인트 수정 완료
+      { refreshToken: refresh }, // 이부분도 API 스펙에 맞게 조정 필요합니다.
+      { headers: { 'Content-Type': 'application/json' } }
     );
     const newAccess = res.data?.accessToken;
     const newRefresh = res.data?.refreshToken;

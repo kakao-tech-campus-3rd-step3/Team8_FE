@@ -21,14 +21,11 @@
 const API_PREFIX = '/v1' as const;
 
 export const ENDPOINTS = {
-  auth: {
-    signup: `${API_PREFIX}/auth/signup`,
-    login: `${API_PREFIX}/auth/login`,
-    refresh: `${API_PREFIX}/auth/refresh`,
-  },
   members: {
+    login: `${API_PREFIX}/auth/login`,
+    signup: `${API_PREFIX}/auth/signup`,
     me: `${API_PREFIX}/members/me`,
-    withdraw: `${API_PREFIX}/members/me/withdraw`,
-    delete: (id: string) => `${API_PREFIX}/members/${id}`,
   },
-};
+} as const;
+
+export type Endpoints = typeof ENDPOINTS;

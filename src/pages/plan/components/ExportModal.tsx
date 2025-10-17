@@ -12,6 +12,7 @@ import {
 import Close from '@/assets/icons/Close';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
+import PDFSave from '../pdf/PDFSave';
 
 type ExportSettingsProps = {
   onClose: () => void;
@@ -50,6 +51,7 @@ function ExportSettings({ onClose, onExport, isLoading }: ExportSettingsProps) {
           내보내기
         </SmallCompleteButton>
       </ControlBar>
+      <PDFSave />
     </ModalWindowWrapper>
   );
 }
@@ -98,18 +100,13 @@ function ExportModal({ onClose }: ExportModalProps) {
       ) : isLoading ? (
         <ExportLoading />
       ) : (
-        <ExportSettings
-          onClose={onClose}
-          onExport={handleExport}
-          isLoading={isLoading}
-        />
+        <ExportSettings onClose={onClose} onExport={handleExport} isLoading={isLoading} />
       )}
     </ModalOverlay>
   );
 }
 
 export default ExportModal;
-
 
 const ModalOverlay = styled.div`
   position: fixed;
