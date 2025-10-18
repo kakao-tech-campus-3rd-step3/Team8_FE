@@ -8,4 +8,5 @@ export interface RouteData extends Record<string, unknown> {
   description: string;
   duration: number; // minutes
   vehicleCategory: VehicleCategory;
+  planId: number;
 }
