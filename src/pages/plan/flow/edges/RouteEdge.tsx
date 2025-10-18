@@ -12,8 +12,8 @@ import {
   vehicleCategoryOptions,
   type VehicleCategory,
 } from '../../utils/Category';
-import type { RouteData } from '../canvasComponents/Route';
 import type { RouteEdgeType } from '../../hooks/useCanvas';
+import { useDataSyncRoute } from '../../hooks/useDataSyncRoute';
 
 export default function RouteEdge({
   id,
@@ -27,6 +27,11 @@ export default function RouteEdge({
   markerEnd,
   data,
 }: EdgeProps<RouteEdgeType>) {
+  if (!data) {
+    console.error('Route 데이터가 null 이었습니다.');
+    return;
+  }
+
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -39,17 +44,7 @@ export default function RouteEdge({
   const { setEdges } = useReactFlow();
   const [open, setOpen] = useState(false);
 
-  // 기본 데이터 안전 처리
-  const mergedData: RouteData = {
-    fromWaypointId: data?.fromWaypointId ?? -1,
-    toWaypointId: data?.toWaypointId ?? -1,
-    title: data?.title ?? '새 경로',
-    description: data?.description ?? '',
-    duration: data?.duration ?? 1,
-    vehicleCategory: data?.vehicleCategory ?? 'DEFAULT',
-  };
-
-  const vehicleMeta = VehicleCategoryInfo[mergedData.vehicleCategory];
+  const vehicleMeta = VehicleCategoryInfo[data!.vehicleCategory];
   const mergedStyle = {
     ...style,
     stroke: vehicleMeta.color,
@@ -60,13 +55,7 @@ export default function RouteEdge({
     setEdges((edges) => edges.filter((edge) => edge.id !== id));
   };
 
-  const onUpdateData = <K extends keyof RouteData>(key: K, value: RouteData[K]) => {
-    setEdges((edges) =>
-      edges.map((edge) =>
-        edge.id === id ? { ...edge, data: { ...edge.data, [key]: value } } : edge
-      )
-    );
-  };
+  const { handleLocalDataChange } = useDataSyncRoute({ id, data });
 
   return (
     <>
@@ -88,16 +77,16 @@ export default function RouteEdge({
                 <label>제목</label>
                 <input
                   type="text"
-                  value={mergedData.title}
-                  onChange={(e) => onUpdateData('title', e.target.value)}
+                  value={data.title}
+                  onChange={(e) => handleLocalDataChange('title', e.target.value)}
                 />
               </FormRow>
               <FormRow>
                 <label>설명</label>
                 <input
                   type="text"
-                  value={mergedData.description}
-                  onChange={(e) => onUpdateData('description', e.target.value)}
+                  value={data.description}
+                  onChange={(e) => handleLocalDataChange('description', e.target.value)}
                 />
               </FormRow>
               <FormRow>
@@ -106,16 +95,18 @@ export default function RouteEdge({
                   type="number"
                   min="0"
                   step="0.1"
-                  value={mergedData.duration}
-                  onChange={(e) => onUpdateData('duration', parseFloat(e.target.value) || 0)}
+                  value={data.duration}
+                  onChange={(e) =>
+                    handleLocalDataChange('duration', parseFloat(e.target.value) || 0)
+                  }
                 />
               </FormRow>
               <FormRow>
                 <label>이동수단</label>
                 <select
-                  value={mergedData.vehicleCategory}
+                  value={data!.vehicleCategory}
                   onChange={(e) =>
-                    onUpdateData('vehicleCategory', e.target.value as VehicleCategory)
+                    handleLocalDataChange('vehicleCategory', e.target.value as VehicleCategory)
                   }
                 >
                   {vehicleCategoryOptions}

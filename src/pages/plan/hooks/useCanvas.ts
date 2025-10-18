@@ -36,6 +36,7 @@ export function useCanvas() {
         description: '',
         duration: 1,
         vehicleCategory: 'DEFAULT',
+        planId: -1,
       };
 
       client.publish({
@@ -188,7 +189,12 @@ export function useCanvas() {
             type: 'route',
             data: route,
           }));
-          setEdges((eds) => [...eds, ...newRoute]);
+          setEdges((eds) => {
+            const filteredNewRoutes = newRoute.filter(
+              (nr) => !eds.some((edge) => edge.id === nr.id)
+            );
+            return [...eds, ...filteredNewRoutes];
+          });
           socketEventBus.dispatchEvent(new Event('ROUTE_INIT_DONE'));
           break;
         }
@@ -204,6 +210,21 @@ export function useCanvas() {
                 data: newRoute,
               },
               eds
+            )
+          );
+          break;
+        }
+
+        case 'UPDATE': {
+          const route = detail.ROUTE;
+          setEdges((eds) =>
+            eds.map((edge) =>
+              edge.id === `route:${route.id}`
+                ? {
+                    ...edge,
+                    data: route,
+                  }
+                : edge
             )
           );
           break;
