@@ -14,6 +14,7 @@ import {
 } from '../../utils/Category';
 import type { RouteEdgeType } from '../../hooks/useCanvas';
 import { useDataSyncRoute } from '../../hooks/useDataSyncRoute';
+import { colorSystem } from '@/styles/colorSystem';
 
 export default function RouteEdge({
   id,
@@ -26,6 +27,7 @@ export default function RouteEdge({
   style = {},
   markerEnd,
   data,
+  selected,
 }: EdgeProps<RouteEdgeType>) {
   if (!data) {
     console.error('Route 데이터가 null 이었습니다.');
@@ -47,8 +49,8 @@ export default function RouteEdge({
   const vehicleMeta = VehicleCategoryInfo[data!.vehicleCategory];
   const mergedStyle = {
     ...style,
-    stroke: vehicleMeta.color,
-    strokeWidth: 4,
+    stroke: selected ? colorSystem.primary_yellow._400 : vehicleMeta.color,
+    strokeWidth: selected ? 8 : 4,
   };
 
   const onDelete = () => {

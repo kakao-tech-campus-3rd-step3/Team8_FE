@@ -11,7 +11,15 @@ import { useAutosizeInput } from '../../hooks/useAutosizeInput';
 import { Handle, Position } from '@xyflow/react';
 import { useDataSyncWaypoint } from '../../hooks/useDataSyncWaypoint';
 
-function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
+function WaypointNode({
+  id,
+  data,
+  selected,
+}: {
+  id: string;
+  data: WaypointData;
+  selected: boolean;
+}) {
   const [isCategorySelectorOpen, setCategorySelectorOpen] = useState(false);
   const iconWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -41,7 +49,10 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
 
   return (
     // LocationCategoryInfo 사용
-    <WaypointNodeContainer bgColor={LocationCategoryInfo[data.locationCategory].color}>
+    <WaypointNodeContainer
+      bgColor={LocationCategoryInfo[data.locationCategory].color}
+      selected={selected}
+    >
       <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
       <HorizontalLayout>
         <IconWrapper ref={iconWrapperRef}>
@@ -210,13 +221,14 @@ const DescriptionArea = styled.textarea`
 
 const WaypointNodeContainer = styled.div.withConfig({
   shouldForwardProp: (prop) => prop !== 'bgColor',
-})<{ bgColor: string }>`
+})<{ bgColor: string; selected: boolean }>`
   color: white;
   background-color: ${({ bgColor }) => bgColor};
   padding: 12px;
   border-radius: 12px;
   min-width: 350px;
   transition: background-color 0.3s ease;
+  border: ${({ selected }) => (selected ? `4px solid ${colorSystem.primary_yellow._400}` : 'none')};
 `;
 
 const HorizontalLayout = styled.div`
