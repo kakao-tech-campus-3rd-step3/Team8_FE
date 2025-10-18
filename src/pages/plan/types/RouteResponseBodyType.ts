@@ -12,4 +12,8 @@ export type RouteResponseType =
   | {
       type: 'UPDATE';
       ROUTE: RouteData;
+    }
+  | {
+      type: 'DELETE';
+      ROUTE: RouteData;
     };

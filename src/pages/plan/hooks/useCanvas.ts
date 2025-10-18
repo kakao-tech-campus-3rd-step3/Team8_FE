@@ -71,7 +71,11 @@ export function useCanvas() {
   }, []);
 
   const onEdgesDelete = useCallback((deletedEdges: CanvasEdges[]) => {
-    console.log(deletedEdges);
+    deletedEdges.forEach((edge) => {
+      client.publish({
+        destination: StompURL.PUB.ROUTE.DELETE(planId, edge.data!.id),
+      });
+    });
   }, []);
 
   useEffect(() => {
@@ -235,6 +239,12 @@ export function useCanvas() {
                 : edge
             )
           );
+          break;
+        }
+
+        case 'DELETE': {
+          const route_id = detail.ROUTE;
+          setEdges((eds) => eds.filter((edge) => edge.id !== `route:${route_id}`));
           break;
         }
       }
