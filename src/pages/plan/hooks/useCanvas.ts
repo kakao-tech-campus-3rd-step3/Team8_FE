@@ -66,6 +66,14 @@ export function useCanvas() {
     [setEdges]
   );
 
+  const onNodesDelete = useCallback((deletedNodes: CanvasNodes[]) => {
+    console.log(deletedNodes);
+  }, []);
+
+  const onEdgesDelete = useCallback((deletedEdges: CanvasEdges[]) => {
+    console.log(deletedEdges);
+  }, []);
+
   useEffect(() => {
     function handleWaypointEvent(e: Event) {
       const { detail } = e as CustomEvent<WayPointResponseType>;
@@ -272,5 +280,7 @@ export function useCanvas() {
     onEdgesChange,
     onConnect,
     onNodeDragStop,
+    onNodesDelete,
+    onEdgesDelete,
   };
 }
