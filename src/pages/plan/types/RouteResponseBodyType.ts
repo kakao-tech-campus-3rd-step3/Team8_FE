@@ -15,5 +15,5 @@ export type RouteResponseType =
     }
   | {
       type: 'DELETE';
-      ROUTE: RouteData;
+      ROUTE: number;
     };

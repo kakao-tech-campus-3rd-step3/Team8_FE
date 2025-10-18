@@ -67,7 +67,24 @@ export function useCanvas() {
   );
 
   const onNodesDelete = useCallback((deletedNodes: CanvasNodes[]) => {
-    console.log(deletedNodes);
+    deletedNodes.forEach((node) => {
+      console.log(node);
+      //Connected edge deletion is done from BE
+      switch (node.type) {
+        case 'waypoint': {
+          client.publish({
+            destination: StompURL.PUB.WAYPOINT.DELETE(planId, node.data.id),
+          });
+          break;
+        }
+        case 'memo': {
+          client.publish({
+            destination: StompURL.PUB.MEMO.DELETE(planId, node.data.id),
+          });
+          break;
+        }
+      }
+    });
   }, []);
 
   const onEdgesDelete = useCallback((deletedEdges: CanvasEdges[]) => {
@@ -125,6 +142,12 @@ export function useCanvas() {
           );
           break;
         }
+
+        case 'DELETE': {
+          const waypoint_id = detail.WAYPOINT;
+          setNodes((nodes) => nodes.filter((node) => node.id !== `waypoint:${waypoint_id}`));
+          break;
+        }
       }
     }
 
@@ -179,6 +202,12 @@ export function useCanvas() {
                 : node
             )
           );
+          break;
+        }
+
+        case 'DELETE': {
+          const memo_id = detail.MEMO;
+          setNodes((nodes) => nodes.filter((node) => node.id !== `memo:${memo_id}`));
           break;
         }
       }

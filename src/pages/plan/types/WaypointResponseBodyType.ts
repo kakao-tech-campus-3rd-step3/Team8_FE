@@ -12,4 +12,8 @@ export type WayPointResponseType =
   | {
       type: 'UPDATE';
       WAYPOINT: WaypointData;
+    }
+  | {
+      type: 'DELETE';
+      WAYPOINT: number;
     };

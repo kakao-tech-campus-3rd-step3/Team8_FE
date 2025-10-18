@@ -12,4 +12,8 @@ export type MemoResponseType =
   | {
       type: 'UPDATE';
       MEMO: MemoData;
+    }
+  | {
+      type: 'DELETE';
+      MEMO: number;
     };
