@@ -14,7 +14,7 @@ export interface LoginResponse {
 }
 
 async function loginApi(params: LoginParams): Promise<LoginResponse> {
-  const res = await axiosInstance.post(ENDPOINTS.members.login, params);
+  const res = await axiosInstance.post(ENDPOINTS.auth.login, params);
   return res.data as LoginResponse;
 }
 
