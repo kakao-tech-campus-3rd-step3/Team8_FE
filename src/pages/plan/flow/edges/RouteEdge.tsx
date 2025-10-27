@@ -13,8 +13,9 @@ import {
   type VehicleCategory,
 } from '../../utils/Category';
 import type { RouteEdgeType } from '../../hooks/useCanvas';
-import { useDataSyncRoute } from '../../hooks/useDataSyncRoute';
 import { colorSystem } from '@/styles/colorSystem';
+import { useDataSync } from '../../hooks/useDataSync';
+import type { RouteData } from '../canvasComponents/Route';
 
 export default function RouteEdge({
   id,
@@ -57,7 +58,7 @@ export default function RouteEdge({
     setEdges((edges) => edges.filter((edge) => edge.id !== id));
   };
 
-  const { handleLocalDataChange } = useDataSyncRoute({ id, data });
+  const { handleLocalDataChange } = useDataSync<RouteData>({ id, data });
 
   return (
     <>

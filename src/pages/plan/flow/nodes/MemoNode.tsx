@@ -1,12 +1,12 @@
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
 import styled from 'styled-components';
-import { useDataSyncMemo } from '../../hooks/useDataSyncMemo';
 import type { MemoData } from '../canvasComponents/Memo';
+import { useDataSync } from '../../hooks/useDataSync';
 
 // props로 data 받아올 수 있습니다.
 function MemoNode({ id, data, selected }: { id: string; data: MemoData; selected: boolean }) {
-  const { handleLocalDataChange } = useDataSyncMemo({ id, data });
+  const { handleLocalDataChange } = useDataSync<MemoData>({ id, data });
 
   return (
     <MemoNodeContainer selected={selected}>
