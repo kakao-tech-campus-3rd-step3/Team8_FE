@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { WaypointData } from '../flow/canvasComponents/Waypoint';
 import { useSocket } from './useSocket';
-import StompURL from '../utils/StompURL';
+import StompURL from '../utils/stompURL';
 import { useReactFlow } from '@xyflow/react';
 import type { MemoData } from '../flow/canvasComponents/Memo';
 

@@ -11,11 +11,11 @@ import type { WaypointData } from '../flow/canvasComponents/Waypoint';
 import type { MemoData } from '../flow/canvasComponents/Memo';
 import type { RouteData } from '../flow/canvasComponents/Route';
 import { socketEventBus } from '../hooks/useSocketHandler';
-import type { WayPointResponseType } from '../types/WaypointResponseBodyType';
-import type { MemoResponseType } from '../types/MemoResponseBodyType';
+import type { WayPointResponseType } from '../types/waypointResponseBodyType';
+import type { MemoResponseType } from '../types/memoResponseBodyType';
 import { useSocket } from './useSocket';
-import StompURL from '../utils/StompURL';
-import type { RouteResponseType } from '../types/RouteResponseBodyType';
+import StompURL from '../utils/stompURL';
+import type { RouteResponseType } from '../types/routeResponseBodyType';
 
 export type WaypointNodeType = Node<WaypointData, 'waypoint'>;
 export type MemoNodeType = Node<MemoData, 'memo'>;

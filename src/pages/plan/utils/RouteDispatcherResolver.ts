@@ -1,6 +1,6 @@
 import type { Message } from '@stomp/stompjs';
 import { socketEventBus } from '../hooks/useSocketHandler';
-import type { RouteResponseType } from '../types/RouteResponseBodyType';
+import type { RouteResponseType } from '../types/routeResponseBodyType';
 
 export function RouteDispatcherResolver(message: Message) {
   const routeData: RouteResponseType = JSON.parse(message.body);

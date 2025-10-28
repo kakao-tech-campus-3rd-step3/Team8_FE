@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useSocket } from './useSocket';
-import StompURL from '../utils/StompURL';
+import StompURL from '../utils/stompURL';
 import { useReactFlow } from '@xyflow/react';
 import type { RouteData } from '../flow/canvasComponents/Route';
 

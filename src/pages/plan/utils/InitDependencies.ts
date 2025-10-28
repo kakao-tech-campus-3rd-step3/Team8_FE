@@ -1,4 +1,4 @@
-import type { InitTask } from '../types/InitTask';
+import type { InitTask } from '../types/initTask';
 
 export const initDependencies: Record<InitTask, InitTask[]> = {
   WAYPOINT: [],
