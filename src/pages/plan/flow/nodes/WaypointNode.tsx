@@ -10,6 +10,7 @@ import { type WaypointData } from '../canvasComponents/Waypoint';
 import { useAutosizeInput } from '../../hooks/useAutosizeInput';
 import { Handle, Position } from '@xyflow/react';
 import { useDataSync } from '../../hooks/useDataSync';
+import { getDateDisplay, toLocalISOString } from '../../utils/dateUtils';
 
 function WaypointNode({
   id,
@@ -47,21 +48,6 @@ function WaypointNode({
   const nameProps = useAutosizeInput(data.name);
   const addressProps = useAutosizeInput(data.description);
 
-  const getSafeDate = (date: Date | null) =>
-    date ? date.toISOString().split('.')[0] : new Date().toISOString().split('.')[0];
-
-  const getDateDisplay = () => {
-    const startDate = new Date(getSafeDate(new Date(data.startTime))).getDate().toString();
-    const endDate = new Date(getSafeDate(new Date(data.endTime))).getDate().toString();
-
-    return startDate === endDate ? startDate : `${startDate}~${endDate}`;
-  };
-
-  const toLocalISOString = (date: Date | null) => {
-    if (!date) date = new Date();
-    return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().split('.')[0];
-  };
-
   return (
     // LocationCategoryInfo 사용
     <WaypointNodeContainer
@@ -98,7 +84,9 @@ function WaypointNode({
               className="nodrag"
               {...nameProps}
             />
-            <DateDisplay>{getDateDisplay()}</DateDisplay>
+            <DateDisplay>
+              {getDateDisplay({ startTime: data.startTime, endTime: data.endTime })}
+            </DateDisplay>
           </HorizontalLayout>
           <HorizontalLayout>
             <Address
