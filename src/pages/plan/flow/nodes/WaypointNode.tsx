@@ -47,6 +47,16 @@ function WaypointNode({
   const nameProps = useAutosizeInput(data.name);
   const addressProps = useAutosizeInput(data.description);
 
+  const getSafeDate = (date: Date | null) =>
+    date ? date.toISOString().split('.')[0] : new Date().toISOString().split('.')[0];
+
+  const getDateDisplay = () => {
+    const startDate = new Date(getSafeDate(new Date(data.startTime))).getDate().toString();
+    const endDate = new Date(getSafeDate(new Date(data.endTime))).getDate().toString();
+
+    return startDate === endDate ? startDate : `${startDate}~${endDate}`;
+  };
+
   return (
     // LocationCategoryInfo 사용
     <WaypointNodeContainer
@@ -74,14 +84,17 @@ function WaypointNode({
         </IconWrapper>
         <VerticalLayout>
           {/* 6. UI 요소들이 data state를 사용하도록 바인딩 수정 */}
-          <Name
-            as="input"
-            type="text"
-            value={data.name}
-            onChange={(e) => handleLocalDataChange('name', e.target.value)}
-            className="nodrag"
-            {...nameProps}
-          />
+          <HorizontalLayout style={{ justifyContent: 'space-between' }}>
+            <Name
+              as="input"
+              type="text"
+              value={data.name}
+              onChange={(e) => handleLocalDataChange('name', e.target.value)}
+              className="nodrag"
+              {...nameProps}
+            />
+            <DateDisplay>{getDateDisplay()}</DateDisplay>
+          </HorizontalLayout>
           <HorizontalLayout>
             <Address
               as="input"
@@ -94,9 +107,10 @@ function WaypointNode({
             <TimeWrapper>
               <DatePicker
                 selected={new Date(data.startTime!)}
-                onChange={(date: Date | null) => handleLocalDataChange('startTime', date)}
+                onChange={(date: Date | null) =>
+                  handleLocalDataChange('startTime', getSafeDate(date))
+                }
                 showTimeSelect
-                showTimeSelectOnly
                 timeIntervals={1}
                 timeCaption="Time"
                 dateFormat="HH:mm"
@@ -105,9 +119,10 @@ function WaypointNode({
               ~
               <DatePicker
                 selected={new Date(data.endTime!)}
-                onChange={(date: Date | null) => handleLocalDataChange('endTime', date)}
+                onChange={(date: Date | null) =>
+                  handleLocalDataChange('endTime', getSafeDate(date))
+                }
                 showTimeSelect
-                showTimeSelectOnly
                 timeIntervals={1}
                 timeCaption="Time"
                 dateFormat="HH:mm"
@@ -127,6 +142,17 @@ function WaypointNode({
     </WaypointNodeContainer>
   );
 }
+
+const DateDisplay = styled.div`
+  ${fontSystem.body.small}
+  background-color: gray;
+  border-radius: 100px;
+  padding: 5px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 const IconWrapper = styled.div`
   position: relative;
