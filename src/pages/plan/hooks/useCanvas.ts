@@ -16,6 +16,7 @@ import type { MemoResponseType } from '../types/memoResponseBodyType';
 import { useSocket } from './useSocket';
 import StompURL from '../utils/stompURL';
 import type { RouteResponseType } from '../types/routeResponseBodyType';
+import { getSessionId } from '../utils/sessionIdParser';
 
 export type WaypointNodeType = Node<WaypointData, 'waypoint'>;
 export type MemoNodeType = Node<MemoData, 'memo'>;
@@ -98,6 +99,7 @@ export function useCanvas() {
   useEffect(() => {
     function handleWaypointEvent(e: Event) {
       const { detail } = e as CustomEvent<WayPointResponseType>;
+      if (getSessionId(client) === detail.senderSessionId) return;
 
       switch (detail.type) {
         case 'INIT': {
@@ -158,6 +160,7 @@ export function useCanvas() {
   useEffect(() => {
     function handleMemoEvent(e: Event) {
       const { detail } = e as CustomEvent<MemoResponseType>;
+      if (getSessionId(client) === detail.senderSessionId) return;
 
       switch (detail.type) {
         case 'INIT': {
@@ -220,6 +223,7 @@ export function useCanvas() {
   useEffect(() => {
     function handleRouteEvent(e: Event) {
       const { detail } = e as CustomEvent<RouteResponseType>;
+      if (getSessionId(client) === detail.senderSessionId) return;
 
       switch (detail.type) {
         case 'INIT': {

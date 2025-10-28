@@ -6,6 +6,8 @@ import { MemoDispatcherResolver } from '../utils/memoDispatcherResolver';
 import { initDependencies } from '../utils/initDependencies';
 import { topologicalSort } from '../utils/topology';
 import { RouteDispatcherResolver } from '../utils/routeDispatcherResolver';
+import SockJS from 'sockjs-client';
+import { getSessionId } from '../utils/sessionIdParser';
 
 const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
 
@@ -19,11 +21,11 @@ export default function useSocketHandler({ planId }: useSocketHandlerType) {
   const client = useMemo(
     () =>
       new Client({
-        webSocketFactory: () => new WebSocket(`${API_BASE_URL}/ws`),
+        webSocketFactory: () => new SockJS(`${API_BASE_URL}/ws`),
         onConnect: () => {
           subscribeAll();
           initAll();
-          console.log('Stomp 연결 성공');
+          console.log('STOMP 연결 성공, sessionId:', getSessionId(client));
         },
         // debug: (str) => {
         //   console.log(new Date(), str);
