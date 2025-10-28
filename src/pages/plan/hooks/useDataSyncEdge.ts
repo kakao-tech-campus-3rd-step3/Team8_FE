@@ -1,14 +1,12 @@
 import { useEffect, useRef } from 'react';
-import type { WaypointData } from '../flow/canvasComponents/Waypoint';
 import { useSocket } from './useSocket';
 import StompURL from '../utils/StompURL';
 import { useReactFlow } from '@xyflow/react';
 import type { RouteData } from '../flow/canvasComponents/Route';
-import type { MemoData } from '../flow/canvasComponents/Memo';
 
-type AlloedTypes = WaypointData | MemoData | RouteData;
+type AllowedTypes = RouteData;
 
-export function useDataSync<DataType extends AlloedTypes>({
+export function useDataSyncEdge<DataType extends AllowedTypes>({
   id,
   data,
 }: {
@@ -16,11 +14,11 @@ export function useDataSync<DataType extends AlloedTypes>({
   data: DataType;
 }) {
   const isInitialRender = useRef(true);
-  const prevDataRef = useRef<DataType>(data);
+  const prevDataRef = useRef<RouteData>(data);
   const { planId, client } = useSocket();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const DEBOUNCE_TIME = 300;
-  const { setNodes } = useReactFlow();
+  const { setEdges } = useReactFlow();
   const localUpdateRef = useRef<boolean>(false);
 
   useEffect(() => {
@@ -41,7 +39,7 @@ export function useDataSync<DataType extends AlloedTypes>({
 
       if (changed && localUpdateRef.current) {
         client.publish({
-          destination: StompURL.PUB.WAYPOINT.UPDATE(planId, data.id),
+          destination: StompURL.PUB.ROUTE.UPDATE(planId, data.id),
           body: JSON.stringify(data),
         });
 
@@ -58,9 +56,9 @@ export function useDataSync<DataType extends AlloedTypes>({
 
   const handleLocalDataChange = <K extends keyof DataType>(field: K, value: DataType[K]) => {
     localUpdateRef.current = true;
-    setNodes((nds) =>
-      nds.map((node) =>
-        node.id === id.toString() ? { ...node, data: { ...node.data, [field]: value } } : node
+    setEdges((edges) =>
+      edges.map((edge) =>
+        edge.id === id ? { ...edge, data: { ...edge.data, [field]: value } } : edge
       )
     );
   };
