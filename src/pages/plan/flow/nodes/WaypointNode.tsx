@@ -57,6 +57,11 @@ function WaypointNode({
     return startDate === endDate ? startDate : `${startDate}~${endDate}`;
   };
 
+  const toLocalISOString = (date: Date | null) => {
+    if (!date) date = new Date();
+    return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().split('.')[0];
+  };
+
   return (
     // LocationCategoryInfo 사용
     <WaypointNodeContainer
@@ -108,10 +113,10 @@ function WaypointNode({
               <DatePicker
                 selected={new Date(data.startTime!)}
                 onChange={(date: Date | null) =>
-                  handleLocalDataChange('startTime', getSafeDate(date))
+                  handleLocalDataChange('startTime', toLocalISOString(date))
                 }
                 showTimeSelect
-                timeIntervals={1}
+                timeIntervals={30}
                 timeCaption="Time"
                 dateFormat="HH:mm"
                 customInput={<CustomTimeInput />}
@@ -120,10 +125,10 @@ function WaypointNode({
               <DatePicker
                 selected={new Date(data.endTime!)}
                 onChange={(date: Date | null) =>
-                  handleLocalDataChange('endTime', getSafeDate(date))
+                  handleLocalDataChange('endTime', toLocalISOString(date))
                 }
                 showTimeSelect
-                timeIntervals={1}
+                timeIntervals={30}
                 timeCaption="Time"
                 dateFormat="HH:mm"
                 customInput={<CustomTimeInput />}
