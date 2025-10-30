@@ -6,6 +6,7 @@ import ExportModal from './components/ExportModal';
 import { useEffect, useState } from 'react';
 import { colorSystem } from '@/styles/colorSystem';
 import Canvas from './flow/Canvas';
+import { SocketProvider } from './context/SocketContext';
 
 function PlanPage() {
   const id = useParams().id ?? '-1';
@@ -25,7 +26,7 @@ function PlanPage() {
   };
 
   return (
-    <>
+    <SocketProvider planId={parseInt(id)}>
       <InvitationPanel />
       <TitleBar>
         <Title>일본여행</Title>
@@ -34,7 +35,7 @@ function PlanPage() {
       </TitleBar>
       {isExportModalOpen && <ExportModal onClose={handleCloseModal} title="일본여행" />}
       <Canvas />
-    </>
+    </SocketProvider>
   );
 }
 

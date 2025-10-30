@@ -2,11 +2,11 @@ import type { LocationCategory } from '../../utils/Category';
 
 export interface WaypointData extends Record<string, unknown> {
   id: number;
-  title: string;
+  name: string;
   description: string;
   address: string;
-  startTime: Date;
-  endTime: Date;
+  startTime: string;
+  endTime: string;
   memoID: number;
   locationCategory: LocationCategory;
   xPosition: number;

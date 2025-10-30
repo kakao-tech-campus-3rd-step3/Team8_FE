@@ -4,34 +4,27 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
-import { LocationType, flattenLocationTypes } from '@/pages/plan/utils/Category';
+import { LocationCategoryInfo, type LocationCategory } from '@/pages/plan/utils/Category';
 import { CustomTimeInput } from './CustomTimeInput';
 import { type WaypointData } from '../canvasComponents/Waypoint';
 import { useAutosizeInput } from '../../hooks/useAutosizeInput';
 import { Handle, Position } from '@xyflow/react';
+import { useDataSyncNode } from '../../hooks/useDataSyncNode';
+import { getDateDisplay, toLocalISOString } from '../../utils/dateUtils';
 
-// props로 data 받아올 수 있습니다.
-function WaypointNode() {
-  const FlatLocationTypes = flattenLocationTypes(LocationType);
-
-  const [data, setData] = useState<WaypointData>({
-    id: 0,
-    title: '위치 제목',
-    description: '위치 설명',
-    address: '주소',
-    startTime: new Date(0, 0, 0, 0, 0),
-    endTime: new Date(0, 0, 0, 0, 0),
-    memoID: 0,
-    locationCategory: LocationType.DEFAULT.DEFAULT,
-    xPosition: 0,
-    yPosition: 0,
-  });
+function WaypointNode({
+  id,
+  data,
+  selected,
+}: {
+  id: string;
+  data: WaypointData;
+  selected: boolean;
+}) {
   const [isCategorySelectorOpen, setCategorySelectorOpen] = useState(false);
   const iconWrapperRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    console.log(`웹 소켓 데이터 전송`, data);
-  }, [data]);
+  const { handleLocalDataChange } = useDataSyncNode<WaypointData>({ id, data });
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -47,32 +40,34 @@ function WaypointNode() {
     };
   }, [isCategorySelectorOpen]);
 
-  const handleDataChange = <K extends keyof WaypointData>(field: K, value: WaypointData[K]) => {
-    setData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleCategoryChange = (selectedCategory: string) => {
-    handleDataChange('locationCategory', selectedCategory);
+  const handleCategoryChange = (selectedCategory: LocationCategory) => {
+    handleLocalDataChange('locationCategory', selectedCategory);
     setCategorySelectorOpen(false);
   };
-  const currentCategory = FlatLocationTypes[data.locationCategory] || LocationType.DEFAULT.DEFAULT;
 
-  const titleProps = useAutosizeInput(data.title);
+  const nameProps = useAutosizeInput(data.name);
   const addressProps = useAutosizeInput(data.description);
 
   return (
-    <WaypointNodeContainer bgColor={currentCategory.color}>
+    // LocationCategoryInfo 사용
+    <WaypointNodeContainer
+      bgColor={LocationCategoryInfo[data.locationCategory].color}
+      selected={selected}
+    >
       <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
       <HorizontalLayout>
         <IconWrapper ref={iconWrapperRef}>
           <IconPlaceholder onClick={() => setCategorySelectorOpen((prev) => !prev)}>
-            {currentCategory.icon}
+            {/* LocationCategoryInfo 사용 */}
+            {LocationCategoryInfo[data.locationCategory].icon}
           </IconPlaceholder>
           {isCategorySelectorOpen && (
             <CategoryDropdown>
-              {Object.entries(FlatLocationTypes).map(([key, value]) => (
-                <CategoryItem key={key} onClick={() => handleCategoryChange(key)}>
-                  {value.icon} {key}
+              {/* Object.keys(LocationCategoryInfo) 사용 */}
+              {(Object.keys(LocationCategoryInfo) as LocationCategory[]).map((cat) => (
+                <CategoryItem key={cat} onClick={() => handleCategoryChange(cat)}>
+                  {/* LocationCategoryInfo 사용 */}
+                  {LocationCategoryInfo[cat].icon} {cat}
                 </CategoryItem>
               ))}
             </CategoryDropdown>
@@ -80,41 +75,48 @@ function WaypointNode() {
         </IconWrapper>
         <VerticalLayout>
           {/* 6. UI 요소들이 data state를 사용하도록 바인딩 수정 */}
-          <Title
-            as="input"
-            type="text"
-            value={data.title}
-            onChange={(e) => handleDataChange('title', e.target.value)}
-            className="nodrag"
-            {...titleProps}
-          />
+          <HorizontalLayout style={{ justifyContent: 'space-between' }}>
+            <Name
+              as="input"
+              type="text"
+              value={data.name}
+              onChange={(e) => handleLocalDataChange('name', e.target.value)}
+              className="nodrag"
+              {...nameProps}
+            />
+            <DateDisplay>
+              {getDateDisplay({ startTime: data.startTime, endTime: data.endTime })}
+            </DateDisplay>
+          </HorizontalLayout>
           <HorizontalLayout>
             <Address
               as="input"
               type="text"
               value={data.address}
-              onChange={(e) => handleDataChange('address', e.target.value)}
+              onChange={(e) => handleLocalDataChange('address', e.target.value)}
               className="nodrag"
               {...addressProps}
             />
             <TimeWrapper>
               <DatePicker
-                selected={data.startTime}
-                onChange={(date: Date | null) => handleDataChange('startTime', date)}
+                selected={new Date(data.startTime!)}
+                onChange={(date: Date | null) =>
+                  handleLocalDataChange('startTime', toLocalISOString(date))
+                }
                 showTimeSelect
-                showTimeSelectOnly
-                timeIntervals={1}
+                timeIntervals={30}
                 timeCaption="Time"
                 dateFormat="HH:mm"
                 customInput={<CustomTimeInput />}
               />
               ~
               <DatePicker
-                selected={data.endTime}
-                onChange={(date: Date | null) => handleDataChange('endTime', date)}
+                selected={new Date(data.endTime!)}
+                onChange={(date: Date | null) =>
+                  handleLocalDataChange('endTime', toLocalISOString(date))
+                }
                 showTimeSelect
-                showTimeSelectOnly
-                timeIntervals={1}
+                timeIntervals={30}
                 timeCaption="Time"
                 dateFormat="HH:mm"
                 customInput={<CustomTimeInput />}
@@ -125,7 +127,7 @@ function WaypointNode() {
             placeholder="메모..."
             className="nodrag"
             value={data.description}
-            onChange={(e) => handleDataChange('description', e.target.value)}
+            onChange={(e) => handleLocalDataChange('description', e.target.value)}
           />
         </VerticalLayout>
       </HorizontalLayout>
@@ -133,6 +135,17 @@ function WaypointNode() {
     </WaypointNodeContainer>
   );
 }
+
+const DateDisplay = styled.div`
+  ${fontSystem.body.small}
+  background-color: gray;
+  border-radius: 100px;
+  padding: 5px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 const IconWrapper = styled.div`
   position: relative;
@@ -207,7 +220,7 @@ const BaseInputStyles = `
   min-width: 50px;
 `;
 
-const Title = styled.div`
+const Name = styled.div`
   ${fontSystem.title.xlarge}
   ${BaseInputStyles}
 `;
@@ -227,13 +240,14 @@ const DescriptionArea = styled.textarea`
 
 const WaypointNodeContainer = styled.div.withConfig({
   shouldForwardProp: (prop) => prop !== 'bgColor',
-})<{ bgColor: string }>`
+})<{ bgColor: string; selected: boolean }>`
   color: white;
   background-color: ${({ bgColor }) => bgColor};
   padding: 12px;
   border-radius: 12px;
   min-width: 350px;
   transition: background-color 0.3s ease;
+  border: ${({ selected }) => (selected ? `4px solid ${colorSystem.primary_yellow._400}` : 'none')};
 `;
 
 const HorizontalLayout = styled.div`

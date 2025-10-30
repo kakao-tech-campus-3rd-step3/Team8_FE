@@ -32,10 +32,14 @@ function RootRedirect() {
 function Router() {
   return (
     <>
-      <RoutingPanel />
-      <ColorPanel />
-      <FontPanel />
-      <ToastContainer />
+      {process.env.NODE_ENV === 'development' && (
+        <>
+          <RoutingPanel />
+          <ColorPanel />
+          <FontPanel />
+          <ToastContainer />
+        </>
+      )}
       <Routes>
         <Route element={<MobileLayout />}>
           {/* 루트 경로('/')에 RootRedirect 컴포넌트를 연결 */}
