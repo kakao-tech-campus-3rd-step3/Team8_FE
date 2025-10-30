@@ -2,11 +2,13 @@ import TopBar from '@/components/TopBar';
 import Profile from '@/pages/space/components/profile/Profile';
 import PlanSpace from '@/pages/space/components/planspace/PlanSpace';
 import styled from 'styled-components';
+import { useAuth } from '@/hooks/useAuth';
 import { STORAGE_KEYS } from '@/utils/storageKeys';
 import { useQueryClient } from '@tanstack/react-query';
 
 function SpacePage() {
   const queryClient = useQueryClient();
+  const { logout } = useAuth();
 
   const expireAccessToken = () => {
     try {
@@ -30,6 +32,7 @@ function SpacePage() {
         <DevBar>
           <ExpireButton onClick={expireAccessToken}>액세스 토큰 만료 시뮬레이션</ExpireButton>
         </DevBar>
+        <LogoutButton onClick={logout}>임시 로그아웃</LogoutButton>
         <Profile />
         <PlanSpace />
       </SpacePageWrapper>
@@ -59,6 +62,14 @@ const ExpireButton = styled.button`
   border: 1px solid #ff922b;
   background: #fff4e6;
   color: #d9480f;
+`;
+
+const LogoutButton = styled.button`
+  align-self: flex-end;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fafafa;
   cursor: pointer;
 `;
 
