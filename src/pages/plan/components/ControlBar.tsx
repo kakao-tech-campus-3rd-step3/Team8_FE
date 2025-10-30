@@ -2,7 +2,7 @@ import { styled } from 'styled-components';
 import FlagCircle from '@/assets/icons/FlagCircle';
 import NoteAlt from '@/assets/icons/NoteAlt';
 import { useSocket } from '../context/SocketContext';
-import StompURL from '../utils/StompURL';
+import StompURL from '../utils/stompURL';
 import type { MemoData } from '../flow/canvasComponents/Memo';
 import { useViewport } from '@xyflow/react';
 import type { WaypointData } from '../flow/canvasComponents/Waypoint';

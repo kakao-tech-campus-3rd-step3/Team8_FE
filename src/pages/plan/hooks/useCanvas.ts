@@ -9,17 +9,19 @@ import {
 } from '@xyflow/react';
 import type { WaypointData } from '../flow/canvasComponents/Waypoint';
 import type { MemoData } from '../flow/canvasComponents/Memo';
-import type { ArrowData } from '../flow/canvasComponents/Arrow';
+import type { RouteData } from '../flow/canvasComponents/Route';
 import { socketEventBus } from '../hooks/useSocketHandler';
-import type { WayPointResponseType } from '../types/WaypointResponseBodyType';
-import type { MemoResponseType } from '../types/MemoResponseBodyType';
+import type { WayPointResponseType } from '../types/waypointResponseBodyType';
+import type { MemoResponseType } from '../types/memoResponseBodyType';
 import { useSocket } from './useSocket';
-import StompURL from '../utils/StompURL';
+import StompURL from '../utils/stompURL';
+import type { RouteResponseType } from '../types/routeResponseBodyType';
+import { getSessionId } from '../utils/sessionIdParser';
 
 export type WaypointNodeType = Node<WaypointData, 'waypoint'>;
 export type MemoNodeType = Node<MemoData, 'memo'>;
 export type CanvasNodes = WaypointNodeType | MemoNodeType;
-export type RouteEdgeType = Edge<ArrowData, 'route'>;
+export type RouteEdgeType = Edge<RouteData, 'route'>;
 export type CanvasEdges = RouteEdgeType;
 
 export function useCanvas() {
@@ -27,30 +29,77 @@ export function useCanvas() {
   const [edges, setEdges, onEdgesChange] = useEdgesState<CanvasEdges>([]);
 
   const onConnect = useCallback(
-    (params: Connection) =>
-      setEdges((eds) =>
-        addEdge<RouteEdgeType>(
-          {
-            ...params,
-            type: 'route',
-            data: {
-              startId: -1,
-              endId: -1,
-              title: '새 경로',
-              description: '',
-              duration: 0,
-              transportationCategory: 'DEFAULT',
-            },
-          },
-          eds
-        )
-      ),
+    (params: Connection) => {
+      const newRoute: Omit<RouteData, 'id'> = {
+        fromWaypointId: parseInt(params.source.split(':')[1]),
+        toWaypointId: parseInt(params.target.split(':')[1]),
+        title: '새 경로',
+        description: '',
+        duration: 1,
+        vehicleCategory: 'DEFAULT',
+        planId: -1,
+      };
+
+      client.publish({
+        destination: StompURL.PUB.ROUTE.CREATE(planId),
+        body: JSON.stringify(newRoute),
+      });
+
+      // setEdges((eds) =>
+      //   addEdge<RouteEdgeType>(
+      //     {
+      //       ...params,
+      //       type: 'route',
+      //       data: {
+      //         fromWaypointId: parseInt(params.source.split(':')[1]),
+      //         toWaypointId: parseInt(params.target.split(':')[1]),
+      //         title: '새 경로',
+      //         description: '',
+      //         duration: 1,
+      //         vehicleCategory: 'DEFAULT',
+      //       },
+      //     },
+      //     eds
+      //   )
+      // );
+    },
+
     [setEdges]
   );
+
+  const onNodesDelete = useCallback((deletedNodes: CanvasNodes[]) => {
+    deletedNodes.forEach((node) => {
+      console.log(node);
+      //Connected edge deletion is done from BE
+      switch (node.type) {
+        case 'waypoint': {
+          client.publish({
+            destination: StompURL.PUB.WAYPOINT.DELETE(planId, node.data.id),
+          });
+          break;
+        }
+        case 'memo': {
+          client.publish({
+            destination: StompURL.PUB.MEMO.DELETE(planId, node.data.id),
+          });
+          break;
+        }
+      }
+    });
+  }, []);
+
+  const onEdgesDelete = useCallback((deletedEdges: CanvasEdges[]) => {
+    deletedEdges.forEach((edge) => {
+      client.publish({
+        destination: StompURL.PUB.ROUTE.DELETE(planId, edge.data!.id),
+      });
+    });
+  }, []);
 
   useEffect(() => {
     function handleWaypointEvent(e: Event) {
       const { detail } = e as CustomEvent<WayPointResponseType>;
+      if (getSessionId(client) === detail.senderSessionId) return;
 
       switch (detail.type) {
         case 'INIT': {
@@ -95,6 +144,12 @@ export function useCanvas() {
           );
           break;
         }
+
+        case 'DELETE': {
+          const waypoint_id = detail.WAYPOINT;
+          setNodes((nodes) => nodes.filter((node) => node.id !== `waypoint:${waypoint_id}`));
+          break;
+        }
       }
     }
 
@@ -105,6 +160,7 @@ export function useCanvas() {
   useEffect(() => {
     function handleMemoEvent(e: Event) {
       const { detail } = e as CustomEvent<MemoResponseType>;
+      if (getSessionId(client) === detail.senderSessionId) return;
 
       switch (detail.type) {
         case 'INIT': {
@@ -151,11 +207,84 @@ export function useCanvas() {
           );
           break;
         }
+
+        case 'DELETE': {
+          const memo_id = detail.MEMO;
+          setNodes((nodes) => nodes.filter((node) => node.id !== `memo:${memo_id}`));
+          break;
+        }
       }
     }
 
     socketEventBus.addEventListener('MEMO_EVENT', handleMemoEvent);
     return () => socketEventBus.removeEventListener('MEMO_EVENT', handleMemoEvent);
+  }, [setNodes]);
+
+  useEffect(() => {
+    function handleRouteEvent(e: Event) {
+      const { detail } = e as CustomEvent<RouteResponseType>;
+      if (getSessionId(client) === detail.senderSessionId) return;
+
+      switch (detail.type) {
+        case 'INIT': {
+          const newRoute: RouteEdgeType[] = detail.ROUTE.map((route) => ({
+            id: `route:${route.id}`,
+            source: `waypoint:${route.fromWaypointId}`,
+            target: `waypoint:${route.toWaypointId}`,
+            type: 'route',
+            data: route,
+          }));
+          setEdges((eds) => {
+            const filteredNewRoutes = newRoute.filter(
+              (nr) => !eds.some((edge) => edge.id === nr.id)
+            );
+            return [...eds, ...filteredNewRoutes];
+          });
+          socketEventBus.dispatchEvent(new Event('ROUTE_INIT_DONE'));
+          break;
+        }
+        case 'CREATE': {
+          const newRoute = detail.ROUTE;
+          setEdges((eds) =>
+            addEdge<RouteEdgeType>(
+              {
+                id: `route:${newRoute.id}`,
+                source: `waypoint:${newRoute.fromWaypointId}`,
+                target: `waypoint:${newRoute.toWaypointId}`,
+                type: 'route',
+                data: newRoute,
+              },
+              eds
+            )
+          );
+          break;
+        }
+
+        case 'UPDATE': {
+          const route = detail.ROUTE;
+          setEdges((eds) =>
+            eds.map((edge) =>
+              edge.id === `route:${route.id}`
+                ? {
+                    ...edge,
+                    data: route,
+                  }
+                : edge
+            )
+          );
+          break;
+        }
+
+        case 'DELETE': {
+          const route_id = detail.ROUTE;
+          setEdges((eds) => eds.filter((edge) => edge.id !== `route:${route_id}`));
+          break;
+        }
+      }
+    }
+
+    socketEventBus.addEventListener('ROUTE_EVENT', handleRouteEvent);
+    return () => socketEventBus.removeEventListener('ROUTE_EVENT', handleRouteEvent);
   }, [setNodes]);
 
   const { planId, client } = useSocket();
@@ -194,5 +323,7 @@ export function useCanvas() {
     onEdgesChange,
     onConnect,
     onNodeDragStop,
+    onNodesDelete,
+    onEdgesDelete,
   };
 }
