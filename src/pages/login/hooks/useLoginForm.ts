@@ -5,6 +5,8 @@ import { loginSchema, type LoginFormInputs } from '@/pages/login/utils/loginVali
 import { useLoginMutation } from '@/pages/login/hooks/useLoginMutation';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { PATH } from '@/utils/path';
 
 function getServerMessage(data: unknown): string | undefined {
   if (data && typeof data === 'object' && 'message' in data) {
@@ -17,6 +19,9 @@ function getServerMessage(data: unknown): string | undefined {
 export const useLoginForm = () => {
   const routing = usePageRouting();
   const { mutate } = useLoginMutation();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const from = (location.state as any)?.from?.pathname ?? PATH.HOME;
   const {
     register,
     handleSubmit,
@@ -31,7 +36,8 @@ export const useLoginForm = () => {
       { email: data.email, password: data.password },
       {
         onSuccess: () => {
-          routing.home();
+          // 원래 가려던 경로(from)로 이동, 없으면 HOME
+          navigate(from, { replace: true });
         },
         onError: (e) => {
           const status = axios.isAxiosError(e) ? e.response?.status : undefined;
