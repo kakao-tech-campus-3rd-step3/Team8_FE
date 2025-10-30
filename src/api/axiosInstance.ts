@@ -1,18 +1,21 @@
-// src/api/axiosInstance.ts
-
 import axios from 'axios';
-import type { AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
+import { ENDPOINTS } from '@/api/endpoints';
+import type {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  InternalAxiosRequestConfig,
+} from 'axios';
 import { STORAGE_KEYS } from '@/utils/storageKeys';
-import { ENDPOINTS } from './endpoints';
 
+// .env(local)에서 주입된 VITE_API_BASE_URL 사용
+const API_BASE_URL: string | undefined = import.meta.env.VITE_API_BASE_URL;
 
-// ✅ baseURL을 실제 서버 주소로 변경
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: 'http://3.133.89.210:8080', 
+  baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
-  withCredentials: true,
+  withCredentials: false,
 });
-
 
 const getAccessToken = () => localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
 const getRefreshToken = () => localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
@@ -24,22 +27,16 @@ const clearTokens = () => {
 };
 
 // 로그인/회원가입은 Authorization 헤더 제외 대상 (member권한 필요없음)
-const AUTH_EXCLUDED_LIST = ['/v1/auth/login', '/v1/auth/signup'] as const;
+const AUTH_EXCLUDED_LIST = ['/v1/auth/login', '/v1/auth/signup', '/v1/auth/refresh'] as const;
 type AuthExcludedPath = (typeof AUTH_EXCLUDED_LIST)[number];
 const AUTH_EXCLUDED_PATHS = new Set<AuthExcludedPath>(AUTH_EXCLUDED_LIST);
 
 function isAuthExcluded(url?: string) {
   if (!url) return false;
   try {
-    // 기존 구현 (CORS 해결 시 복구 가능)
-    // const u = url.startsWith('http') ? new URL(url) : new URL(url, API_BASE_URL);
-    // return AUTH_EXCLUDED_PATHS.has(u.pathname as AuthExcludedPath);
-
-    // 프록시 환경(/api)에서도 동작하도록 base를 절대 URL로 보정
-    const absBase = API_BASE_URL.startsWith('http')
-      ? API_BASE_URL
-      : `${window.location.origin}${API_BASE_URL}`;
-    const u = url.startsWith('http') ? new URL(url) : new URL(url, absBase);
+    // 인스턴스의 baseURL(없으면 현재 오리진)을 기준으로 절대 URL 생성 후 pathname 비교
+    const base = axiosInstance.defaults.baseURL ?? window.location.origin;
+    const u = url.startsWith('http') ? new URL(url) : new URL(url, base);
     return AUTH_EXCLUDED_PATHS.has(u.pathname as AuthExcludedPath);
   } catch {
     // 최후 폴백: 문자열 비교 (오타 방지를 위해 Set의 유니온 타입과 맞춰 캐스팅)
@@ -56,7 +53,7 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error),
+  (error) => Promise.reject(error)
 );
 
 let isRefreshing = false;
@@ -76,9 +73,9 @@ async function refreshAccessToken(): Promise<string | null> {
   if (!refresh) return null;
 
   try {
-    const res = await axios.post(
-      `${API_BASE_URL}/v1/auth/refresh`, // 리프레시 엔드포인트 수정 완료
-      { refreshToken: refresh }, // 이부분도 API 스펙에 맞게 조정 필요합니다.
+    const res = await axiosInstance.post(
+      ENDPOINTS.auth.refresh,
+      { refreshToken: refresh },
       { headers: { 'Content-Type': 'application/json' } }
     );
     const newAccess = res.data?.accessToken;
@@ -87,7 +84,11 @@ async function refreshAccessToken(): Promise<string | null> {
     if (newAccess) setAccessToken(newAccess);
     if (newRefresh) setRefreshToken(newRefresh);
 
-    window.dispatchEvent(new CustomEvent('auth:tokenRefreshed', { detail: { accessToken: newAccess, refreshToken: newRefresh } }));
+    window.dispatchEvent(
+      new CustomEvent('auth:tokenRefreshed', {
+        detail: { accessToken: newAccess, refreshToken: newRefresh },
+      })
+    );
     notifyTokenRefreshed(newAccess ?? null);
     return newAccess ?? null;
   } catch (e) {
@@ -105,12 +106,25 @@ axiosInstance.interceptors.response.use(
     const originalRequest = config as AxiosRequestConfig & { _retry?: boolean };
 
     if (response?.status === 401 && originalRequest && !originalRequest._retry) {
+      // 리프레시 요청 자체에서의 401은 재시도/리프레시를 하지 않고 즉시 실패 처리
+      try {
+        const base = axiosInstance.defaults.baseURL ?? window.location.origin;
+        const reqUrl = originalRequest.url ?? '';
+        const pathname = reqUrl.startsWith('http') ? new URL(reqUrl).pathname : new URL(reqUrl, base).pathname;
+        if (pathname === ENDPOINTS.auth.refresh) {
+          return Promise.reject(error);
+        }
+      } catch {}
+
       originalRequest._retry = true;
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           subscribeTokenRefresh((newAccess) => {
-            if (newAccess && originalRequest.headers) {
-              originalRequest.headers.Authorization = `Bearer ${newAccess}`;
+            if (newAccess) {
+              originalRequest.headers = {
+                ...(originalRequest.headers || {}),
+                Authorization: `Bearer ${newAccess}`,
+              };
               resolve(axiosInstance(originalRequest));
             } else {
               reject(error);
@@ -121,8 +135,11 @@ axiosInstance.interceptors.response.use(
         isRefreshing = true;
         try {
           const newAccess = await refreshAccessToken();
-          if (newAccess && originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${newAccess}`;
+          if (newAccess) {
+            originalRequest.headers = {
+              ...(originalRequest.headers || {}),
+              Authorization: `Bearer ${newAccess}`,
+            };
             return axiosInstance(originalRequest);
           }
         } finally {
@@ -132,7 +149,7 @@ axiosInstance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  },
+  }
 );
 
 export default axiosInstance;

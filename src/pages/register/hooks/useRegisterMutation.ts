@@ -20,7 +20,7 @@ function toPayload(data: RegisterFormInputs) {
 
 async function registerApi(data: RegisterFormInputs): Promise<RegisterResponse> {
   const payload = toPayload(data);
-  const res = await axiosInstance.post(ENDPOINTS.members.signup, payload);
+  const res = await axiosInstance.post(ENDPOINTS.auth.signup, payload);
   return res.data as RegisterResponse;
 }
 
@@ -38,4 +38,3 @@ export function useRegisterMutation() {
     },
   });
 }
-
