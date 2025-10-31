@@ -9,17 +9,19 @@ import {
 } from '@xyflow/react';
 import type { WaypointData } from '../flow/canvasComponents/Waypoint';
 import type { MemoData } from '../flow/canvasComponents/Memo';
-import type { ArrowData } from '../flow/canvasComponents/Arrow';
+import type { RouteData } from '../flow/canvasComponents/Route';
 import { socketEventBus } from '../hooks/useSocketHandler';
-import type { WayPointCreateType, WayPointUpdateType } from '../types/WaypointResponseBodyType';
-import type { MemoCreateType, MemoUpdateType } from '../types/MemoResponseBodyType';
+import type { WayPointResponseType } from '../types/waypointResponseBodyType';
+import type { MemoResponseType } from '../types/memoResponseBodyType';
 import { useSocket } from './useSocket';
-import StompURL from '../utils/StompURL';
+import StompURL from '../utils/stompURL';
+import type { RouteResponseType } from '../types/routeResponseBodyType';
+import { getSessionId } from '../utils/sessionIdParser';
 
 export type WaypointNodeType = Node<WaypointData, 'waypoint'>;
 export type MemoNodeType = Node<MemoData, 'memo'>;
 export type CanvasNodes = WaypointNodeType | MemoNodeType;
-export type RouteEdgeType = Edge<ArrowData, 'route'>;
+export type RouteEdgeType = Edge<RouteData, 'route'>;
 export type CanvasEdges = RouteEdgeType;
 
 export function useCanvas() {
@@ -27,145 +29,262 @@ export function useCanvas() {
   const [edges, setEdges, onEdgesChange] = useEdgesState<CanvasEdges>([]);
 
   const onConnect = useCallback(
-    (params: Connection) =>
-      setEdges((eds) =>
-        addEdge<RouteEdgeType>(
-          {
-            ...params,
-            type: 'route',
-            data: {
-              startId: -1,
-              endId: -1,
-              title: '새 경로',
-              description: '',
-              duration: 0,
-              transportationCategory: 'DEFAULT',
-            },
-          },
-          eds
-        )
-      ),
+    (params: Connection) => {
+      const newRoute: Omit<RouteData, 'id'> = {
+        fromWaypointId: parseInt(params.source.split(':')[1]),
+        toWaypointId: parseInt(params.target.split(':')[1]),
+        title: '새 경로',
+        description: '',
+        duration: 1,
+        vehicleCategory: 'DEFAULT',
+        planId: -1,
+      };
+
+      client.publish({
+        destination: StompURL.PUB.ROUTE.CREATE(planId),
+        body: JSON.stringify(newRoute),
+      });
+
+      // setEdges((eds) =>
+      //   addEdge<RouteEdgeType>(
+      //     {
+      //       ...params,
+      //       type: 'route',
+      //       data: {
+      //         fromWaypointId: parseInt(params.source.split(':')[1]),
+      //         toWaypointId: parseInt(params.target.split(':')[1]),
+      //         title: '새 경로',
+      //         description: '',
+      //         duration: 1,
+      //         vehicleCategory: 'DEFAULT',
+      //       },
+      //     },
+      //     eds
+      //   )
+      // );
+    },
+
     [setEdges]
   );
 
+  const onNodesDelete = useCallback((deletedNodes: CanvasNodes[]) => {
+    deletedNodes.forEach((node) => {
+      console.log(node);
+      //Connected edge deletion is done from BE
+      switch (node.type) {
+        case 'waypoint': {
+          client.publish({
+            destination: StompURL.PUB.WAYPOINT.DELETE(planId, node.data.id),
+          });
+          break;
+        }
+        case 'memo': {
+          client.publish({
+            destination: StompURL.PUB.MEMO.DELETE(planId, node.data.id),
+          });
+          break;
+        }
+      }
+    });
+  }, []);
+
+  const onEdgesDelete = useCallback((deletedEdges: CanvasEdges[]) => {
+    deletedEdges.forEach((edge) => {
+      client.publish({
+        destination: StompURL.PUB.ROUTE.DELETE(planId, edge.data!.id),
+      });
+    });
+  }, []);
+
   useEffect(() => {
-    function handleWaypointCreate(e: Event) {
-      const { detail } = e as CustomEvent<WayPointCreateType>;
-      const newWp = detail.WAYPOINT;
+    function handleWaypointEvent(e: Event) {
+      const { detail } = e as CustomEvent<WayPointResponseType>;
+      if (getSessionId(client) === detail.senderSessionId) return;
 
-      setNodes((nds) => [
-        ...nds,
-        {
-          id: `waypoint:${newWp.id}`,
-          type: 'waypoint',
-          position: { x: newWp.xPosition, y: newWp.yPosition },
-          data: {
-            ...newWp,
-          },
-        },
-      ]);
-    }
-
-    socketEventBus.addEventListener('WAYPOINT_CREATE', handleWaypointCreate);
-    return () => {
-      socketEventBus.removeEventListener('WAYPOINT_CREATE', handleWaypointCreate);
-    };
-  }, [setNodes]);
-
-  useEffect(() => {
-    function handleWaypointUpdate(e: Event) {
-      const { detail } = e as CustomEvent<WayPointUpdateType>;
-      const newWp = detail.WAYPOINT;
-
-      setNodes((nds) => {
-        const nodeId = `waypoint:${newWp.id}`;
-        const existingNode = nds.find((node) => node.id === nodeId);
-
-        if (!existingNode) {
-          console.error('정보를 동기화하는 과정에서 문제가 있었습니다.');
+      switch (detail.type) {
+        case 'INIT': {
+          const newWps: WaypointNodeType[] = detail.WAYPOINT.map((wp) => ({
+            id: `waypoint:${wp.id}`,
+            type: 'waypoint',
+            position: { x: wp.xPosition, y: wp.yPosition },
+            data: wp,
+          }));
+          setNodes((nds) => [...nds, ...newWps]);
+          socketEventBus.dispatchEvent(new Event('WAYPOINT_INIT_DONE'));
+          break;
+        }
+        case 'CREATE': {
+          const wp = detail.WAYPOINT;
+          setNodes((nds) => [
+            ...nds,
+            {
+              id: `waypoint:${wp.id}`,
+              type: 'waypoint',
+              position: { x: wp.xPosition, y: wp.yPosition },
+              data: wp,
+            },
+          ]);
+          break;
+        }
+        case 'UPDATE': {
+          const wp = detail.WAYPOINT;
+          setNodes((nds) =>
+            nds.map((node) =>
+              node.id === `waypoint:${wp.id}`
+                ? ({
+                    ...node,
+                    position: {
+                      x: wp.xPosition ?? node.position.x,
+                      y: wp.yPosition ?? node.position.y,
+                    },
+                    data: wp,
+                  } as WaypointNodeType)
+                : node
+            )
+          );
+          break;
         }
 
-        return nds.map((node) =>
-          node.id === nodeId
-            ? ({
-                ...node,
-                position: {
-                  x: newWp.xPosition ?? node.position.x,
-                  y: newWp.yPosition ?? node.position.y,
-                },
-                data: {
-                  ...newWp,
-                },
-              } as WaypointNodeType)
-            : node
-        );
-      });
+        case 'DELETE': {
+          const waypoint_id = detail.WAYPOINT;
+          setNodes((nodes) => nodes.filter((node) => node.id !== `waypoint:${waypoint_id}`));
+          break;
+        }
+      }
     }
 
-    socketEventBus.addEventListener('WAYPOINT_UPDATE', handleWaypointUpdate);
-    return () => {
-      socketEventBus.removeEventListener('WAYPOINT_UPDATE', handleWaypointUpdate);
-    };
+    socketEventBus.addEventListener('WAYPOINT_EVENT', handleWaypointEvent);
+    return () => socketEventBus.removeEventListener('WAYPOINT_EVENT', handleWaypointEvent);
   }, [setNodes]);
 
   useEffect(() => {
-    function handleMemoCreate(e: Event) {
-      const { detail } = e as CustomEvent<MemoCreateType>;
-      const newMemo = detail.MEMO;
+    function handleMemoEvent(e: Event) {
+      const { detail } = e as CustomEvent<MemoResponseType>;
+      if (getSessionId(client) === detail.senderSessionId) return;
 
-      setNodes((nds) => [
-        ...nds,
-        {
-          id: `memo:${newMemo.id}`,
-          type: 'memo',
-          position: { x: newMemo.xPosition, y: newMemo.yPosition },
-          data: {
-            ...newMemo,
-          },
-        },
-      ]);
-    }
-
-    socketEventBus.addEventListener('MEMO_CREATE', handleMemoCreate);
-    return () => {
-      socketEventBus.removeEventListener('MEMO_CREATE', handleMemoCreate);
-    };
-  }, [setNodes]);
-
-  useEffect(() => {
-    function handleMemoUpdate(e: Event) {
-      const { detail } = e as CustomEvent<MemoUpdateType>;
-      const newMemo = detail.MEMO;
-
-      setNodes((nds) => {
-        const nodeId = `memo:${newMemo.id}`;
-        const existingNode = nds.find((node) => node.id === nodeId);
-
-        if (!existingNode) {
-          console.error('정보를 동기화하는 과정에서 문제가 있었습니다.');
+      switch (detail.type) {
+        case 'INIT': {
+          const newMemos: MemoNodeType[] = detail.MEMO.map((memo) => ({
+            id: `memo:${memo.id}`,
+            type: 'memo',
+            position: { x: memo.xPosition, y: memo.yPosition },
+            data: memo,
+          }));
+          setNodes((nds) => [...nds, ...newMemos]);
+          socketEventBus.dispatchEvent(new Event('MEMO_INIT_DONE'));
+          break;
         }
 
-        return nds.map((node) =>
-          node.id === nodeId
-            ? ({
-                ...node,
-                position: {
-                  x: newMemo.xPosition ?? node.position.x,
-                  y: newMemo.yPosition ?? node.position.y,
-                },
-                data: {
-                  ...newMemo,
-                },
-              } as MemoNodeType)
-            : node
-        );
-      });
+        case 'CREATE': {
+          const memo = detail.MEMO;
+          setNodes((nds) => [
+            ...nds,
+            {
+              id: `memo:${memo.id}`,
+              type: 'memo',
+              position: { x: memo.xPosition, y: memo.yPosition },
+              data: memo,
+            },
+          ]);
+          break;
+        }
+
+        case 'UPDATE': {
+          const memo = detail.MEMO;
+          setNodes((nds) =>
+            nds.map((node) =>
+              node.id === `memo:${memo.id}`
+                ? ({
+                    ...node,
+                    position: {
+                      x: memo.xPosition ?? node.position.x,
+                      y: memo.yPosition ?? node.position.y,
+                    },
+                    data: memo,
+                  } as MemoNodeType)
+                : node
+            )
+          );
+          break;
+        }
+
+        case 'DELETE': {
+          const memo_id = detail.MEMO;
+          setNodes((nodes) => nodes.filter((node) => node.id !== `memo:${memo_id}`));
+          break;
+        }
+      }
     }
 
-    socketEventBus.addEventListener('MEMO_UPDATE', handleMemoUpdate);
-    return () => {
-      socketEventBus.removeEventListener('MEMO_UPDATE', handleMemoUpdate);
-    };
+    socketEventBus.addEventListener('MEMO_EVENT', handleMemoEvent);
+    return () => socketEventBus.removeEventListener('MEMO_EVENT', handleMemoEvent);
+  }, [setNodes]);
+
+  useEffect(() => {
+    function handleRouteEvent(e: Event) {
+      const { detail } = e as CustomEvent<RouteResponseType>;
+      if (getSessionId(client) === detail.senderSessionId) return;
+
+      switch (detail.type) {
+        case 'INIT': {
+          const newRoute: RouteEdgeType[] = detail.ROUTE.map((route) => ({
+            id: `route:${route.id}`,
+            source: `waypoint:${route.fromWaypointId}`,
+            target: `waypoint:${route.toWaypointId}`,
+            type: 'route',
+            data: route,
+          }));
+          setEdges((eds) => {
+            const filteredNewRoutes = newRoute.filter(
+              (nr) => !eds.some((edge) => edge.id === nr.id)
+            );
+            return [...eds, ...filteredNewRoutes];
+          });
+          socketEventBus.dispatchEvent(new Event('ROUTE_INIT_DONE'));
+          break;
+        }
+        case 'CREATE': {
+          const newRoute = detail.ROUTE;
+          setEdges((eds) =>
+            addEdge<RouteEdgeType>(
+              {
+                id: `route:${newRoute.id}`,
+                source: `waypoint:${newRoute.fromWaypointId}`,
+                target: `waypoint:${newRoute.toWaypointId}`,
+                type: 'route',
+                data: newRoute,
+              },
+              eds
+            )
+          );
+          break;
+        }
+
+        case 'UPDATE': {
+          const route = detail.ROUTE;
+          setEdges((eds) =>
+            eds.map((edge) =>
+              edge.id === `route:${route.id}`
+                ? {
+                    ...edge,
+                    data: route,
+                  }
+                : edge
+            )
+          );
+          break;
+        }
+
+        case 'DELETE': {
+          const route_id = detail.ROUTE;
+          setEdges((eds) => eds.filter((edge) => edge.id !== `route:${route_id}`));
+          break;
+        }
+      }
+    }
+
+    socketEventBus.addEventListener('ROUTE_EVENT', handleRouteEvent);
+    return () => socketEventBus.removeEventListener('ROUTE_EVENT', handleRouteEvent);
   }, [setNodes]);
 
   const { planId, client } = useSocket();
@@ -204,5 +323,7 @@ export function useCanvas() {
     onEdgesChange,
     onConnect,
     onNodeDragStop,
+    onNodesDelete,
+    onEdgesDelete,
   };
 }

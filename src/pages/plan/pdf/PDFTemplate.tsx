@@ -1,5 +1,7 @@
 import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import type { Schedule, Traveler } from './types/PDFDataType';
+import { useEffect, useState } from 'react';
+import QRCode from 'qrcode';
 
 Font.register({
   family: 'Pretendard Variable',
@@ -224,6 +226,14 @@ type PDFTemplateProps = {
 };
 
 export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) {
+  const [qrDataUrl, setQrDataUrl] = useState('');
+
+  useEffect(() => {
+    QRCode.toDataURL(window.location.href, { width: 150 })
+      .then((url) => setQrDataUrl(url))
+      .catch((err) => console.error(err));
+  }, []);
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -236,10 +246,7 @@ export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) 
             </Text>
             <Text style={styles.headerSubtitle}>안선우님 외 4명의 여행 계획</Text>
           </View>
-          <Image
-            style={styles.qrCode}
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/640px-QR_code_for_mobile_English_Wikipedia.svg.png"
-          />
+          <Image style={styles.qrCode} src={qrDataUrl} />
         </View>
 
         {/* Content */}

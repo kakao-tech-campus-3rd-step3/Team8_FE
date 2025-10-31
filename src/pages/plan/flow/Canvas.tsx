@@ -13,7 +13,16 @@ import { edgeTypes } from './edgeTypes';
 function Canvas() {
   const canEdit = !isMobile;
 
-  const { nodes, onNodesChange, edges, onEdgesChange, onConnect, onNodeDragStop } = useCanvas();
+  const {
+    nodes,
+    onNodesChange,
+    edges,
+    onEdgesChange,
+    onConnect,
+    onNodeDragStop,
+    onNodesDelete,
+    onEdgesDelete,
+  } = useCanvas();
 
   return (
     <CanvasWrapper>
@@ -30,6 +39,8 @@ function Canvas() {
           nodesDraggable={canEdit}
           nodesConnectable={canEdit}
           onNodeDragStop={onNodeDragStop}
+          onNodesDelete={onNodesDelete}
+          onEdgesDelete={onEdgesDelete}
           elementsSelectable={canEdit}
           style={{ backgroundColor: '#B8CEFF', width: '100%', height: '100%' }}
           fitView

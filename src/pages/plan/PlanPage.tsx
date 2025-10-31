@@ -31,9 +31,9 @@ function PlanPage() {
       <TitleBar>
         <Title>일본여행</Title>
         <Description>OOO과 함께하는 일본 여행</Description>
-        <ExportButton onClick={handleExportClick}>내보내기</ExportButton>
+        <ExportButton onClick={handleExportClick}>PDF로 내보내기</ExportButton>
       </TitleBar>
-      {isExportModalOpen && <ExportModal onClose={handleCloseModal} />}
+      {isExportModalOpen && <ExportModal onClose={handleCloseModal} title="일본여행" />}
       <Canvas />
     </SocketProvider>
   );

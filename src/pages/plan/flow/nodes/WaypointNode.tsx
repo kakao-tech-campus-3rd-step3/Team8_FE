@@ -9,13 +9,22 @@ import { CustomTimeInput } from './CustomTimeInput';
 import { type WaypointData } from '../canvasComponents/Waypoint';
 import { useAutosizeInput } from '../../hooks/useAutosizeInput';
 import { Handle, Position } from '@xyflow/react';
-import { useDataSyncWaypoint } from '../../hooks/useDataSyncWaypoint';
+import { useDataSyncNode } from '../../hooks/useDataSyncNode';
+import { getDateDisplay, toLocalISOString } from '../../utils/dateUtils';
 
-function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
+function WaypointNode({
+  id,
+  data,
+  selected,
+}: {
+  id: string;
+  data: WaypointData;
+  selected: boolean;
+}) {
   const [isCategorySelectorOpen, setCategorySelectorOpen] = useState(false);
   const iconWrapperRef = useRef<HTMLDivElement>(null);
 
-  const { handleLocalDataChange } = useDataSyncWaypoint({ id, data });
+  const { handleLocalDataChange } = useDataSyncNode<WaypointData>({ id, data });
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -31,8 +40,8 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
     };
   }, [isCategorySelectorOpen]);
 
-  const handleCategoryChange = (selectedCategory: string) => {
-    handleLocalDataChange('locationCategory', selectedCategory as LocationCategory);
+  const handleCategoryChange = (selectedCategory: LocationCategory) => {
+    handleLocalDataChange('locationCategory', selectedCategory);
     setCategorySelectorOpen(false);
   };
 
@@ -41,7 +50,10 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
 
   return (
     // LocationCategoryInfo 사용
-    <WaypointNodeContainer bgColor={LocationCategoryInfo[data.locationCategory].color}>
+    <WaypointNodeContainer
+      bgColor={LocationCategoryInfo[data.locationCategory].color}
+      selected={selected}
+    >
       <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
       <HorizontalLayout>
         <IconWrapper ref={iconWrapperRef}>
@@ -63,14 +75,19 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
         </IconWrapper>
         <VerticalLayout>
           {/* 6. UI 요소들이 data state를 사용하도록 바인딩 수정 */}
-          <Name
-            as="input"
-            type="text"
-            value={data.name}
-            onChange={(e) => handleLocalDataChange('name', e.target.value)}
-            className="nodrag"
-            {...nameProps}
-          />
+          <HorizontalLayout style={{ justifyContent: 'space-between' }}>
+            <Name
+              as="input"
+              type="text"
+              value={data.name}
+              onChange={(e) => handleLocalDataChange('name', e.target.value)}
+              className="nodrag"
+              {...nameProps}
+            />
+            <DateDisplay>
+              {getDateDisplay({ startTime: data.startTime, endTime: data.endTime })}
+            </DateDisplay>
+          </HorizontalLayout>
           <HorizontalLayout>
             <Address
               as="input"
@@ -83,10 +100,11 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
             <TimeWrapper>
               <DatePicker
                 selected={new Date(data.startTime!)}
-                onChange={(date: Date | null) => handleLocalDataChange('startTime', date)}
+                onChange={(date: Date | null) =>
+                  handleLocalDataChange('startTime', toLocalISOString(date))
+                }
                 showTimeSelect
-                showTimeSelectOnly
-                timeIntervals={1}
+                timeIntervals={30}
                 timeCaption="Time"
                 dateFormat="HH:mm"
                 customInput={<CustomTimeInput />}
@@ -94,10 +112,11 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
               ~
               <DatePicker
                 selected={new Date(data.endTime!)}
-                onChange={(date: Date | null) => handleLocalDataChange('endTime', date)}
+                onChange={(date: Date | null) =>
+                  handleLocalDataChange('endTime', toLocalISOString(date))
+                }
                 showTimeSelect
-                showTimeSelectOnly
-                timeIntervals={1}
+                timeIntervals={30}
                 timeCaption="Time"
                 dateFormat="HH:mm"
                 customInput={<CustomTimeInput />}
@@ -116,6 +135,17 @@ function WaypointNode({ id, data }: { id: string; data: WaypointData }) {
     </WaypointNodeContainer>
   );
 }
+
+const DateDisplay = styled.div`
+  ${fontSystem.body.small}
+  background-color: gray;
+  border-radius: 100px;
+  padding: 5px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 const IconWrapper = styled.div`
   position: relative;
@@ -210,13 +240,14 @@ const DescriptionArea = styled.textarea`
 
 const WaypointNodeContainer = styled.div.withConfig({
   shouldForwardProp: (prop) => prop !== 'bgColor',
-})<{ bgColor: string }>`
+})<{ bgColor: string; selected: boolean }>`
   color: white;
   background-color: ${({ bgColor }) => bgColor};
   padding: 12px;
   border-radius: 12px;
   min-width: 350px;
   transition: background-color 0.3s ease;
+  border: ${({ selected }) => (selected ? `4px solid ${colorSystem.primary_yellow._400}` : 'none')};
 `;
 
 const HorizontalLayout = styled.div`

@@ -1,20 +1,20 @@
 import type { MemoData } from '../flow/canvasComponents/Memo';
+import type { BaseResponseBodyType } from './baseResponseBodyType';
 
-export type MemoResponseType = {
-  type: `CREATE` | `INIT` | `UPDATE`;
-};
-
-export type MemoCreateType = {
-  type: 'CREATE';
-  MEMO: MemoData;
-};
-
-export type MemoInitType = {
-  type: 'INIT';
-  MEMO: MemoData[];
-};
-
-export type MemoUpdateType = {
-  type: 'UPDATE';
-  MEMO: MemoData;
-};
+export type MemoResponseType =
+  | (BaseResponseBodyType & {
+      type: 'INIT';
+      MEMO: MemoData[];
+    })
+  | (BaseResponseBodyType & {
+      type: 'CREATE';
+      MEMO: MemoData;
+    })
+  | (BaseResponseBodyType & {
+      type: 'UPDATE';
+      MEMO: MemoData;
+    })
+  | (BaseResponseBodyType & {
+      type: 'DELETE';
+      MEMO: number;
+    });
