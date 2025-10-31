@@ -1,6 +1,6 @@
 import type { Message } from '@stomp/stompjs';
 import { socketEventBus } from '../hooks/useSocketHandler';
-import type { WayPointResponseType } from '../types/WaypointResponseBodyType';
+import type { WayPointResponseType } from '../types/waypointResponseBodyType';
 
 export function WaypointDispatcherResolver(message: Message) {
   const wpData: WayPointResponseType = JSON.parse(message.body);

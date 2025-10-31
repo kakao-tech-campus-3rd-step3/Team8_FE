@@ -5,8 +5,8 @@ export interface WaypointData extends Record<string, unknown> {
   name: string;
   description: string;
   address: string;
-  startTime: Date | null;
-  endTime: Date | null;
+  startTime: string;
+  endTime: string;
   memoID: number;
   locationCategory: LocationCategory;
   xPosition: number;

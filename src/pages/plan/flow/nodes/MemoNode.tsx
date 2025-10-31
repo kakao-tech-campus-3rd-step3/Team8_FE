@@ -1,15 +1,15 @@
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
 import styled from 'styled-components';
-import { useDataSyncMemo } from '../../hooks/useDataSyncMemo';
 import type { MemoData } from '../canvasComponents/Memo';
+import { useDataSyncNode } from '../../hooks/useDataSyncNode';
 
 // props로 data 받아올 수 있습니다.
-function MemoNode({ id, data }: { id: string; data: MemoData }) {
-  const { handleLocalDataChange } = useDataSyncMemo({ id, data });
+function MemoNode({ id, data, selected }: { id: string; data: MemoData; selected: boolean }) {
+  const { handleLocalDataChange } = useDataSyncNode<MemoData>({ id, data });
 
   return (
-    <MemoNodeContainer>
+    <MemoNodeContainer selected={selected}>
       <MemoTitle
         type="text"
         className="nodrag"
@@ -55,7 +55,9 @@ const MemoArea = styled.textarea`
   /* resize: none; */
 `;
 
-const MemoNodeContainer = styled.div`
+const MemoNodeContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'selected',
+})<{ selected: boolean }>`
   color: white;
   background-color: ${colorSystem.primary_yellow._50};
 
@@ -64,5 +66,6 @@ const MemoNodeContainer = styled.div`
 
   display: flex;
   flex-direction: column;
+  border: ${({ selected }) => (selected ? `4px solid ${colorSystem.primary_yellow._400}` : 'none')};
 `;
 export default MemoNode;

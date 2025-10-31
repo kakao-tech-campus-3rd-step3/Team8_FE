@@ -1,20 +1,20 @@
-import type { WaypointData } from '../flow/canvasComponents/Waypoint';
+import type { RouteData } from '../flow/canvasComponents/Route';
 import type { BaseResponseBodyType } from './baseResponseBodyType';
 
-export type WayPointResponseType =
+export type RouteResponseType =
   | (BaseResponseBodyType & {
       type: 'INIT';
-      WAYPOINT: WaypointData[];
+      ROUTE: RouteData[];
     })
   | (BaseResponseBodyType & {
       type: 'CREATE';
-      WAYPOINT: WaypointData;
+      ROUTE: RouteData;
     })
   | (BaseResponseBodyType & {
       type: 'UPDATE';
-      WAYPOINT: WaypointData;
+      ROUTE: RouteData;
     })
   | (BaseResponseBodyType & {
       type: 'DELETE';
-      WAYPOINT: number;
+      ROUTE: number;
     });

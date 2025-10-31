@@ -1,16 +1,24 @@
 import { useEffect, useRef } from 'react';
-import type { WaypointData } from '../flow/canvasComponents/Waypoint';
 import { useSocket } from './useSocket';
-import StompURL from '../utils/StompURL';
+import StompURL from '../utils/stompURL';
 import { useReactFlow } from '@xyflow/react';
+import type { RouteData } from '../flow/canvasComponents/Route';
 
-export function useDataSyncWaypoint({ id, data }: { id: string; data: WaypointData }) {
+type AllowedTypes = RouteData;
+
+export function useDataSyncEdge<DataType extends AllowedTypes>({
+  id,
+  data,
+}: {
+  id: string;
+  data: DataType;
+}) {
   const isInitialRender = useRef(true);
-  const prevDataRef = useRef<WaypointData>(data);
+  const prevDataRef = useRef<RouteData>(data);
   const { planId, client } = useSocket();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const DEBOUNCE_TIME = 300;
-  const { setNodes } = useReactFlow();
+  const { setEdges } = useReactFlow();
   const localUpdateRef = useRef<boolean>(false);
 
   useEffect(() => {
@@ -31,7 +39,7 @@ export function useDataSyncWaypoint({ id, data }: { id: string; data: WaypointDa
 
       if (changed && localUpdateRef.current) {
         client.publish({
-          destination: StompURL.PUB.WAYPOINT.UPDATE(planId, data.id),
+          destination: StompURL.PUB.ROUTE.UPDATE(planId, data.id),
           body: JSON.stringify(data),
         });
 
@@ -46,14 +54,11 @@ export function useDataSyncWaypoint({ id, data }: { id: string; data: WaypointDa
     };
   }, [data]);
 
-  const handleLocalDataChange = <K extends keyof WaypointData>(
-    field: K,
-    value: WaypointData[K]
-  ) => {
+  const handleLocalDataChange = <K extends keyof DataType>(field: K, value: DataType[K]) => {
     localUpdateRef.current = true;
-    setNodes((nds) =>
-      nds.map((node) =>
-        node.id === id.toString() ? { ...node, data: { ...node.data, [field]: value } } : node
+    setEdges((edges) =>
+      edges.map((edge) =>
+        edge.id === id ? { ...edge, data: { ...edge.data, [field]: value } } : edge
       )
     );
   };

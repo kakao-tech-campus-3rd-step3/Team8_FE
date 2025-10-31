@@ -12,8 +12,10 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
     "@react-pdf/renderer": "^4.3.1",
-    "@stomp/stompjs": "^7.2.0",
+    "@stomp/stompjs": "^7.2.1",
     "@tanstack/react-query": "^5.87.1",
+    "@types/sockjs-client": "^1.5.4",
+    "@types/stompjs": "^2.3.9",
     "@xyflow/react": "^12.8.4",
     "axios": "^1.12.2",
     "i": "^0.3.7",
@@ -27,6 +29,7 @@
     "react-router-dom": "^7.8.1",
     "react-time-picker": "^8.0.2",
     "react-toastify": "^11.0.5",
+    "sockjs-client": "^1.6.1",
     "styled-components": "^6.1.19",
     "zod": "^4.1.3"
   },
