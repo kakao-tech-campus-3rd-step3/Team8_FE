@@ -16,12 +16,16 @@ function getServerMessage(data: unknown): string | undefined {
   return undefined;
 }
 
+type LoginRedirectState = {
+  from?: { pathname?: string };
+};
+
 export const useLoginForm = () => {
   const routing = usePageRouting();
   const { mutate } = useLoginMutation();
   const location = useLocation();
   const navigate = useNavigate();
-  const from = (location.state as any)?.from?.pathname ?? PATH.HOME;
+  const from = (location.state as LoginRedirectState | undefined)?.from?.pathname ?? PATH.HOME;
   const {
     register,
     handleSubmit,
