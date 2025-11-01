@@ -3,34 +3,33 @@ import { useParams } from 'react-router-dom';
 import { styled } from 'styled-components';
 import InvitationPanel from './components/InvitationPanel';
 import ExportModal from './components/ExportModal';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { colorSystem } from '@/styles/colorSystem';
 import Canvas from './flow/Canvas';
 import { SocketProvider } from './context/SocketContext';
+import { useFetchPlanDetail } from './hooks/useFetchPlanDetail';
+import { usePageRouting } from '@/hooks/usePageRouting';
 
 function PlanPage() {
   const id = useParams().id ?? '-1';
 
-  useEffect(() => {
-    // console.log(`백엔드 plan 정보 요청 (${id})`);
-  }, [id]);
-
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const handleExportClick = () => setIsExportModalOpen(true);
+  const handleCloseModal = () => setIsExportModalOpen(false);
 
-  const handleExportClick = () => {
-    setIsExportModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsExportModalOpen(false);
-  };
+  const { data, isSuccess, isError } = useFetchPlanDetail(id);
+  const goto = usePageRouting();
+  if (isError) {
+    goto.back();
+    return null;
+  }
 
   return (
     <SocketProvider planId={parseInt(id)}>
       <InvitationPanel />
       <TitleBar>
-        <Title>일본여행</Title>
-        <Description>OOO과 함께하는 일본 여행</Description>
+        <Title>{isSuccess ? data.title : '계획을 불러오고 있습니다...'}</Title>
+        <Description>{isSuccess ? data.description : '...'}</Description>
         <ExportButton onClick={handleExportClick}>PDF로 내보내기</ExportButton>
       </TitleBar>
       {isExportModalOpen && <ExportModal onClose={handleCloseModal} title="일본여행" />}

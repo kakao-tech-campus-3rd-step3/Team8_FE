@@ -7,6 +7,9 @@ import type { User } from '../types/user';
 import { dummyUsers } from '../data/dummyUsers';
 import PlusIcon from './icons/PlusIcon';
 import CollapseIcon from './icons/CollapseIcon';
+import { useParams } from 'react-router-dom';
+import { useFetchPlanDetail } from '../hooks/useFetchPlanDetail';
+import type { TravelerType } from '@/api/types/traveler';
 
 function InvitationPanel() {
   const [users, setUsers] = useState<User[]>(dummyUsers);
@@ -20,12 +23,17 @@ function InvitationPanel() {
     console.log('새로운 사용자 추가 기능');
   };
 
+  const id = useParams().id ?? '-1';
+  const { data, isLoading } = useFetchPlanDetail(id);
+
+  if (isLoading) return null;
+
   return (
     <PanelWrapper>
       {isExpanded && (
         <ContentWrapper>
           <UserList>
-            {users.map((user) => (
+            {data?.travelers.map((user: TravelerType) => (
               <UserItem key={user.id}>
                 <UserInfo>
                   <UserName>{user.name}</UserName>
