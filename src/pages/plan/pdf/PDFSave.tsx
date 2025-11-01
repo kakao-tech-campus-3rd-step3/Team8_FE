@@ -3,12 +3,19 @@ import PDFTemplate from './PDFTemplate';
 import { schedules, travelers } from './data/example';
 import styled from 'styled-components';
 import { colorSystem } from '@/styles/colorSystem';
+import { useParams } from 'react-router-dom';
+import { useFetchPlanDetail } from '../hooks/useFetchPlanDetail';
 
-export default function PDFSave({ title }: { title: string }) {
+export default function PDFSave() {
+  const id = useParams().id ?? '-1';
+  const { data, isError } = useFetchPlanDetail(id);
+
+  if (isError) return null;
+
   return (
     <PDFDownloadLink
-      document={<PDFTemplate travelers={travelers} schedules={schedules} />}
-      fileName={`${title}-JourneyPlanner.pdf`}
+      document={<PDFTemplate data={data!} />}
+      fileName={`${data!.title}-JourneyPlanner.pdf`}
       style={{ textDecoration: 'none' }}
     >
       {({ loading }) =>

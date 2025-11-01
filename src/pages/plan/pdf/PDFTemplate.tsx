@@ -1,7 +1,10 @@
 import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer';
-import type { Schedule, Traveler } from './types/PDFDataType';
+import type { Schedule } from './types/PDFDataType';
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
+import type { TravelerType } from '@/api/types/traveler';
+import type { PlanDetailType } from '@/api/types/planDetail';
+import { schedules, travelers } from './data/example';
 
 Font.register({
   family: 'Pretendard Variable',
@@ -221,11 +224,10 @@ const styles = StyleSheet.create({
 });
 
 type PDFTemplateProps = {
-  travelers: Traveler[];
-  schedules: Schedule[];
+  data: PlanDetailType;
 };
 
-export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) {
+export default function PDFTemplate({ data }: PDFTemplateProps) {
   const [qrDataUrl, setQrDataUrl] = useState('');
 
   useEffect(() => {
@@ -233,6 +235,16 @@ export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) 
       .then((url) => setQrDataUrl(url))
       .catch((err) => console.error(err));
   }, []);
+
+  const getTitleCaption = (): string => {
+    if (data.travelers.length === 1) {
+      return `${data.travelers[0].name}님의 여행 계획`;
+    } else {
+      return `${data.travelers.find((traveler) => traveler.role === 'OWNER')?.name}님 외 ${
+        data.travelers.length - 1
+      }명의 여행 계획`;
+    }
+  };
 
   return (
     <Document>
@@ -244,7 +256,7 @@ export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) 
               <Text style={{ color: '#e59401' }}>J</Text>ourney{' '}
               <Text style={{ color: '#31B443' }}>P</Text>lanner
             </Text>
-            <Text style={styles.headerSubtitle}>안선우님 외 4명의 여행 계획</Text>
+            <Text style={styles.headerSubtitle}>{getTitleCaption()}</Text>
           </View>
           <Image style={styles.qrCode} src={qrDataUrl} />
         </View>
@@ -260,13 +272,11 @@ export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) 
 
           <View style={styles.infoSection}>
             <Text style={styles.infoSectionH3}>여행 이름</Text>
-            <Text style={styles.infoSectionP}>친구들과 함께하는 일본 여행</Text>
+            <Text style={styles.infoSectionP}>{data?.title}</Text>
           </View>
           <View style={styles.infoSection}>
             <Text style={styles.infoSectionH3}>여행 설명</Text>
-            <Text style={styles.infoSectionP}>
-              도쿄, 교토, 오사카, 오키나와를 경유하는 flex 일본 힐링 여행
-            </Text>
+            <Text style={styles.infoSectionP}>{data?.description}</Text>
           </View>
           <View style={[styles.infoSection, { alignItems: 'flex-start', marginTop: 10 }]}>
             <Text style={styles.infoSectionH3}>여행자</Text>
@@ -280,11 +290,11 @@ export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) 
                   <Text style={styles.tableHeaderCell}>연락처</Text>
                 </View>
                 <View style={[styles.tableCol, { borderRight: 0 }]}>
-                  <Text style={styles.tableHeaderCell}>이메일</Text>
+                  <Text style={styles.tableHeaderCell}>MBTI</Text>
                 </View>
               </View>
               {/* Table Body */}
-              {travelers.map((traveler: Traveler, index: number) => (
+              {data?.travelers.map((traveler: TravelerType, index: number) => (
                 <View
                   key={index}
                   style={[
@@ -294,15 +304,16 @@ export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) 
                 >
                   <View style={styles.tableCol}>
                     <View style={styles.profileCell}>
-                      <Image style={styles.profileImage} src={traveler.img} />
+                      {/* 프로필 구현 전까지 주석 처리 */}
+                      {/* <Image style={styles.profileImage} src={traveler.img} /> */}
                       <Text style={styles.tableCell}>{traveler.name}</Text>
                     </View>
                   </View>
                   <View style={styles.tableCol}>
-                    <Text style={styles.tableCell}>{traveler.phone}</Text>
+                    <Text style={styles.tableCell}>{traveler.contact}</Text>
                   </View>
                   <View style={[styles.tableCol, { borderRight: 0 }]}>
-                    <Text style={styles.tableCell}>{traveler.email}</Text>
+                    <Text style={styles.tableCell}>{traveler.mbtiType}</Text>
                   </View>
                 </View>
               ))}

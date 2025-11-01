@@ -12,10 +12,9 @@ import PDFSave from '../pdf/PDFSave';
 
 type ExportModalProps = {
   onClose: () => void;
-  title: string;
 };
 
-function ExportModal({ onClose, title }: ExportModalProps) {
+function ExportModal({ onClose }: ExportModalProps) {
   return (
     <ModalOverlay onClick={onClose}>
       <ModalWindowWrapper onClick={(e) => e.stopPropagation()}>
@@ -27,7 +26,7 @@ function ExportModal({ onClose, title }: ExportModalProps) {
         </WindowTopBar>
         <ControlBar>
           <SmallCancelButton onClick={onClose}>취소</SmallCancelButton>
-          <PDFSave title={title} />
+          <PDFSave />
         </ControlBar>
       </ModalWindowWrapper>
     </ModalOverlay>
