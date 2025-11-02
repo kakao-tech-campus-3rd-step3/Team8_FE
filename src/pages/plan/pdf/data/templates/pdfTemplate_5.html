@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>여행 계획표</title>
+    <style>
+        /* 웹 폰트 로드 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+
+        /* 기본 문서 스타일 */
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* PDF 페이지 스타일 (A4 용지 크기) */
+        .page {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            --main-color: #F88D6A;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--main-color);
+            margin: 0 0 25px 0;
+            border-bottom: 2px solid var(--main-color);
+            padding-bottom: 15px;
+        }
+
+        /* 전체 컨텐츠 목록 */
+        .plan-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* 각 섹션(카드+화살표) 사이의 간격 */
+        }
+        
+        /* Waypoint와 Memo 카드를 감싸는 행 */
+        .card-row {
+            display: flex;
+            gap: 20px; /* 장소 카드와 메모 카드 사이의 간격 */
+        }
+
+        /* 장소, 메모 각각의 정보 카드 */
+        .info-card {
+            flex: 1; /* 1:1 비율로 좌우 공간 차지 */
+            border: 2px solid var(--main-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            height: 15px;
+            background-color: var(--main-color);
+        }
+
+        .card-body {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-size: 16px;
+        }
+
+        .card-body .icon {
+            width: 25px;
+            font-size: 20px;
+            text-align: center;
+            margin-right: 12px;
+            color: #333;
+        }
+
+        .card-body .text {
+            width: 100%;
+            color: #555;
+        }
+
+        /* Arrow (이동수단) 섹션 */
+        .arrow-section {
+            display: flex;
+            align-items: center;
+            color: #777;
+            font-size: 14px;
+            padding: 10px 0 20px 25px;
+        }
+
+        .arrow-section .icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        /* 인쇄 설정 */
+        @media print {
+            body { background: white; padding: 0; }
+            .page { box-shadow: none; margin: 0; padding: 15mm; }
+            .info-card, .card-header {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <h1 class="title">여행 계획표</h1>
+        
+        <div class="plan-list">
+            
+            <div class="plan-item">
+                <div class="card-row">
+                    <div class="info-card">
+                        <div class="card-header"></div>
+                        <div class="card-body">
+                            <span class="icon">📍</span>
+                            <span class="text">**장소 1 입력**</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-header"></div>
+                        <div class="card-body">
+                            <span class="icon">📝</span>
+                            <span class="text">**메모 1 입력**</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="arrow-section">
+                    <span class="icon">🚌</span>
+                    <span class="text">**이동수단 및 시간 입력**</span>
+                </div>
+            </div>
+
+            <div class="plan-item">
+                <div class="card-row">
+                    <div class="info-card">
+                        <div class="card-header"></div>
+                        <div class="card-body">
+                            <span class="icon">📍</span>
+                            <span class="text">**장소 2 입력**</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-header"></div>
+                        <div class="card-body">
+                            <span class="icon">📝</span>
+                            <span class="text">**메모 2 입력**</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="arrow-section">
+                    <span class="icon">🚇</span>
+                    <span class="text">**이동수단 및 시간 입력**</span>
+                </div>
+            </div>
+
+            <div class="plan-item">
+                <div class="card-row">
+                    <div class="info-card">
+                        <div class="card-header"></div>
+                        <div class="card-body">
+                            <span class="icon">📍</span>
+                            <span class="text">**장소 3 입력**</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-header"></div>
+                        <div class="card-body">
+                            <span class="icon">📝</span>
+                            <span class="text">**메모 3 입력**</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="arrow-section">
+                    <span class="icon">🚶</span>
+                    <span class="text">**이동수단 및 시간 입력**</span>
+                </div>
+            </div>
+
+            <div class="plan-item">
+                <div class="card-row">
+                    <div class="info-card">
+                        <div class="card-header"></div>
+                        <div class="card-body">
+                            <span class="icon">📍</span>
+                            <span class="text">**장소 4 입력**</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-header"></div>
+                        <div class="card-body">
+                            <span class="icon">📝</span>
+                            <span class="text">**메모 4 입력**</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="arrow-section">
+                    <span class="icon">🚕</span>
+                    <span class="text">**이동수단 및 시간 입력**</span>
+                </div>
+            </div>
+
+            <div class="plan-item">
+                <div class="card-row">
+                    <div class="info-card">
+                        <div class="card-header"></div>
+                        <div class="card-body">
+                            <span class="icon">📍</span>
+                            <span class="text">**장소 5 입력**</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-header"></div>
+                        <div class="card-body">
+                            <span class="icon">📝</span>
+                            <span class="text">**메모 5 입력**</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="arrow-section">
+                    <span class="icon">🚲</span>
+                    <span class="text">**이동수단 및 시간 입력**</span>
+                </div>
+            </div>
+
+            <div class="plan-item">
+                <div class="card-row">
+                    <div class="info-card">
+                        <div class="card-header"></div>
+                        <div class="card-body">
+                            <span class="icon">📍</span>
+                            <span class="text">**장소 6 입력**</span>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-header"></div>
+                        <div class="card-body">
+                            <span class="icon">📝</span>
+                            <span class="text">**메모 6 입력**</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="arrow-section">
+                    <span class="icon">🚢</span>
+                    <span class="text">**이동수단 및 시간 입력**</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

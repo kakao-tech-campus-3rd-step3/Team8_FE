@@ -13,14 +13,32 @@ import { styled } from 'styled-components';
 import { FormInputField } from '@/components/FormInputField';
 import { useNewPlanForm } from '@/pages/space/hooks/useNewPlanForm';
 import type { NewPlanFormInputs } from '@/pages/space/utils/planValidation';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axiosInstance from '@/api/axiosInstance';
+import { ENDPOINTS } from '@/api/endpoints';
+
+const createPlan = async (data: NewPlanFormInputs) => {
+  const response = await axiosInstance.post(ENDPOINTS.plans.base, data);
+  return response.data;
+};
 
 function NewPlanWindow({ closeModal }: ModalPropType) {
-  const { register, handleSubmit, errors, isValid } = useNewPlanForm({
-    onSubmit: (data: NewPlanFormInputs) => {
-      // todo: POST API 호출
-      console.log('서버로 전송할 데이터:', data);
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: createPlan,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['plans'] });
       alert('새로운 계획을 만들었습니다.');
       closeModal();
+    },
+    onError: () => {
+      alert('계획 생성에 실패했습니다.');
+    },
+  });
+
+  const { register, handleSubmit, errors, isValid } = useNewPlanForm({
+    onSubmit: (data: NewPlanFormInputs) => {
+      mutation.mutate(data);
     },
   });
 
@@ -66,9 +84,9 @@ function NewPlanWindow({ closeModal }: ModalPropType) {
         </FieldWrapper>
 
         <ControlBar>
-          <CancelButton onClick={closeModal}>취소</CancelButton>
-          <CompleteButton type="submit" disabled={!isValid} onClick={() => {}}>
-            완료
+          <CancelButton type="button" onClick={closeModal}>취소</CancelButton>
+          <CompleteButton type="submit" disabled={!isValid || mutation.isPending}>
+            {mutation.isPending ? '생성 중...' : '완료'}
           </CompleteButton>
         </ControlBar>
       </ModalWindowWrapper>

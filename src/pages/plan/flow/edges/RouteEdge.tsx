@@ -8,12 +8,14 @@ import {
 import { useState } from 'react';
 import styled from 'styled-components';
 import {
-  TransportationCategoryInfo,
-  TransportationCategoryOptions,
-  type TransportationCategory,
+  VehicleCategoryInfo,
+  vehicleCategoryOptions,
+  type VehicleCategory,
 } from '../../utils/Category';
-import type { ArrowData } from '../canvasComponents/Arrow';
 import type { RouteEdgeType } from '../../hooks/useCanvas';
+import { colorSystem } from '@/styles/colorSystem';
+import type { RouteData } from '../canvasComponents/Route';
+import { useDataSyncEdge } from '../../hooks/useDataSyncEdge';
 
 export default function RouteEdge({
   id,
@@ -26,7 +28,13 @@ export default function RouteEdge({
   style = {},
   markerEnd,
   data,
+  selected,
 }: EdgeProps<RouteEdgeType>) {
+  if (!data) {
+    console.error('Route 데이터가 null 이었습니다.');
+    return;
+  }
+
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
@@ -39,34 +47,18 @@ export default function RouteEdge({
   const { setEdges } = useReactFlow();
   const [open, setOpen] = useState(false);
 
-  // 기본 데이터 안전 처리
-  const mergedData: ArrowData = {
-    startId: data?.startId ?? -1,
-    endId: data?.endId ?? -1,
-    title: data?.title ?? '새 경로',
-    description: data?.description ?? '',
-    duration: data?.duration ?? 0,
-    transportationCategory: data?.transportationCategory ?? 'DEFAULT',
-  };
-
-  const vehicleMeta = TransportationCategoryInfo[mergedData.transportationCategory];
+  const vehicleMeta = VehicleCategoryInfo[data!.vehicleCategory];
   const mergedStyle = {
     ...style,
-    stroke: vehicleMeta.color,
-    strokeWidth: 4,
+    stroke: selected ? colorSystem.primary_yellow._400 : vehicleMeta.color,
+    strokeWidth: selected ? 8 : 4,
   };
 
   const onDelete = () => {
     setEdges((edges) => edges.filter((edge) => edge.id !== id));
   };
 
-  const onUpdateData = <K extends keyof ArrowData>(key: K, value: ArrowData[K]) => {
-    setEdges((edges) =>
-      edges.map((edge) =>
-        edge.id === id ? { ...edge, data: { ...edge.data, [key]: value } } : edge
-      )
-    );
-  };
+  const { handleLocalDataChange } = useDataSyncEdge<RouteData>({ id, data });
 
   return (
     <>
@@ -88,16 +80,16 @@ export default function RouteEdge({
                 <label>제목</label>
                 <input
                   type="text"
-                  value={mergedData.title}
-                  onChange={(e) => onUpdateData('title', e.target.value)}
+                  value={data.title}
+                  onChange={(e) => handleLocalDataChange('title', e.target.value)}
                 />
               </FormRow>
               <FormRow>
                 <label>설명</label>
                 <input
                   type="text"
-                  value={mergedData.description}
-                  onChange={(e) => onUpdateData('description', e.target.value)}
+                  value={data.description}
+                  onChange={(e) => handleLocalDataChange('description', e.target.value)}
                 />
               </FormRow>
               <FormRow>
@@ -106,19 +98,21 @@ export default function RouteEdge({
                   type="number"
                   min="0"
                   step="0.1"
-                  value={mergedData.duration}
-                  onChange={(e) => onUpdateData('duration', parseFloat(e.target.value) || 0)}
+                  value={data.duration}
+                  onChange={(e) =>
+                    handleLocalDataChange('duration', parseFloat(e.target.value) || 0)
+                  }
                 />
               </FormRow>
               <FormRow>
                 <label>이동수단</label>
                 <select
-                  value={mergedData.transportationCategory}
+                  value={data!.vehicleCategory}
                   onChange={(e) =>
-                    onUpdateData('transportationCategory', e.target.value as TransportationCategory)
+                    handleLocalDataChange('vehicleCategory', e.target.value as VehicleCategory)
                   }
                 >
-                  {TransportationCategoryOptions}
+                  {vehicleCategoryOptions}
                 </select>
               </FormRow>
               <FormActions>

@@ -1,4 +1,4 @@
-import type { InitTask } from '../types/InitTask';
+import type { InitTask } from '../types/initTask';
 
 export function topologicalSort(dependencies: Record<InitTask, InitTask[]>): InitTask[] {
   const indegree = new Map<InitTask, number>();
