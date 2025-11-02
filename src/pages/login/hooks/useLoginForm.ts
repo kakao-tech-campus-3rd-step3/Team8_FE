@@ -2,13 +2,30 @@ import { useForm } from 'react-hook-form';
 import { usePageRouting } from '@/hooks/usePageRouting';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginFormInputs } from '@/pages/login/utils/loginValidation';
-import axiosInstance from '@/api/axiosInstance';
-import { useAuth } from '@/hooks/useAuth';
-import { ENDPOINTS } from '@/api/endpoints';
+import { useLoginMutation } from '@/pages/login/hooks/useLoginMutation';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { PATH } from '@/utils/path';
+
+function getServerMessage(data: unknown): string | undefined {
+  if (data && typeof data === 'object' && 'message' in data) {
+    const msg = (data as { message?: unknown }).message;
+    return typeof msg === 'string' ? msg : undefined;
+  }
+  return undefined;
+}
+
+type LoginRedirectState = {
+  from?: { pathname?: string };
+};
 
 export const useLoginForm = () => {
   const routing = usePageRouting();
-  const { login } = useAuth();
+  const { mutate } = useLoginMutation();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const from = (location.state as LoginRedirectState | undefined)?.from?.pathname ?? PATH.HOME;
   const {
     register,
     handleSubmit,
@@ -18,25 +35,39 @@ export const useLoginForm = () => {
     mode: 'onChange',
   });
 
-  const onSubmit = async (data: LoginFormInputs) => {
-    try {
-      const res = await axiosInstance.post(ENDPOINTS.members.login, {
-        email: data.email,
-        password: data.password,
-      });
-
-      const accessToken = res.data?.accessToken as string | undefined;
-      const refreshToken = res.data?.refreshToken as string | undefined;
-
-      if (!accessToken || !refreshToken) {
-        throw new Error('로그인 응답에 토큰이 없습니다.');
+  const onSubmit = (data: LoginFormInputs) => {
+    mutate(
+      { email: data.email, password: data.password },
+      {
+        onSuccess: () => {
+          // 원래 가려던 경로(from)로 이동, 없으면 HOME
+          navigate(from, { replace: true });
+        },
+        onError: (e) => {
+          const status = axios.isAxiosError(e) ? e.response?.status : undefined;
+          if (status === 400) {
+            toast.error('이메일/비밀번호를 확인해주세요.');
+            return;
+          }
+          if (status === 429) {
+            toast.error('요청이 많습니다. 잠시 후 다시 시도하세요.');
+            return;
+          }
+          if (status === 404) {
+            toast.error('존재하지 않는 계정입니다.');
+            return;
+          }
+          if (typeof status === 'number' && status >= 500) {
+            toast.error('서버 오류가 발생했습니다. 잠시 후 다시 시도하세요.');
+            return;
+          }
+          const fallback = axios.isAxiosError(e)
+            ? getServerMessage(e.response?.data) ?? e.message
+            : '요청을 처리할 수 없습니다.';
+          toast.error(fallback);
+        },
       }
-      login({ accessToken, refreshToken }); // user 정보 없이 토큰만으로 세션 유지
-      alert('로그인에 성공했습니다!');
-      routing.home();
-    } catch (e) {
-      console.error(e); // 이후 에러핸들링 로직 추가 예정
-    }
+    );
   };
 
   const navigateToRegister = () => {

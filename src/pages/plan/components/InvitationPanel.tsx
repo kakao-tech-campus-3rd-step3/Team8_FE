@@ -5,33 +5,14 @@ import { fontSystem } from '@/styles/fontSystem';
 import Close from '@/assets/icons/Close';
 import type { User } from '../types/user';
 import { dummyUsers } from '../data/dummyUsers';
-
-function PlusIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 5V19" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M5 12H19" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function CollapseIcon({ isExpanded }: { isExpanded: boolean }) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      style={{ transform: isExpanded ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s' }}
-    >
-      <path d="M7 14l5-5 5 5H7z" fill="black" />
-    </svg>
-  );
-}
+import PlusIcon from './icons/PlusIcon';
+import CollapseIcon from './icons/CollapseIcon';
+import { useParams } from 'react-router-dom';
+import { useFetchPlanDetail } from '../hooks/useFetchPlanDetail';
+import type { TravelerType } from '@/api/types/traveler';
 
 function InvitationPanel() {
-  const [users, setUsers] = useState<User[]>(dummyUsers); 
+  const [users, setUsers] = useState<User[]>(dummyUsers);
   const [isExpanded, setIsExpanded] = useState(true);
 
   const removeUser = (id: number) => {
@@ -42,12 +23,17 @@ function InvitationPanel() {
     console.log('새로운 사용자 추가 기능');
   };
 
+  const id = useParams().id ?? '-1';
+  const { data, isLoading } = useFetchPlanDetail(id);
+
+  if (isLoading) return null;
+
   return (
     <PanelWrapper>
       {isExpanded && (
         <ContentWrapper>
           <UserList>
-            {users.map((user) => (
+            {data?.travelers.map((user: TravelerType) => (
               <UserItem key={user.id}>
                 <UserInfo>
                   <UserName>{user.name}</UserName>

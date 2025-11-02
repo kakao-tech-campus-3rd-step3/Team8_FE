@@ -8,11 +8,11 @@ function RoutingPanel() {
     <RoutingPanelWrapper>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <h2>라우팅 패널</h2>
-        <Button onClick={goto.landing}>랜딩</Button>
-        <Button onClick={goto.home}>홈</Button>
-        <Button onClick={goto.login}>로그인</Button>
-        <Button onClick={goto.register}>회원가입</Button>
-        <Button onClick={goto.space}>스페이스</Button>
+        <Button onClick={() => goto.landing()}>랜딩</Button>
+        <Button onClick={() => goto.home()}>홈</Button>
+        <Button onClick={() => goto.login()}>로그인</Button>
+        <Button onClick={() => goto.register()}>회원가입</Button>
+        <Button onClick={() => goto.space()}>스페이스</Button>
         <Button onClick={goto.plan('1234')}>계획</Button>
       </div>
     </RoutingPanelWrapper>

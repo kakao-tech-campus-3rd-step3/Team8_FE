@@ -5,32 +5,40 @@ import styled from 'styled-components';
 import InfoEditWindow from '@/pages/space/components/profile/InfoEditWindow';
 import type { MemberType } from '@/types/member';
 import PhotoEditWindow from '@/pages/space/components/profile/PhotoEditWindow';
+import { useQuery } from '@tanstack/react-query';
+import axiosInstance from '@/api/axiosInstance';
+import { ENDPOINTS } from '@/api/endpoints';
 
-const dummyProfileResponse = {
-  status: 200,
-  message: '내 정보를 불러왔습니다.',
-  member: {
-    id: 1234,
-    email: 'example@test.com',
-    name: '홍길동',
-    contact: '010-1234-1234',
-    mbti: 'ISTP',
-  } as MemberType,
+const fetchMemberInfo = async (): Promise<MemberType> => {
+  // axiosInstance를 사용하여 API 호출
+  const response = await axiosInstance.get<MemberType>(ENDPOINTS.members.me);
+  return response.data;
 };
 
 function Profile() {
-  const member = dummyProfileResponse.member;
-
-  const [infoModalWindow, openInfoModal] = useModal({
-    ModalWindow: InfoEditWindow,
-    modalProps: {
-      member,
-    },
+  const { data: member, isLoading, isError } = useQuery({
+    queryKey: ['memberInfo'],
+    queryFn: fetchMemberInfo,
   });
 
   const [photoModalWindow, openPhotoModal] = useModal({
     ModalWindow: PhotoEditWindow,
   });
+
+  const [infoModalWindow, openInfoModal] = useModal(
+    member
+      ? {
+          ModalWindow: InfoEditWindow,
+          modalProps: {
+            member,
+          },
+        }
+      : { ModalWindow: () => null }
+  );
+
+  if (isLoading) return <ProfileWrapper>프로필 로딩 중...</ProfileWrapper>;
+  if (isError) return <ProfileWrapper>프로필을 불러오는데 실패했습니다.</ProfileWrapper>;
+  if (!member) return <ProfileWrapper>프로필 데이터가 없습니다.</ProfileWrapper>;
 
   return (
     <>
@@ -49,7 +57,7 @@ function Profile() {
             </Entry>
             <Entry>
               <Section>이름</Section>
-              <div>{member.name}</div>
+              <div>{member.username}</div>
             </Entry>
             <Entry>
               <Section>연락처</Section>

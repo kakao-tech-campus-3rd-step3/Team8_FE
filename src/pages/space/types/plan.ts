@@ -1,4 +1,4 @@
-export type PlanType = {
+export type Plan = {
   id: number;
   title: string;
   description: string;
