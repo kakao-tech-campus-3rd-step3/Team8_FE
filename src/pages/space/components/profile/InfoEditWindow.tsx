@@ -20,9 +20,13 @@ import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 
 const updateMemberInfo = async (data: EditFormInputs) => {
-  const { phone, name, ...rest } = data;
-  // 서버 스키마에 맞춰 name -> username, phone -> contact로 매핑
-  const payload = { ...rest, contact: phone, username: name };
+  // 서버 스펙: { email, contact, username, mbti }
+  const payload: { email: string; contact: string; username: string; mbti?: string } = {
+    email: data.email,
+    contact: data.phone,
+    username: data.name,
+  };
+  if (typeof data.mbti === 'string' && data.mbti.length > 0) payload.mbti = data.mbti;
   const response = await axiosInstance.patch(ENDPOINTS.members.me, payload);
   return response.data;
 };
