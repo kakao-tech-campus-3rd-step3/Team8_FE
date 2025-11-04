@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useAuth } from '@/hooks/useAuth';
 import { STORAGE_KEYS } from '@/utils/storageKeys';
 import { useQueryClient } from '@tanstack/react-query';
+import { colorSystem } from '@/styles/colorSystem';
 
 function SpacePage() {
   const queryClient = useQueryClient();
@@ -27,12 +28,14 @@ function SpacePage() {
 
   return (
     <>
-      <TopBar>나의 스페이스</TopBar>
+      <TopBarContainer>
+        <TopBar>나의 스페이스</TopBar>
+        <LogoutButton onClick={logout}>로그아웃</LogoutButton>
+      </TopBarContainer>
       <SpacePageWrapper>
         <DevBar>
           <ExpireButton onClick={expireAccessToken}>액세스 토큰 만료 시뮬레이션</ExpireButton>
         </DevBar>
-        <LogoutButton onClick={logout}>임시 로그아웃</LogoutButton>
         <Profile />
         <PlanSpace />
       </SpacePageWrapper>
@@ -64,13 +67,23 @@ const ExpireButton = styled.button`
   color: #d9480f;
 `;
 
+const TopBarContainer = styled.div`
+  position: relative;
+`;
+
 const LogoutButton = styled.button`
-  align-self: flex-end;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background: #fafafa;
+  border-radius: 20px;
+  border: 1px solid ${colorSystem.tertiary_white._200};
+  background: ${colorSystem.tertiary_white._0};
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  color: ${colorSystem.tertiary_white._500};
+  margin-right: 24px;
 `;
 
 export default SpacePage;

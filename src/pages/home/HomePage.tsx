@@ -4,7 +4,8 @@ import { Banner } from './components/Banner';
 import { NavLinks } from './components/NavLinks';
 import { TripSection, type Member } from './components/TripSection';
 import { useState, useEffect } from 'react';
-import { mockMemberResponse, mockPlans } from '../../mocks/data'; 
+import { mockMemberResponse, mockPlans } from '../../mocks/data';
+import { useAuth } from '@/hooks/useAuth';
 
 const placeholderImages = {
   logo: '/logo.svg',
@@ -12,6 +13,7 @@ const placeholderImages = {
 
 function HomePage() {
   const [member, setMember] = useState<Member | null>(null);
+  const { logout } = useAuth();
 
   useEffect(() => {
     // 여기서 fetch나 axios를 사용해 API 호출
@@ -25,6 +27,7 @@ function HomePage() {
   return (
     <PageWrapper>
       <Header>
+        <LogoutButton onClick={logout}>로그아웃</LogoutButton>
         <Logo src={placeholderImages.logo} alt="Journey Planner Logo" />
       </Header>
       <MainContent>
@@ -53,6 +56,7 @@ const Header = styled.header`
   border-bottom: 1px solid ${colorSystem.tertiary_white._100};
   display: flex;
   justify-content: center;
+  position: relative;
 `;
 
 const Logo = styled.img`
@@ -72,6 +76,20 @@ const Footer = styled.footer`
   padding: 40px 0;
   display: flex;
   justify-content: center;
+`;
+
+const LogoutButton = styled.button`
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid ${colorSystem.tertiary_white._200};
+  background: ${colorSystem.tertiary_white._0};
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  color: ${colorSystem.tertiary_white._500};
 `;
 
 export default HomePage;

@@ -4,7 +4,6 @@ import { fontSystem } from '../../../styles/fontSystem';
 import { usePageRouting } from '@/hooks/usePageRouting';
 
 const placeholderImages = {
-  paperAirplane: 'https://i.pinimg.com/1200x/e2/6c/d7/e26cd7ead75785115a7144fdef259cef.jpg',
   windowSeat: 'https://i.pinimg.com/1200x/fd/14/47/fd1447fb3c91db32c1bc0ccbc4055a23.jpg',
 };
 
@@ -13,9 +12,6 @@ export function NavLinks() {
 
   return (
     <NavLinksWrapper>
-      <NavLink image={placeholderImages.paperAirplane} onClick={goto.space}>
-        <span>모든 개인 스페이스 보기</span>
-      </NavLink>
       <NavLink image={placeholderImages.windowSeat} onClick={goto.space}>
         <span>Mypage</span>
       </NavLink>
@@ -25,13 +21,15 @@ export function NavLinks() {
 
 const NavLinksWrapper = styled.section`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 16px;
   width: 100%;
+  justify-items: center; /* 아이템을 수평 중앙 정렬 */
 `;
 
 const NavLink = styled.a<{ image: string }>`
   ${fontSystem.title.large};
+  width: clamp(240px, 90vw, 520px); /* 반응형 너비 축소 */
   height: 150px;
   border-radius: 8px;
   background-image: url(${({ image }) => image});
@@ -48,5 +46,7 @@ const NavLink = styled.a<{ image: string }>`
 
   @media (max-width: 768px) {
     ${fontSystem.title.small};
+    width: clamp(220px, 92vw, 460px);
+    height: 140px;
   }
 `;
