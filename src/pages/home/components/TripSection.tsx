@@ -1,6 +1,11 @@
 import styled from 'styled-components';
 import { colorSystem } from '../../../styles/colorSystem';
 import { fontSystem } from '../../../styles/fontSystem';
+import Edit from '@/assets/icons/Edit';
+import Delete from '@/assets/icons/Delete';
+import { usePageRouting } from '@/hooks/usePageRouting';
+import { useModal } from '@/hooks/useModal';
+import DeletionConfirmWindow from '@/pages/space/components/planspace/DeletionConfirmWindow';
 
 const placeholderImages = {
   airplaneIcon: '✈️',
@@ -37,25 +42,47 @@ export function TripSection({ member, plans, isLoading }: TripSectionProps) {
       {isLoading || !member ? (
         <LoadingArea>로딩 중...</LoadingArea>
       ) : plans.length === 0 ? (
-        <EmptyArea>플랜이 없습니다</EmptyArea>
+        <EmptyArea>계획이 없습니다</EmptyArea>
       ) : (
         <TripList>
           {plans.map((plan) => (
-            <TripCard key={plan.id}>
-              <CardTitle>{plan.title}</CardTitle>
-              <CardBody>
-                <ul>
-                  <li>{plan.description}</li>
-                  <li>
-                    {plan.startDate} ~ {plan.endDate}
-                  </li>
-                </ul>
-              </CardBody>
-            </TripCard>
+            <HomePlanCard key={plan.id} plan={plan} />
           ))}
         </TripList>
       )}
     </>
+  );
+}
+
+function HomePlanCard({ plan }: { plan: Plan }) {
+  const goto = usePageRouting();
+  const [deletionConfirmModal, openDeletionConfirmWindow] = useModal({
+    ModalWindow: DeletionConfirmWindow,
+    // DeletionConfirmWindow는 space/types/plan 기반이지만 shape가 동일하므로 그대로 전달
+    modalProps: { plan: plan as unknown as any },
+  });
+
+  return (
+    <TripCard>
+      {deletionConfirmModal}
+      <CardControls>
+        <IconButton onClick={goto.plan(String(plan.id))} aria-label="edit">
+          <Edit />
+        </IconButton>
+        <IconButton onClick={openDeletionConfirmWindow} aria-label="delete">
+          <Delete />
+        </IconButton>
+      </CardControls>
+      <CardTitle>{plan.title}</CardTitle>
+      <CardBody>
+        <ul>
+          <DescriptionText>{plan.description}</DescriptionText>
+          <li>
+            {plan.startDate} ~ {plan.endDate}
+          </li>
+        </ul>
+      </CardBody>
+    </TripCard>
   );
 }
 
@@ -117,6 +144,7 @@ const TripCard = styled.div`
   flex: 0 0 auto;
   scroll-snap-align: start;
   background-color: ${colorSystem.tertiary_white._0};
+  position: relative;
 `;
 
 const CardTitle = styled.h3`
@@ -142,4 +170,28 @@ const CardBody = styled.div`
   li {
     margin-bottom: 8px;
   }
+`;
+
+const DescriptionText = styled.li`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 최대 2줄 표시 후 말줄임 */
+  -webkit-box-orient: vertical;
+  white-space: normal;
+`;
+
+const CardControls = styled.div`
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 8px;
+`;
+
+const IconButton = styled.button`
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
 `;

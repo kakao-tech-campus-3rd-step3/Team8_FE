@@ -13,7 +13,7 @@ export function NavLinks() {
   return (
     <NavLinksWrapper>
       <NavLink image={placeholderImages.windowSeat} onClick={goto.space}>
-        <span>Mypage</span>
+        <span>MY SPACE</span>
       </NavLink>
     </NavLinksWrapper>
   );

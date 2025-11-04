@@ -1,9 +1,10 @@
 import { useBlockScroll } from '@/hooks/useBlockScroll';
 import styled from 'styled-components';
+import { createPortal } from 'react-dom';
 
 function Modal({ children }: { children: React.ReactNode }) {
   useBlockScroll();
-  return <ModalWrapper>{children}</ModalWrapper>;
+  return createPortal(<ModalWrapper>{children}</ModalWrapper>, document.body);
 }
 
 const ModalWrapper = styled.div`
@@ -12,6 +13,7 @@ const ModalWrapper = styled.div`
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 1000; /* 모든 일반 콘텐츠 위에 표시 */
 
   display: flex;
   justify-content: center;
