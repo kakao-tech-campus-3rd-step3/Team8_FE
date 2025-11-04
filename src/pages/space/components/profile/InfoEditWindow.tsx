@@ -20,8 +20,13 @@ import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 
 const updateMemberInfo = async (data: EditFormInputs) => {
-  const { phone, ...rest } = data;
-  const payload = { ...rest, contact: phone };
+  // 서버 스펙: { email, contact, username, mbti }
+  const payload: { email: string; contact: string; username: string; mbti?: string } = {
+    email: data.email,
+    contact: data.phone,
+    username: data.name,
+  };
+  if (typeof data.mbti === 'string' && data.mbti.length > 0) payload.mbti = data.mbti;
   const response = await axiosInstance.patch(ENDPOINTS.members.me, payload);
   return response.data;
 };
@@ -91,7 +96,9 @@ function InfoEditWindow({ closeModal, member }: ModalPropType & { member: Member
         </FieldWrapper>
 
         <ControlBar>
-          <CancelButton type="button" onClick={closeModal}>취소</CancelButton>
+          <CancelButton type="button" onClick={closeModal}>
+            취소
+          </CancelButton>
           <CompleteButton type="submit" disabled={!isValid || mutation.isPending}>
             {mutation.isPending ? '수정 중...' : '수정'}
           </CompleteButton>

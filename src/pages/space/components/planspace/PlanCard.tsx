@@ -6,6 +6,7 @@ import { usePageRouting } from '@/hooks/usePageRouting';
 import Delete from '@/assets/icons/Delete';
 import DeletionConfirmWindow from './DeletionConfirmWindow';
 import { useModal } from '@/hooks/useModal';
+import { colorSystem } from '@/styles/colorSystem';
 
 function PlanCard({ plan, highlight = false }: { plan: Plan; highlight?: boolean }) {
   const goto = usePageRouting();
@@ -98,8 +99,12 @@ const PlanCardWrapper = styled.div.withConfig({
   flex-direction: column;
   justify-content: center;
 
-  border-radius: 16px;
-  box-shadow: 0 2px 12px
-    ${({ highlight }) => (highlight ? `rgba(75, 206, 93, 0.3);` : `rgba(0, 0, 0, 0.08);`)};
+  border-radius: 40px;
+  /* 상단(하이라이트) 카드: 초록색 선, 나머지: 회색 선 */
+  border: 1px solid
+    ${({ highlight }) =>
+      highlight ? colorSystem.secondary_green._400 : colorSystem.tertiary_white._200};
+  /* 프로필 섹션과 동일한 그림자 적용 */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 `;
 export default PlanCard;

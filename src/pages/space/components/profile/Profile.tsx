@@ -4,19 +4,32 @@ import { fontSystem } from '@/styles/fontSystem';
 import styled from 'styled-components';
 import InfoEditWindow from '@/pages/space/components/profile/InfoEditWindow';
 import type { MemberType } from '@/types/member';
+import type { MemberMe } from '@/pages/home/hooks/useMemberQuery';
 import PhotoEditWindow from '@/pages/space/components/profile/PhotoEditWindow';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 
 const fetchMemberInfo = async (): Promise<MemberType> => {
-  // axiosInstance를 사용하여 API 호출
-  const response = await axiosInstance.get<MemberType>(ENDPOINTS.members.me);
-  return response.data;
+  // 서버 스키마는 { email, contact, username, mbti }
+  const response = await axiosInstance.get<MemberMe>(ENDPOINTS.members.me);
+  const me = response.data;
+  // 화면/폼에서 사용하는 MemberType으로 매핑(name <- username)
+  return {
+    id: 0,
+    email: me.email,
+    name: me.username,
+    contact: me.contact,
+    mbti: me.mbti,
+  };
 };
 
 function Profile() {
-  const { data: member, isLoading, isError } = useQuery({
+  const {
+    data: member,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['memberInfo'],
     queryFn: fetchMemberInfo,
   });
@@ -57,7 +70,7 @@ function Profile() {
             </Entry>
             <Entry>
               <Section>이름</Section>
-              <div>{member.username}</div>
+              <div>{member.name}</div>
             </Entry>
             <Entry>
               <Section>연락처</Section>
@@ -93,7 +106,7 @@ const ImagePlaceholder = styled.div`
 `;
 
 const EditPictureButton = styled.button`
-  color: ${colorSystem.primary_yellow._400};
+  color: ${colorSystem.tertiary_white._500};
   border: none;
   background-color: transparent;
 `;
@@ -149,7 +162,8 @@ const ProfileWrapper = styled.div`
   display: flex;
   flex-direction: column;
   border-radius: 40px;
-  box-shadow: 0 2px 12px rgba(255, 192, 77, 0.3);
+  border: 1px solid ${colorSystem.primary_yellow._300};
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 `;
 
 export default Profile;

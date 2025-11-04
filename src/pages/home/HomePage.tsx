@@ -3,33 +3,40 @@ import { colorSystem } from '../../styles/colorSystem';
 import { Banner } from './components/Banner';
 import { NavLinks } from './components/NavLinks';
 import { TripSection, type Member } from './components/TripSection';
-import { useState, useEffect } from 'react';
-import { mockMemberResponse, mockPlans } from '../../mocks/data'; 
+import { useMemo } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useMemberQuery } from '@/pages/home/hooks/useMemberQuery';
+import { usePlansForHome } from '@/pages/home/hooks/usePlansQuery';
 
 const placeholderImages = {
   logo: '/logo.svg',
 };
 
 function HomePage() {
-  const [member, setMember] = useState<Member | null>(null);
+  const { logout } = useAuth();
+  const { data: me, isLoading } = useMemberQuery();
+  const { data: plans = [], isLoading: isPlansLoading } = usePlansForHome({ page: 0, size: 10 });
 
-  useEffect(() => {
-    // 여기서 fetch나 axios를 사용해 API 호출
-    setMember(mockMemberResponse.member);
-  }, []);
-
-  if (!member) {
-    return <div>로딩 중...</div>;
-  }
+  const member: Member | null = useMemo(() => {
+    if (!me) return null;
+    return {
+      id: 0,
+      email: me.email,
+      name: me.username,
+      contact: me.contact,
+      mbti: me.mbti,
+    };
+  }, [me]);
 
   return (
     <PageWrapper>
       <Header>
+        <LogoutButton onClick={logout}>로그아웃</LogoutButton>
         <Logo src={placeholderImages.logo} alt="Journey Planner Logo" />
       </Header>
       <MainContent>
         <Banner />
-        <TripSection member={member} plans={mockPlans} />
+        <TripSection member={member} plans={plans} isLoading={isLoading || isPlansLoading} />
         <NavLinks />
       </MainContent>
       <Footer>
@@ -53,6 +60,7 @@ const Header = styled.header`
   border-bottom: 1px solid ${colorSystem.tertiary_white._100};
   display: flex;
   justify-content: center;
+  position: relative;
 `;
 
 const Logo = styled.img`
@@ -72,6 +80,20 @@ const Footer = styled.footer`
   padding: 40px 0;
   display: flex;
   justify-content: center;
+`;
+
+const LogoutButton = styled.button`
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid ${colorSystem.tertiary_white._200};
+  background: ${colorSystem.tertiary_white._0};
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  color: ${colorSystem.tertiary_white._500};
 `;
 
 export default HomePage;
