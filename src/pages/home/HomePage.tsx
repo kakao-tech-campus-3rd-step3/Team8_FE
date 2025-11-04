@@ -4,9 +4,9 @@ import { Banner } from './components/Banner';
 import { NavLinks } from './components/NavLinks';
 import { TripSection, type Member } from './components/TripSection';
 import { useMemo } from 'react';
-import { mockPlans } from '../../mocks/data';
 import { useAuth } from '@/hooks/useAuth';
 import { useMemberQuery } from '@/pages/home/hooks/useMemberQuery';
+import { usePlansForHome } from '@/pages/home/hooks/usePlansQuery';
 
 const placeholderImages = {
   logo: '/logo.svg',
@@ -15,6 +15,7 @@ const placeholderImages = {
 function HomePage() {
   const { logout } = useAuth();
   const { data: me, isLoading } = useMemberQuery();
+  const { data: plans = [], isLoading: isPlansLoading } = usePlansForHome({ page: 0, size: 10 });
 
   const member: Member | null = useMemo(() => {
     if (!me) return null;
@@ -35,7 +36,7 @@ function HomePage() {
       </Header>
       <MainContent>
         <Banner />
-        <TripSection member={member} plans={mockPlans} isLoading={isLoading} />
+        <TripSection member={member} plans={plans} isLoading={isLoading || isPlansLoading} />
         <NavLinks />
       </MainContent>
       <Footer>
