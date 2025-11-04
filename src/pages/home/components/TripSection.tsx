@@ -22,32 +22,37 @@ export interface Member {
 }
 
 interface TripSectionProps {
-  member: Member
+  member: Member | null;
   plans: Plan[];
+  isLoading?: boolean;
 }
 
-export function TripSection({ member, plans }: TripSectionProps) {
+export function TripSection({ member, plans, isLoading }: TripSectionProps) {
   return (
     <>
       <WelcomeMessage>
-        {placeholderImages.airplaneIcon} {member.name}님 안녕하세요
+        {placeholderImages.airplaneIcon} {member ? `${member.name}님 안녕하세요` : '로딩 중...'}
       </WelcomeMessage>
 
-      <TripList>
-        {plans.map((plan) => (
-          <TripCard key={plan.id}>
-            <CardTitle>{plan.title}</CardTitle>
-            <CardBody>
-              <ul>
-                <li>{plan.description}</li>
-                <li>
-                  {plan.startDate} ~ {plan.endDate}
-                </li>
-              </ul>
-            </CardBody>
-          </TripCard>
-        ))}
-      </TripList>
+      {isLoading || !member ? (
+        <LoadingArea>로딩 중...</LoadingArea>
+      ) : (
+        <TripList>
+          {plans.map((plan) => (
+            <TripCard key={plan.id}>
+              <CardTitle>{plan.title}</CardTitle>
+              <CardBody>
+                <ul>
+                  <li>{plan.description}</li>
+                  <li>
+                    {plan.startDate} ~ {plan.endDate}
+                  </li>
+                </ul>
+              </CardBody>
+            </TripCard>
+          ))}
+        </TripList>
+      )}
     </>
   );
 }
@@ -65,6 +70,18 @@ const TripList = styled.section`
   gap: 16px;
   width: 100%;
   justify-content: center;
+  margin-bottom: 32px;
+`;
+
+const LoadingArea = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 200px;
+  color: ${colorSystem.tertiary_white._500};
+  border: 1px dashed ${colorSystem.tertiary_white._200};
+  border-radius: 8px;
   margin-bottom: 32px;
 `;
 

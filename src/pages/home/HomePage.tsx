@@ -3,26 +3,29 @@ import { colorSystem } from '../../styles/colorSystem';
 import { Banner } from './components/Banner';
 import { NavLinks } from './components/NavLinks';
 import { TripSection, type Member } from './components/TripSection';
-import { useState, useEffect } from 'react';
-import { mockMemberResponse, mockPlans } from '../../mocks/data';
+import { useMemo } from 'react';
+import { mockPlans } from '../../mocks/data';
 import { useAuth } from '@/hooks/useAuth';
+import { useMemberQuery } from '@/pages/home/hooks/useMemberQuery';
 
 const placeholderImages = {
   logo: '/logo.svg',
 };
 
 function HomePage() {
-  const [member, setMember] = useState<Member | null>(null);
   const { logout } = useAuth();
+  const { data: me, isLoading } = useMemberQuery();
 
-  useEffect(() => {
-    // 여기서 fetch나 axios를 사용해 API 호출
-    setMember(mockMemberResponse.member);
-  }, []);
-
-  if (!member) {
-    return <div>로딩 중...</div>;
-  }
+  const member: Member | null = useMemo(() => {
+    if (!me) return null;
+    return {
+      id: 0,
+      email: me.email,
+      name: me.username,
+      contact: me.contact,
+      mbti: me.mbti,
+    };
+  }, [me]);
 
   return (
     <PageWrapper>
@@ -32,7 +35,7 @@ function HomePage() {
       </Header>
       <MainContent>
         <Banner />
-        <TripSection member={member} plans={mockPlans} />
+        <TripSection member={member} plans={mockPlans} isLoading={isLoading} />
         <NavLinks />
       </MainContent>
       <Footer>
