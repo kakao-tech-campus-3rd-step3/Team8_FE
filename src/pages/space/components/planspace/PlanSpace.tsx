@@ -7,6 +7,7 @@ import { useModal } from '@/hooks/useModal';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
+import { colorSystem } from '@/styles/colorSystem';
 
 // API 응답 데이터 타입 정의
 interface PlansResponse {
@@ -36,20 +37,18 @@ function PlanSpace() {
   if (isLoading) return <PlanSpaceWrapper>계획 로딩 중...</PlanSpaceWrapper>;
   if (isError) return <PlanSpaceWrapper>계획을 불러오는데 실패했습니다.</PlanSpaceWrapper>;
 
-const latestPlanId = plans && plans.length > 0
-    ? Math.max(...plans.map(p => p.id))
-    : null;
+  const latestPlanId = plans && plans.length > 0 ? Math.max(...plans.map((p) => p.id)) : null;
 
   return (
     <PlanSpaceWrapper>
       {newPlanWindow}
+      <AddButton onClick={openNewPlanModal}>
+        <Add />새 여행 계획하기
+      </AddButton>
       {plans?.map((plan: Plan) => {
         // 현재 plan이 최신 plan이면 highlight를 true로 설정합니다.
         return <PlanCard key={plan.id} plan={plan} highlight={plan.id === latestPlanId} />;
       })}
-      <AddButton onClick={openNewPlanModal}>
-        <Add />새 여행 계획하기
-      </AddButton>
     </PlanSpaceWrapper>
   );
 }
@@ -59,8 +58,8 @@ const AddButton = styled.div`
   justify-content: center;
   align-items: center;
   padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(255, 192, 77, 0.3);
+  border-radius: 30px;
+  border: 2px dashed ${colorSystem.tertiary_white._200};
   cursor: pointer;
 `;
 

@@ -25,7 +25,11 @@ const fetchMemberInfo = async (): Promise<MemberType> => {
 };
 
 function Profile() {
-  const { data: member, isLoading, isError } = useQuery({
+  const {
+    data: member,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['memberInfo'],
     queryFn: fetchMemberInfo,
   });
@@ -102,7 +106,7 @@ const ImagePlaceholder = styled.div`
 `;
 
 const EditPictureButton = styled.button`
-  color: ${colorSystem.primary_yellow._400};
+  color: ${colorSystem.tertiary_white._500};
   border: none;
   background-color: transparent;
 `;
@@ -158,7 +162,8 @@ const ProfileWrapper = styled.div`
   display: flex;
   flex-direction: column;
   border-radius: 40px;
-  box-shadow: 0 2px 12px rgba(255, 192, 77, 0.3);
+  border: 1px solid ${colorSystem.primary_yellow._300};
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 `;
 
 export default Profile;
