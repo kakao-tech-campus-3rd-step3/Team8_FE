@@ -4,15 +4,24 @@ import { fontSystem } from '@/styles/fontSystem';
 import styled from 'styled-components';
 import InfoEditWindow from '@/pages/space/components/profile/InfoEditWindow';
 import type { MemberType } from '@/types/member';
+import type { MemberMe } from '@/pages/home/hooks/useMemberQuery';
 import PhotoEditWindow from '@/pages/space/components/profile/PhotoEditWindow';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 
 const fetchMemberInfo = async (): Promise<MemberType> => {
-  // axiosInstance를 사용하여 API 호출
-  const response = await axiosInstance.get<MemberType>(ENDPOINTS.members.me);
-  return response.data;
+  // 서버 스키마는 { email, contact, username, mbti }
+  const response = await axiosInstance.get<MemberMe>(ENDPOINTS.members.me);
+  const me = response.data;
+  // 화면/폼에서 사용하는 MemberType으로 매핑(name <- username)
+  return {
+    id: 0,
+    email: me.email,
+    name: me.username,
+    contact: me.contact,
+    mbti: me.mbti,
+  };
 };
 
 function Profile() {
@@ -57,7 +66,7 @@ function Profile() {
             </Entry>
             <Entry>
               <Section>이름</Section>
-              <div>{member.username}</div>
+              <div>{member.name}</div>
             </Entry>
             <Entry>
               <Section>연락처</Section>
