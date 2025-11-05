@@ -22,8 +22,10 @@ export function useMemberQuery<TData = MemberMe>(
   return useQuery<MemberMe, unknown, TData, typeof QUERY_KEY>({
     queryKey: QUERY_KEY,
     queryFn: fetchMemberMe,
-    staleTime: 60 * 1000,
+    // 홈 재진입마다 항상 최신 데이터 요청
+    staleTime: 0,
     gcTime: 5 * 60 * 1000,
+    refetchOnMount: 'always',
     refetchOnWindowFocus: false,
     ...options,
   });

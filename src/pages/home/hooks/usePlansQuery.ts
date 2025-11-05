@@ -1,4 +1,4 @@
-import { useQuery, keepPreviousData, type UseQueryResult } from '@tanstack/react-query';
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 import type { Plan as HomePlan } from '@/pages/home/components/TripSection';
@@ -83,9 +83,9 @@ export function usePlansForHome(params: PlansQueryParams = {}): UseQueryResult<H
         startDate: p.startDate,
         endDate: p.endDate,
       })),
-    staleTime: 60 * 1000,
+    staleTime: 0,
     gcTime: 5 * 60 * 1000,
-    placeholderData: keepPreviousData,
+    refetchOnMount: 'always',
     refetchOnWindowFocus: false,
   });
 }
