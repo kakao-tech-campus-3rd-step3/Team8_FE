@@ -57,7 +57,7 @@ function RegisterPage() {
           />
           <FormSelectField<RegisterFormInputs>
             id="mbti"
-            label="MBTI (선택 사항)"
+            label="MBTI"
             register={register}
             error={errors.mbti}
             options={mbtiTypes}
