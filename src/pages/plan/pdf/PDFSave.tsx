@@ -5,17 +5,20 @@ import styled from 'styled-components';
 import { colorSystem } from '@/styles/colorSystem';
 import { useParams } from 'react-router-dom';
 import { useFetchPlanDetail } from '../hooks/useFetchPlanDetail';
+import { useFetchCanvas } from '../hooks/useFetchCanvas';
 
 export default function PDFSave() {
   const id = useParams().id ?? '-1';
-  const { data, isError } = useFetchPlanDetail(id);
+  const { data: planData, isError: planError } = useFetchPlanDetail(id);
+  const { data: canvasData, isError: canvasError } = useFetchCanvas(id);
 
-  if (isError) return null;
+  if (planError || canvasError) return null;
+  if (!planData || !canvasData) return null;
 
   return (
     <PDFDownloadLink
-      document={<PDFTemplate data={data!} />}
-      fileName={`${data!.title}-JourneyPlanner.pdf`}
+      document={<PDFTemplate planData={planData} canvasData={canvasData} />}
+      fileName={`${planData?.title}-JourneyPlanner.pdf`}
       style={{ textDecoration: 'none' }}
     >
       {({ loading }) =>
