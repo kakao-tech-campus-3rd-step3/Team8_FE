@@ -44,7 +44,8 @@ export const registerSchema = z
         message: '010-1234-5678 형식으로 입력해주세요',
       }),
 
-    mbti: z.enum(mbtiTypes).optional().or(z.literal('')),
+    // 서버 요구사항: MBTI 필수 입력 (구 Zod 시그니처 호환)
+    mbti: z.enum(mbtiTypes, { message: 'MBTI를 선택해주세요' }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: '비밀번호가 일치하지 않습니다',
