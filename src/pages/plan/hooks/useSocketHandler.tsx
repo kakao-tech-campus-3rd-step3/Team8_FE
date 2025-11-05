@@ -21,7 +21,7 @@ export default function useSocketHandler({ planId }: useSocketHandlerType) {
   const client = useMemo(
     () =>
       new Client({
-        webSocketFactory: () => new SockJS(`${API_BASE_URL}/ws`),
+        webSocketFactory: () => new SockJS(`${API_BASE_URL}ws`),
         onConnect: () => {
           subscribeAll();
           initAll();
