@@ -118,8 +118,8 @@ axiosInstance.interceptors.response.use(
     const { config, response } = error;
     const originalRequest = config as AxiosRequestConfig & { _retry?: boolean };
 
-    // 토큰 오류(400 + AE_002)에서만 리프레시 로직을 트리거
-    if (isTokenBadError(response) && originalRequest && !originalRequest._retry) {
+    // 토큰 오류: 401 또는 400 + AE_002 에서 리프레시 로직을 트리거
+    if ((response?.status === 401 || isTokenBadError(response)) && originalRequest && !originalRequest._retry) {
       // 리프레시 요청 자체는 재시도/리프레시를 하지 않고 즉시 실패 처리
       try {
         const base = axiosInstance.defaults.baseURL ?? window.location.origin;
