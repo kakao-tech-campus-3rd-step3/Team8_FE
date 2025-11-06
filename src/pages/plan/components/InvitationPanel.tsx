@@ -41,7 +41,7 @@ function InvitationPanel() {
                     <UserName>{user.name}</UserName>
                     <UserRole>{user.role}</UserRole>
                   </UserInfo>
-                  {user.role !== 'creator' && (
+                  {user.role !== 'OWNER' && (
                     <RemoveButton onClick={() => removeUser(user.id)}>
                       <Close />
                     </RemoveButton>
@@ -60,8 +60,6 @@ function InvitationPanel() {
       </PanelWrapper>
 
       {InvitationModal}
-
-
     </>
   );
 }
