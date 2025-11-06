@@ -8,30 +8,21 @@ import { fontSystem } from '@/styles/fontSystem';
 import type { AxiosError } from 'axios';
 import {
   ModalWindowWrapper,
-  WindowTopBar,       
-  WindowTitle,        
+  WindowTopBar,
+  WindowTitle,
   CloseButton,
-} from '../../space/styles/modalWindowStyle'; 
+} from '../../space/styles/modalWindowStyle';
 import Close from '@/assets/icons/Close';
+import { toast } from 'react-toastify';
 
 interface ApiErrorResponse {
   message: string;
 }
 
-const inviteUserToPlan = async ({
-  planId,
-  email,
-}: {
-  planId: string;
-  email: string;
-}) => {
-  const response = await axiosInstance.post(
-    ENDPOINTS.plans.invite(planId), 
-    null,
-    {
-      params: { email },   
- }
-  );
+const inviteUserToPlan = async ({ planId, email }: { planId: string; email: string }) => {
+  const response = await axiosInstance.post(ENDPOINTS.plans.invite(planId), null, {
+    params: { email },
+  });
   return response.data;
 };
 
@@ -40,29 +31,19 @@ interface InvitationModalContentProps {
   planId: string;
 }
 
-const InvitationModalContent = ({
-  closeModal,
-  planId,
-}: InvitationModalContentProps) => {
+const InvitationModalContent = ({ closeModal, planId }: InvitationModalContentProps) => {
   const queryClient = useQueryClient();
   const [email, setEmail] = useState('');
 
-  const {
-    mutate: inviteUser,
-    isPending: isInviting,
-  } = useMutation({
+  const { mutate: inviteUser, isPending: isInviting } = useMutation({
     mutationFn: inviteUserToPlan,
     onSuccess: () => {
-      alert('초대가 성공적으로 전송되었습니다.');
+      toast.success('초대가 성공적으로 전송되었습니다.');
       queryClient.invalidateQueries({ queryKey: ['planDetail', planId] });
       closeModal();
     },
     onError: (error: AxiosError<ApiErrorResponse>) => {
-      alert(
-        `초대에 실패했습니다: ${
-          error.response?.data?.message || '서버 오류'
-        }`
-      );
+      toast.error(`초대에 실패했습니다: ${error.response?.data?.message || '서버 오류'}`);
     },
   });
 
@@ -103,9 +84,9 @@ export default InvitationModalContent;
 
 const ContentWrapper = styled.div`
   width: 100%;
-  display: flex; 
+  display: flex;
   flex-direction: column;
-  min-width: 350px; 
+  min-width: 350px;
 `;
 
 const SearchForm = styled.form`

@@ -7,6 +7,7 @@ import type { Plan } from '../../types/plan';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
+import { toast } from 'react-toastify';
 
 const deletePlanApi = async (planId: number) => {
   const response = await axiosInstance.delete(ENDPOINTS.plans.byId(planId));
@@ -22,7 +23,7 @@ function DeletionConfirmWindow({ closeModal, plan }: ModalPropType & { plan: Pla
       closeModal();
     },
     onError: () => {
-      alert('삭제에 실패했습니다.');
+      toast.error('삭제에 실패했습니다.');
     },
   });
 

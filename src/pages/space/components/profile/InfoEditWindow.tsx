@@ -18,6 +18,7 @@ import { mbtiTypes, type EditFormInputs } from '../../utils/editValidation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
+import { toast } from 'react-toastify';
 
 const updateMemberInfo = async (data: EditFormInputs) => {
   // 서버 스펙: { email, contact, username, mbti }
@@ -37,11 +38,11 @@ function InfoEditWindow({ closeModal, member }: ModalPropType & { member: Member
     mutationFn: updateMemberInfo,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memberInfo'] });
-      alert('회원정보 수정이 완료되었습니다!');
+      toast.success('회원정보 수정이 완료되었습니다!');
       closeModal();
     },
     onError: () => {
-      alert('정보 수정에 실패했습니다.');
+      toast.error('정보 수정에 실패했습니다.');
     },
   });
 
