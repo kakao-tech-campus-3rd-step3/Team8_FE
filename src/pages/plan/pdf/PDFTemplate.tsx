@@ -388,20 +388,27 @@ export default function PDFTemplate({ planData, canvasData }: PDFTemplateProps) 
                   </View>
                   <Text style={styles.timestamp}>
                     {(() => {
-                      const date = new Date(schedule.startTime);
-                      const weekday = date
+                      const localTime = new Date(
+                        new Date(schedule.startTime).getTime() + 9 * 60 * 60 * 1000
+                      ); // +9시간
+                      const weekday = localTime
                         .toLocaleDateString('ko-KR', { weekday: 'short' })
                         .replace('요일', '');
-                      const day = date.getDay();
-                      return `${weekday}/${day}`;
+                      const date = localTime.getDate();
+                      return `${weekday}/${date}`;
                     })()}
                   </Text>
                   <Text style={styles.timestamp2}>
-                    {new Date(schedule.startTime).toLocaleTimeString('ko-KR', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false,
-                    })}
+                    {(() => {
+                      const localTime = new Date(
+                        new Date(schedule.startTime).getTime() + 9 * 60 * 60 * 1000
+                      ); // +9시간
+                      return localTime.toLocaleTimeString('ko-KR', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                      });
+                    })()}
                   </Text>
                   <View style={styles.waypointContent}>
                     <Text style={styles.waypointTitle}>{schedule.name}</Text>
