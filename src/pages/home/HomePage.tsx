@@ -60,7 +60,7 @@ function HomeTripsBlock() {
   }, [me]);
 
   return (
-    <ErrorBoundary fallback={null}>
+    <ErrorBoundary fallback={<TripSectionFallback />}>
       <TripSection member={member} plans={plans} isLoading={false} />
     </ErrorBoundary>
   );
