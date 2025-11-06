@@ -104,10 +104,15 @@ function WaypointNode({
                   handleLocalDataChange('startTime', toLocalISOString(date))
                 }
                 showTimeSelect
-                timeIntervals={30}
+                timeIntervals={60}
                 timeCaption="Time"
                 dateFormat="HH:mm"
                 customInput={<CustomTimeInput />}
+                portalId="root"
+                shouldCloseOnSelect={true}
+                onClickOutside={() =>
+                  document.activeElement instanceof HTMLElement && document.activeElement.blur()
+                }
               />
               ~
               <DatePicker
@@ -116,10 +121,15 @@ function WaypointNode({
                   handleLocalDataChange('endTime', toLocalISOString(date))
                 }
                 showTimeSelect
-                timeIntervals={30}
+                timeIntervals={60}
                 timeCaption="Time"
                 dateFormat="HH:mm"
                 customInput={<CustomTimeInput />}
+                portalId="root"
+                shouldCloseOnSelect={true}
+                onClickOutside={() =>
+                  document.activeElement instanceof HTMLElement && document.activeElement.blur()
+                }
               />
             </TimeWrapper>
           </HorizontalLayout>
