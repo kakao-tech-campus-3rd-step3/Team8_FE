@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { colorSystem } from '../../../styles/colorSystem';
 import { fontSystem } from '../../../styles/fontSystem';
 import { usePageRouting } from '@/hooks/usePageRouting';
+import { useInvitationQuery } from '@/pages/inbox/hooks/useInvitationQuery';
 
 const placeholderImages = {
   paperAirplane: 'https://i.pinimg.com/1200x/e2/6c/d7/e26cd7ead75785115a7144fdef259cef.jpg',
@@ -10,6 +11,8 @@ const placeholderImages = {
 
 export function NavLinks() {
   const goto = usePageRouting();
+  const { data = [] } = useInvitationQuery();
+  const invitationCount = data.length;
 
   return (
     <NavLinksWrapper>
@@ -18,10 +21,27 @@ export function NavLinks() {
       </NavLink>
       <NavLink image={placeholderImages.windowSeat} onClick={goto.inbox}>
         <span>받은 편지함</span>
+        {invitationCount > 0 && <Badge>{invitationCount}</Badge>}
       </NavLink>
     </NavLinksWrapper>
   );
 }
+
+const Badge = styled.div`
+  position: absolute;
+  top: -8px;
+  right: -13px;
+  background-color: #ff3b30;
+  color: white;
+  border-radius: 20px;
+  padding: 4px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  min-width: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+`;
 
 const NavLinksWrapper = styled.section`
   display: grid;
@@ -32,6 +52,7 @@ const NavLinksWrapper = styled.section`
 
 const NavLink = styled.a<{ image: string }>`
   ${fontSystem.title.large};
+  position: relative;
   height: 150px;
   border-radius: 8px;
   background-image: url(${({ image }) => image});
