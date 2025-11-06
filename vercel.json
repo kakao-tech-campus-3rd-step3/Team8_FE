@@ -8,5 +8,6 @@
       "src": "/.*",
       "dest": "/index.html"
     }
-  ]
+  ],
+  "rewrites": [{ "source": "/v1/(.*)", "destination": "http://3.133.89.210:8080/v1/$1" }]
 }
