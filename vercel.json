@@ -1,7 +1,12 @@
 {
   "version": 2,
-  "rewrites": [
-    { "source": "/v1/(.*)", "destination": "http://3.133.89.210:8080/v1/$1" },
-    { "source": "/(.*)", "destination": "/" }
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/.*",
+      "dest": "/index.html"
+    }
   ]
 }
