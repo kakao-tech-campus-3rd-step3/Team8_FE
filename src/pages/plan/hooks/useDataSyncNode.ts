@@ -7,6 +7,10 @@ import type { MemoData } from '../flow/canvasComponents/Memo';
 
 type AllowedTypes = WaypointData | MemoData;
 
+function isWaypointData(data: AllowedTypes): data is WaypointData {
+  return 'locationCategory' in data;
+}
+
 export function useDataSyncNode<DataType extends AllowedTypes>({
   id,
   data,
@@ -39,8 +43,11 @@ export function useDataSyncNode<DataType extends AllowedTypes>({
       const changed = JSON.stringify(prev) !== JSON.stringify(data);
 
       if (changed && localUpdateRef.current) {
+        const destination = isWaypointData(data)
+          ? StompURL.PUB.WAYPOINT.UPDATE(planId, data.id)
+          : StompURL.PUB.MEMO.UPDATE(planId, data.id);
         client.publish({
-          destination: StompURL.PUB.WAYPOINT.UPDATE(planId, data.id),
+          destination,
           body: JSON.stringify(data),
         });
 
