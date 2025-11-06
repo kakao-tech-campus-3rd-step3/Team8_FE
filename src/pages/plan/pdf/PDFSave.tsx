@@ -1,6 +1,5 @@
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import PDFTemplate from './PDFTemplate';
-import { schedules, travelers } from './data/example';
 import styled from 'styled-components';
 import { colorSystem } from '@/styles/colorSystem';
 import { useParams } from 'react-router-dom';

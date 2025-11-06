@@ -4,27 +4,17 @@ import LoginPage from '@pages/login/LoginPage';
 import PlanPage from '@pages/plan/PlanPage';
 import RegisterPage from '@pages/register/RegisterPage';
 import SpacePage from '@pages/space/SpacePage';
-import RoutingPanel from '@/components/dev/RoutingPanel';
 import RequireAuth from '@/components/routes/RequireAuth';
 import RequireGuest from '@/components/routes/RequireGuest';
 import { PATH } from '@utils/path';
 import { Outlet, Route, Routes } from 'react-router-dom';
 import styled from 'styled-components';
-import ColorPanel from './dev/ColorPanel';
-import FontPanel from './dev/FontPanel';
 import { ToastContainer } from 'react-toastify';
 
 function Router() {
   return (
     <>
-      {process.env.NODE_ENV === 'development' && (
-        <>
-          <RoutingPanel />
-          <ColorPanel />
-          <FontPanel />
-          <ToastContainer />
-        </>
-      )}
+      <ToastContainer />
       <Routes>
         {/* 게스트 전용 라우트: 랜딩/로그인/회원가입 */}
         <Route element={<RequireGuest />}>
