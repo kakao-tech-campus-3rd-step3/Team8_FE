@@ -14,6 +14,8 @@ export const ENDPOINTS = {
     byId: (id: number | string) => `${API_PREFIX}/plans/${id}`,
     invitations: `${API_PREFIX}/plans/invitations`,
     accept: (id: number | string) => `${API_PREFIX}/plans/invitations/${id}/accept`,
+    invite: (id: number | string) => `${API_PREFIX}/plans/invitations/${id}`,
+    canvas: (id: number | string) => `${API_PREFIX}/plans/${id}/canvas`,
   },
 } as const;
 

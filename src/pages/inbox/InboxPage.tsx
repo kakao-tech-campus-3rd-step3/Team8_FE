@@ -5,14 +5,14 @@ import { usePageRouting } from '@/hooks/usePageRouting';
 import ArrowBackiOS from '@/assets/icons/ArrowBackiOS';
 import { fontSystem } from '@/styles/fontSystem';
 import { useInvitationQuery } from './hooks/useInvitationQuery';
-import { usePlansFromInvitations } from './hooks/usePlansFromInvitations';
 import InvitationCard from './components/InvitationCard';
+// import { usePlansFromInvitations } from './hooks/usePlansFromInvitations';
 
 export default function InboxPage() {
   const { logout } = useAuth();
   const goto = usePageRouting();
   const { data: invitationData = [] } = useInvitationQuery();
-  const plans = usePlansFromInvitations(invitationData);
+  // const plans = usePlansFromInvitations(invitationData);
 
   return (
     <PageWrapper>

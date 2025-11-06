@@ -14,9 +14,11 @@ export const useAcceptInvitation = () => {
     mutationFn: acceptInvitation,
     onSuccess: (data) => {
       toast.success('초대 수락에 성공하였습니다.');
+      console.log(data);
     },
     onError: (error) => {
       toast.error('초대 수락에 실패하였습니다.');
+      console.log(error);
     },
   });
 };
