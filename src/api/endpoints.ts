@@ -36,6 +36,7 @@ plans: {
     byId: (id: number | string) => `${API_PREFIX}/plans/${id}`,
     invite: (id: number | string) => `${API_PREFIX}/plans/invitations/${id}`,
     kick: (id: number | string) => `${API_PREFIX}/plans/invitations/${id}`,
+    canvas: (id: string) => `${API_PREFIX}/plans/${id}/canvas`,
   },
 } as const;
 

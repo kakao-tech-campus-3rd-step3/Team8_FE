@@ -1,7 +1,11 @@
 import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer';
-import type { Schedule, Traveler } from './types/PDFDataType';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import QRCode from 'qrcode';
+import type { TravelerType } from '@/api/types/traveler';
+import type { PlanDetailType } from '@/api/types/planDetail';
+import type { planCanvasType } from '@/api/types/planCanvasType';
+import type { WaypointData } from '../flow/canvasComponents/Waypoint';
+import type { RouteData } from '../flow/canvasComponents/Route';
 
 Font.register({
   family: 'Pretendard Variable',
@@ -154,6 +158,12 @@ const styles = StyleSheet.create({
     left: 40,
     top: 16,
   },
+  timestamp2: {
+    fontSize: 11,
+    position: 'absolute',
+    left: 40,
+    top: 32,
+  },
   waypointContent: {
     flex: 1,
     marginLeft: 80, // Space for timestamp
@@ -221,11 +231,11 @@ const styles = StyleSheet.create({
 });
 
 type PDFTemplateProps = {
-  travelers: Traveler[];
-  schedules: Schedule[];
+  planData: PlanDetailType;
+  canvasData: planCanvasType;
 };
 
-export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) {
+export default function PDFTemplate({ planData, canvasData }: PDFTemplateProps) {
   const [qrDataUrl, setQrDataUrl] = useState('');
 
   useEffect(() => {
@@ -233,6 +243,46 @@ export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) 
       .then((url) => setQrDataUrl(url))
       .catch((err) => console.error(err));
   }, []);
+
+  const getTitleCaption = (): string => {
+    if (planData.travelers.length === 1) {
+      return `${planData.travelers[0].name}님의 여행 계획`;
+    } else {
+      return `${planData.travelers.find((traveler) => traveler.role === 'OWNER')?.name}님 외 ${
+        planData.travelers.length - 1
+      }명의 여행 계획`;
+    }
+  };
+
+  const schedules = useMemo(() => {
+    if (!canvasData?.waypoints?.length) return [];
+
+    const sortedWaypoints = [...canvasData.waypoints].sort(
+      (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+    );
+
+    const result: (WaypointData | RouteData)[] = [];
+
+    sortedWaypoints.forEach((wp, index) => {
+      result.push(wp);
+
+      const next = sortedWaypoints[index + 1];
+      if (next) {
+        const route = canvasData.routes.find(
+          (r) => r.fromWaypointId === wp.id && r.toWaypointId === next.id
+        );
+        if (route) {
+          result.push(route);
+        }
+      }
+    });
+
+    return result;
+  }, [canvasData]);
+
+  function isRouteData(schedule: WaypointData | RouteData): schedule is RouteData {
+    return 'fromWaypointId' in schedule;
+  }
 
   return (
     <Document>
@@ -244,7 +294,7 @@ export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) 
               <Text style={{ color: '#e59401' }}>J</Text>ourney{' '}
               <Text style={{ color: '#31B443' }}>P</Text>lanner
             </Text>
-            <Text style={styles.headerSubtitle}>안선우님 외 4명의 여행 계획</Text>
+            <Text style={styles.headerSubtitle}>{getTitleCaption()}</Text>
           </View>
           <Image style={styles.qrCode} src={qrDataUrl} />
         </View>
@@ -260,13 +310,11 @@ export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) 
 
           <View style={styles.infoSection}>
             <Text style={styles.infoSectionH3}>여행 이름</Text>
-            <Text style={styles.infoSectionP}>친구들과 함께하는 일본 여행</Text>
+            <Text style={styles.infoSectionP}>{planData?.title}</Text>
           </View>
           <View style={styles.infoSection}>
             <Text style={styles.infoSectionH3}>여행 설명</Text>
-            <Text style={styles.infoSectionP}>
-              도쿄, 교토, 오사카, 오키나와를 경유하는 flex 일본 힐링 여행
-            </Text>
+            <Text style={styles.infoSectionP}>{planData?.description}</Text>
           </View>
           <View style={[styles.infoSection, { alignItems: 'flex-start', marginTop: 10 }]}>
             <Text style={styles.infoSectionH3}>여행자</Text>
@@ -280,11 +328,11 @@ export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) 
                   <Text style={styles.tableHeaderCell}>연락처</Text>
                 </View>
                 <View style={[styles.tableCol, { borderRight: 0 }]}>
-                  <Text style={styles.tableHeaderCell}>이메일</Text>
+                  <Text style={styles.tableHeaderCell}>MBTI</Text>
                 </View>
               </View>
               {/* Table Body */}
-              {travelers.map((traveler: Traveler, index: number) => (
+              {planData?.travelers.map((traveler: TravelerType, index: number) => (
                 <View
                   key={index}
                   style={[
@@ -294,15 +342,16 @@ export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) 
                 >
                   <View style={styles.tableCol}>
                     <View style={styles.profileCell}>
-                      <Image style={styles.profileImage} src={traveler.img} />
+                      {/* 프로필 구현 전까지 주석 처리 */}
+                      {/* <Image style={styles.profileImage} src={traveler.img} /> */}
                       <Text style={styles.tableCell}>{traveler.name}</Text>
                     </View>
                   </View>
                   <View style={styles.tableCol}>
-                    <Text style={styles.tableCell}>{traveler.phone}</Text>
+                    <Text style={styles.tableCell}>{traveler.contact}</Text>
                   </View>
                   <View style={[styles.tableCol, { borderRight: 0 }]}>
-                    <Text style={styles.tableCell}>{traveler.email}</Text>
+                    <Text style={styles.tableCell}>{traveler.mbtiType}</Text>
                   </View>
                 </View>
               ))}
@@ -319,29 +368,47 @@ export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) 
 
           <View style={styles.timeline}>
             <View style={styles.lineEndMarker} />
-            {schedules.map((schedule: Schedule, index: number) =>
-              schedule.type === 'waypoint' ? (
-                <View key={index} style={styles.waypoint}>
-                  <View style={styles.verticalLine}>
-                    <View style={[styles.circle, styles.waypointCircle]} />
-                  </View>
-                  <Text style={styles.timestamp}>{schedule.time}</Text>
-                  <View style={styles.waypointContent}>
-                    <Text style={styles.waypointTitle}>{schedule.title}</Text>
-                    <Text style={styles.waypointText}>{schedule.address}</Text>
-                    <Text style={styles.waypointText}>{schedule.description}</Text>
-                    <Text style={styles.memoTitle}>메모</Text>
-                    <Text style={styles.memoText}>{schedule.memo}</Text>
-                  </View>
-                </View>
-              ) : (
+            {schedules.map((schedule: WaypointData | RouteData, index: number) =>
+              isRouteData(schedule) ? (
                 <View key={index} style={styles.edge}>
                   <View style={styles.verticalLine}>
                     <View style={[styles.circle, styles.edgeCircle]} />
                   </View>
                   <View style={styles.edgeContent}>
+                    <Text style={styles.edgeText}>이동 수단: {schedule.vehicleCategory}</Text>
                     <Text style={styles.edgeTitle}>{schedule.title}</Text>
                     <Text style={styles.edgeText}>{schedule.description}</Text>
+                    <Text style={styles.edgeText}>{schedule.duration} 분 소요</Text>
+                  </View>
+                </View>
+              ) : (
+                <View key={index} style={styles.waypoint}>
+                  <View style={styles.verticalLine}>
+                    <View style={[styles.circle, styles.waypointCircle]} />
+                  </View>
+                  <Text style={styles.timestamp}>
+                    {(() => {
+                      const date = new Date(schedule.startTime);
+                      const weekday = date
+                        .toLocaleDateString('ko-KR', { weekday: 'short' })
+                        .replace('요일', '');
+                      const day = date.getDay();
+                      return `${weekday}/${day}`;
+                    })()}
+                  </Text>
+                  <Text style={styles.timestamp2}>
+                    {new Date(schedule.startTime).toLocaleTimeString('ko-KR', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false,
+                    })}
+                  </Text>
+                  <View style={styles.waypointContent}>
+                    <Text style={styles.waypointTitle}>{schedule.name}</Text>
+                    <Text style={styles.waypointText}>{schedule.address}</Text>
+                    <Text style={styles.waypointText}>{schedule.description}</Text>
+                    {/* <Text style={styles.memoTitle}>메모</Text>
+                    <Text style={styles.memoText}>{schedule.memoID}</Text> */}
                   </View>
                 </View>
               )
@@ -356,7 +423,15 @@ export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) 
             <View style={styles.sectionTitleBox} />
             <Text style={styles.sectionTitleText}>추가 메모</Text>
           </View>
-          <Text style={styles.infoSectionH3}>준비물</Text>
+          {canvasData.memos.map((memo) => (
+            <>
+              <Text style={styles.infoSectionH3}>{memo.title}</Text>
+              <View style={styles.list}>
+                <Text style={styles.listItem}>• {memo.content}</Text>
+              </View>
+            </>
+          ))}
+          {/* <Text style={styles.infoSectionH3}>준비물</Text>
           <View style={styles.list}>
             <Text style={styles.listItem}>• 정신</Text>
             <Text style={styles.listItem}>• 개념</Text>
@@ -364,7 +439,7 @@ export default function PDFTemplate({ travelers, schedules }: PDFTemplateProps) 
             <Text style={styles.listItem}>• 칫솔</Text>
             <Text style={styles.listItem}>• 돈</Text>
             <Text style={styles.listItem}>• 가방</Text>
-          </View>
+          </View> */}
         </View>
 
         {/* Footer */}

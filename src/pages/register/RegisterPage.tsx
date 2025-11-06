@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { useRegisterForm } from '@/pages/register/hooks/useRegisterForm';
+import Spinner from '@/components/Spinner';
 import { FormInputField } from '@/components/FormInputField';
 import { mbtiTypes, type RegisterFormInputs } from '@/pages/register/utils/registerValidation';
 import { fontSystem } from '@/styles/fontSystem';
@@ -9,7 +10,7 @@ import { FormSelectField } from '@/components/FormSelectField';
 import TopBar from '@/components/TopBar';
 
 function RegisterPage() {
-  const { register, handleSubmit, errors, isValid } = useRegisterForm();
+  const { register, handleSubmit, errors, isValid, isPending } = useRegisterForm();
   const navigate = useNavigate();
 
   return (
@@ -57,14 +58,14 @@ function RegisterPage() {
           />
           <FormSelectField<RegisterFormInputs>
             id="mbti"
-            label="MBTI (선택 사항)"
+            label="MBTI"
             register={register}
             error={errors.mbti}
             options={mbtiTypes}
             placeholder="MBTI를 선택하세요"
           />
-          <SubmitButton type="submit" disabled={!isValid}>
-            가입하기
+          <SubmitButton type="submit" disabled={!isValid || isPending}>
+            {isPending ? <Spinner size={16} color="#fff" /> : '가입하기'}
           </SubmitButton>
           <LoginGuide>
             이미 계정이 있으신가요?{' '}
@@ -118,6 +119,9 @@ const SubmitButton = styled.button`
   ${fontSystem.body.large}
   cursor: pointer;
   transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover:not(:disabled) {
     background: ${colorSystem.secondary_green._500};

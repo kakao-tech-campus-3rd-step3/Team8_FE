@@ -14,7 +14,7 @@ function toPayload(data: RegisterFormInputs) {
   return {
     ...rest, // name, email, password
     contact: phone,
-    ...(mbti ? { mbti } : {}),
+    mbti, // 필수 전달
   };
 }
 

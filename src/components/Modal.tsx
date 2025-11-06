@@ -27,6 +27,11 @@ import { useBlockScroll } from '@/hooks/useBlockScroll';
 
 interface ModalProps {
   children: ReactNode;
+import { createPortal } from 'react-dom';
+
+function Modal({ children }: { children: React.ReactNode }) {
+  useBlockScroll();
+  return createPortal(<ModalWrapper>{children}</ModalWrapper>, document.body);
 }
 
 const Modal = ({ children }: ModalProps) => {
