@@ -11,6 +11,8 @@ import type { TravelerType } from '@/api/types/traveler';
 
 import { useModal } from '@/hooks/useModal';
 import InvitationModalContent from './InvitationModalContent';
+import { useSocket } from '../context/SocketContext';
+import stompURL from '../utils/stompURL';
 
 function InvitationPanel() {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -21,8 +23,12 @@ function InvitationPanel() {
     modalProps: { planId: id }, // 2. InvitationModalContent에 전달될 props
   });
 
+  const { client, planId } = useSocket();
+
   const removeUser = (id: number) => {
-    console.log('Remove user (API 연동 필요):', id);
+    client.publish({
+      destination: stompURL.PUB.TRAVELER.DELETE(planId, id),
+    });
   };
 
   const { data, isLoading } = useFetchPlanDetail(id);
