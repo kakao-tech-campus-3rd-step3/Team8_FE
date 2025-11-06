@@ -32,7 +32,7 @@ function PlanPage() {
         <Description>{isSuccess ? data.description : '...'}</Description>
         <ExportButton onClick={handleExportClick}>PDF로 내보내기</ExportButton>
       </TitleBar>
-      {isExportModalOpen && <ExportModal onClose={handleCloseModal} title="일본여행" />}
+      {isExportModalOpen && <ExportModal onClose={handleCloseModal} />}
       <Canvas />
     </SocketProvider>
   );

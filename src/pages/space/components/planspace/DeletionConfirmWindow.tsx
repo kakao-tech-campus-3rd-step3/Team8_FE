@@ -3,7 +3,7 @@ import Close from '@/assets/icons/Close';
 import { styled } from 'styled-components';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
-import type { PlanType } from '../../types/plan';
+import type { Plan } from '../../types/plan';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
@@ -13,7 +13,7 @@ const deletePlanApi = async (planId: number) => {
   return response.data;
 };
 
-function DeletionConfirmWindow({ closeModal, plan }: ModalPropType & { plan: PlanType }) {
+function DeletionConfirmWindow({ closeModal, plan }: ModalPropType & { plan: Plan }) {
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: deletePlanApi,
