@@ -10,7 +10,7 @@ import { type WaypointData } from '../canvasComponents/Waypoint';
 import { useAutosizeInput } from '../../hooks/useAutosizeInput';
 import { Handle, Position } from '@xyflow/react';
 import { useDataSyncNode } from '../../hooks/useDataSyncNode';
-import { getDateDisplay, toLocalISOString } from '../../utils/dateUtils';
+import { getDateDisplay } from '../../utils/dateUtils';
 
 function WaypointNode({
   id,
@@ -101,7 +101,7 @@ function WaypointNode({
               <DatePicker
                 selected={new Date(data.startTime!)}
                 onChange={(date: Date | null) =>
-                  handleLocalDataChange('startTime', toLocalISOString(date))
+                  handleLocalDataChange('startTime', date?.toISOString() ?? '')
                 }
                 showTimeSelect
                 timeIntervals={60}
@@ -118,7 +118,7 @@ function WaypointNode({
               <DatePicker
                 selected={new Date(data.endTime!)}
                 onChange={(date: Date | null) =>
-                  handleLocalDataChange('endTime', toLocalISOString(date))
+                  handleLocalDataChange('endTime', date?.toISOString() ?? '')
                 }
                 showTimeSelect
                 timeIntervals={60}
