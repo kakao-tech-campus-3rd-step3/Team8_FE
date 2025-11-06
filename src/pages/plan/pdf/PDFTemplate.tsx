@@ -10,8 +10,8 @@ import type { RouteData } from '../flow/canvasComponents/Route';
 Font.register({
   family: 'Pretendard Variable',
   fonts: [
-    { src: '/public/fonts/pretendard/static/Pretendard-Regular.otf' },
-    { src: '/public/fonts/pretendard/static/Pretendard-Bold.otf', fontWeight: 'bold' },
+    { src: '/fonts/pretendard/static/Pretendard-Regular.otf' },
+    { src: '/fonts/pretendard/static/Pretendard-Bold.otf', fontWeight: 'bold' },
   ],
 });
 
