@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import InfoEditWindow from '@/pages/space/components/profile/InfoEditWindow';
 import type { MemberType } from '@/types/member';
 import type { MemberMe } from '@/pages/home/hooks/useMemberQuery';
+import { useEffect } from 'react';
+import { toastApiError } from '@/utils/apiError';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
@@ -28,10 +30,15 @@ function Profile() {
     data: member,
     isLoading,
     isError,
+    error,
   } = useQuery({
     queryKey: ['memberInfo'],
     queryFn: fetchMemberInfo,
   });
+
+  useEffect(() => {
+    if (isError) toastApiError(error);
+  }, [isError, error]);
 
   const [infoModalWindow, openInfoModal] = useModal(
     member

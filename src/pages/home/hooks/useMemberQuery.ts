@@ -1,4 +1,4 @@
-import { useQuery, type UseQueryOptions, type UseQueryResult } from '@tanstack/react-query';
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 
@@ -16,9 +16,7 @@ async function fetchMemberMe(): Promise<MemberMe> {
   return res.data as MemberMe;
 }
 
-export function useMemberQuery<TData = MemberMe>(
-  options?: Omit<UseQueryOptions<MemberMe, unknown, TData, typeof QUERY_KEY>, 'queryKey' | 'queryFn'>
-): UseQueryResult<TData, unknown> {
+export function useMemberQuery<TData = MemberMe>(): UseQueryResult<TData, unknown> {
   return useQuery<MemberMe, unknown, TData, typeof QUERY_KEY>({
     queryKey: QUERY_KEY,
     queryFn: fetchMemberMe,
@@ -27,10 +25,18 @@ export function useMemberQuery<TData = MemberMe>(
     gcTime: 5 * 60 * 1000,
     refetchOnMount: 'always',
     refetchOnWindowFocus: false,
-    ...options,
   });
 }
 
 export function useMemberUsername(): UseQueryResult<string, unknown> {
-  return useMemberQuery<string>({ select: (d) => d?.username ?? '' });
+  // 별도 쿼리 선언으로 username만 선택 반환
+  return useQuery<MemberMe, unknown, string, typeof QUERY_KEY>({
+    queryKey: QUERY_KEY,
+    queryFn: fetchMemberMe,
+    select: (d) => d.username,
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: false,
+  });
 }

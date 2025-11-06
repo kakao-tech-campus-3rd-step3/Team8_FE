@@ -64,7 +64,9 @@ async function fetchPlans(params: PlansQueryParams): Promise<Page<PlanItemRespon
 }
 
 // 홈 화면 카드에 맞춘 간단한 목록 전용 훅만 노출
-export function usePlansForHome(params: PlansQueryParams = {}): UseQueryResult<HomePlan[], unknown> {
+export function usePlansForHome(
+  params: PlansQueryParams = {}
+): UseQueryResult<HomePlan[], unknown> {
   const merged = {
     page: params.page ?? 0,
     size: params.size ?? 10,

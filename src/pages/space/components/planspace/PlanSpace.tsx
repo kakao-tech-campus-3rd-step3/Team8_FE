@@ -7,6 +7,8 @@ import { useModal } from '@/hooks/useModal';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
+import { useEffect } from 'react';
+import { toastApiError } from '@/utils/apiError';
 import { colorSystem } from '@/styles/colorSystem';
 
 // API 응답 데이터 타입 정의
@@ -25,10 +27,15 @@ function PlanSpace() {
     data: plans,
     isLoading,
     isError,
+    error,
   } = useQuery({
     queryKey: ['plans'],
     queryFn: fetchPlans,
   });
+
+  useEffect(() => {
+    if (isError) toastApiError(error);
+  }, [isError, error]);
 
   const [newPlanWindow, openNewPlanModal] = useModal({
     ModalWindow: NewPlanWindow,

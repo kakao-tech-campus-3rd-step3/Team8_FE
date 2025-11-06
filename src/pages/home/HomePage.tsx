@@ -3,10 +3,11 @@ import { colorSystem } from '../../styles/colorSystem';
 import { Banner } from './components/Banner';
 import { NavLinks } from './components/NavLinks';
 import { TripSection, type Member } from './components/TripSection';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMemberQuery } from '@/pages/home/hooks/useMemberQuery';
 import { usePlansForHome } from '@/pages/home/hooks/usePlansQuery';
+import { toastApiError } from '@/utils/apiError';
 
 const placeholderImages = {
   logo: '/logo.svg',
@@ -14,8 +15,17 @@ const placeholderImages = {
 
 function HomePage() {
   const { logout } = useAuth();
-  const { data: me, isLoading } = useMemberQuery();
-  const { data: plans = [], isLoading: isPlansLoading } = usePlansForHome({ page: 0, size: 10 });
+  const { data: me, isLoading, isError: isMeError, error: meError } = useMemberQuery();
+  const { data: plans = [], isLoading: isPlansLoading, isError: isPlansError, error: plansError } =
+    usePlansForHome({ page: 0, size: 10 });
+
+  useEffect(() => {
+    if (isMeError) toastApiError(meError);
+  }, [isMeError, meError]);
+
+  useEffect(() => {
+    if (isPlansError) toastApiError(plansError);
+  }, [isPlansError, plansError]);
 
   const member: Member | null = useMemo(() => {
     if (!me) return null;
