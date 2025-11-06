@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { useAuth } from '@/hooks/useAuth';
 import { colorSystem } from '@/styles/colorSystem';
 import { Suspense } from 'react';
-import { SectionSpinner } from '@/components/Spinner';
+import Spinner, { SectionSpinner } from '@/components/Spinner';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 function SpacePage() {
@@ -66,7 +66,7 @@ export default SpacePage;
 function ProfileFallback() {
   return (
     <ProfileFallbackBox>
-      <SectionSpinner />
+      <Spinner size={20} />
     </ProfileFallbackBox>
   );
 }
@@ -75,9 +75,12 @@ const ProfileFallbackBox = styled.div`
   width: 100%;
   max-width: 100%;
   padding: 28px 20px;
+  margin: 0 auto;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   border-radius: 40px;
   border: 1px solid ${colorSystem.primary_yellow._300};
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
