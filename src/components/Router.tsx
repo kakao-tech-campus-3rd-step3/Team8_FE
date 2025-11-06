@@ -10,6 +10,7 @@ import { PATH } from '@utils/path';
 import { Outlet, Route, Routes } from 'react-router-dom';
 import styled from 'styled-components';
 import { ToastContainer } from 'react-toastify';
+import InboxPage from '@/pages/inbox/InboxPage';
 
 function Router() {
   return (
@@ -30,6 +31,7 @@ function Router() {
           <Route element={<MobileLayout />}>
             <Route path={PATH.HOME} element={<HomePage />} />
             <Route path={PATH.SPACE} element={<SpacePage />} />
+            <Route path={PATH.INBOX} element={<InboxPage />} />
           </Route>
 
           {/* 플랜 페이지는 전체 뷰포트 사용 */}

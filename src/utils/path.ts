@@ -6,4 +6,5 @@ export const PATH = {
   REGISTER: '/register',
   SPACE: '/space',
   PLAN: '/plan/:id',
+  INBOX: '/inbox',
 };
