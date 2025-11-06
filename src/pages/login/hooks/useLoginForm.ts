@@ -13,7 +13,7 @@ type LoginRedirectState = {
 
 export const useLoginForm = () => {
   const routing = usePageRouting();
-  const { mutateAsync } = useLoginMutation();
+  const { mutateAsync, isPending } = useLoginMutation();
   const location = useLocation();
   const navigate = useNavigate();
   const from = (location.state as LoginRedirectState | undefined)?.from?.pathname ?? PATH.HOME;
@@ -45,5 +45,6 @@ export const useLoginForm = () => {
     errors,
     isValid,
     navigateToRegister,
+    isPending,
   };
 };

@@ -3,11 +3,12 @@ import { colorSystem } from '../../styles/colorSystem';
 import { Banner } from './components/Banner';
 import { NavLinks } from './components/NavLinks';
 import { TripSection, type Member } from './components/TripSection';
-import { useMemo, useEffect } from 'react';
+import { useMemo, Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMemberQuery } from '@/pages/home/hooks/useMemberQuery';
 import { usePlansForHome } from '@/pages/home/hooks/usePlansQuery';
-import { toastApiError } from '@/utils/apiError';
+import Spinner, { SectionSpinner } from '@/components/Spinner';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 const placeholderImages = {
   logo: '/logo.svg',
@@ -15,17 +16,37 @@ const placeholderImages = {
 
 function HomePage() {
   const { logout } = useAuth();
-  const { data: me, isLoading, isError: isMeError, error: meError } = useMemberQuery();
-  const { data: plans = [], isLoading: isPlansLoading, isError: isPlansError, error: plansError } =
-    usePlansForHome({ page: 0, size: 10 });
 
-  useEffect(() => {
-    if (isMeError) toastApiError(meError);
-  }, [isMeError, meError]);
+  return (
+    <PageWrapper>
+      <Header>
+        <LogoutButton onClick={logout}>로그아웃</LogoutButton>
+        <Logo src={placeholderImages.logo} alt="Journey Planner Logo" />
+      </Header>
+      <HomeContent />
+      <Footer>
+        <Logo src={placeholderImages.logo} alt="Journey Planner Logo" />
+      </Footer>
+    </PageWrapper>
+  );
+}
 
-  useEffect(() => {
-    if (isPlansError) toastApiError(plansError);
-  }, [isPlansError, plansError]);
+function HomeContent() {
+  return (
+    <MainContent>
+      <Banner />
+      {/* TripSection 영역만 Suspense로 감싸 부분 로딩 처리 */}
+      <Suspense fallback={<TripSectionFallback />}> 
+        <HomeTripsBlock />
+      </Suspense>
+      <NavLinks />
+    </MainContent>
+  );
+}
+
+function HomeTripsBlock() {
+  const { data: me } = useMemberQuery();
+  const { data: plans = [] } = usePlansForHome({ page: 0, size: 10 });
 
   const member: Member | null = useMemo(() => {
     if (!me) return null;
@@ -39,20 +60,23 @@ function HomePage() {
   }, [me]);
 
   return (
-    <PageWrapper>
-      <Header>
-        <LogoutButton onClick={logout}>로그아웃</LogoutButton>
-        <Logo src={placeholderImages.logo} alt="Journey Planner Logo" />
-      </Header>
-      <MainContent>
-        <Banner />
-        <TripSection member={member} plans={plans} isLoading={isLoading || isPlansLoading} />
-        <NavLinks />
-      </MainContent>
-      <Footer>
-        <Logo src={placeholderImages.logo} alt="Journey Planner Logo" />
-      </Footer>
-    </PageWrapper>
+    <ErrorBoundary fallback={null}>
+      <TripSection member={member} plans={plans} isLoading={false} />
+    </ErrorBoundary>
+  );
+}
+
+function TripSectionFallback() {
+  return (
+    <div style={{ width: '100%' }}>
+      {/* 인사말 자리 */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <span style={{ marginRight: 8 }}>✈️</span>
+        <Spinner size={16} />
+      </div>
+      {/* 플랜 카드 자리 */}
+      <SectionSpinner />
+    </div>
   );
 }
 

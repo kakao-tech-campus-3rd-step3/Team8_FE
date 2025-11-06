@@ -1,4 +1,4 @@
-import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import { useSuspenseQuery, type UseSuspenseQueryResult } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 
@@ -16,8 +16,8 @@ async function fetchMemberMe(): Promise<MemberMe> {
   return res.data as MemberMe;
 }
 
-export function useMemberQuery<TData = MemberMe>(): UseQueryResult<TData, unknown> {
-  return useQuery<MemberMe, unknown, TData, typeof QUERY_KEY>({
+export function useMemberQuery<TData = MemberMe>(): UseSuspenseQueryResult<TData, unknown> {
+  return useSuspenseQuery<MemberMe, unknown, TData, typeof QUERY_KEY>({
     queryKey: QUERY_KEY,
     queryFn: fetchMemberMe,
     // 홈 재진입마다 항상 최신 데이터 요청
@@ -28,9 +28,9 @@ export function useMemberQuery<TData = MemberMe>(): UseQueryResult<TData, unknow
   });
 }
 
-export function useMemberUsername(): UseQueryResult<string, unknown> {
+export function useMemberUsername(): UseSuspenseQueryResult<string, unknown> {
   // 별도 쿼리 선언으로 username만 선택 반환
-  return useQuery<MemberMe, unknown, string, typeof QUERY_KEY>({
+  return useSuspenseQuery<MemberMe, unknown, string, typeof QUERY_KEY>({
     queryKey: QUERY_KEY,
     queryFn: fetchMemberMe,
     select: (d) => d.username,

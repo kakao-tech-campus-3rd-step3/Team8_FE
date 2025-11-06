@@ -5,9 +5,7 @@ import styled from 'styled-components';
 import InfoEditWindow from '@/pages/space/components/profile/InfoEditWindow';
 import type { MemberType } from '@/types/member';
 import type { MemberMe } from '@/pages/home/hooks/useMemberQuery';
-import { useEffect } from 'react';
-import { toastApiError } from '@/utils/apiError';
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 
@@ -26,19 +24,13 @@ const fetchMemberInfo = async (): Promise<MemberType> => {
 };
 
 function Profile() {
-  const {
-    data: member,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
+  const { data: member } = useSuspenseQuery({
     queryKey: ['memberInfo'],
     queryFn: fetchMemberInfo,
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: false,
   });
-
-  useEffect(() => {
-    if (isError) toastApiError(error);
-  }, [isError, error]);
 
   const [infoModalWindow, openInfoModal] = useModal(
     member
@@ -51,9 +43,7 @@ function Profile() {
       : { ModalWindow: () => null }
   );
 
-  if (isLoading) return <ProfileWrapper>프로필 로딩 중...</ProfileWrapper>;
-  if (isError) return <ProfileWrapper>프로필을 불러오는데 실패했습니다.</ProfileWrapper>;
-  if (!member) return <ProfileWrapper>프로필 데이터가 없습니다.</ProfileWrapper>;
+  if (!member) return null;
 
   return (
     <>

@@ -7,7 +7,7 @@ import { toastApiError } from '@/utils/apiError';
 
 export const useRegisterForm = () => {
   const routing = usePageRouting();
-  const { mutateAsync } = useRegisterMutation();
+  const { mutateAsync, isPending } = useRegisterMutation();
 
   const {
     register,
@@ -36,5 +36,6 @@ export const useRegisterForm = () => {
     handleSubmit: handleSubmit(onSubmit),
     errors,
     isValid,
+    isPending,
   };
 };
