@@ -3,10 +3,12 @@ import { colorSystem } from '../../styles/colorSystem';
 import { Banner } from './components/Banner';
 import { NavLinks } from './components/NavLinks';
 import { TripSection, type Member } from './components/TripSection';
-import { useMemo } from 'react';
+import { useMemo, Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMemberQuery } from '@/pages/home/hooks/useMemberQuery';
 import { usePlansForHome } from '@/pages/home/hooks/usePlansQuery';
+import Spinner, { SectionSpinner } from '@/components/Spinner';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 const placeholderImages = {
   logo: '/logo.svg',
@@ -14,8 +16,37 @@ const placeholderImages = {
 
 function HomePage() {
   const { logout } = useAuth();
-  const { data: me, isLoading } = useMemberQuery();
-  const { data: plans = [], isLoading: isPlansLoading } = usePlansForHome({ page: 0, size: 10 });
+
+  return (
+    <PageWrapper>
+      <Header>
+        <LogoutButton onClick={logout}>로그아웃</LogoutButton>
+        <Logo src={placeholderImages.logo} alt="Journey Planner Logo" />
+      </Header>
+      <HomeContent />
+      <Footer>
+        <Logo src={placeholderImages.logo} alt="Journey Planner Logo" />
+      </Footer>
+    </PageWrapper>
+  );
+}
+
+function HomeContent() {
+  return (
+    <MainContent>
+      <Banner />
+      {/* TripSection 영역만 Suspense로 감싸 부분 로딩 처리 */}
+      <Suspense fallback={<TripSectionFallback />}> 
+        <HomeTripsBlock />
+      </Suspense>
+      <NavLinks />
+    </MainContent>
+  );
+}
+
+function HomeTripsBlock() {
+  const { data: me } = useMemberQuery();
+  const { data: plans = [] } = usePlansForHome({ page: 0, size: 10 });
 
   const member: Member | null = useMemo(() => {
     if (!me) return null;
@@ -29,20 +60,23 @@ function HomePage() {
   }, [me]);
 
   return (
-    <PageWrapper>
-      <Header>
-        <LogoutButton onClick={logout}>로그아웃</LogoutButton>
-        <Logo src={placeholderImages.logo} alt="Journey Planner Logo" />
-      </Header>
-      <MainContent>
-        <Banner />
-        <TripSection member={member} plans={plans} isLoading={isLoading || isPlansLoading} />
-        <NavLinks />
-      </MainContent>
-      <Footer>
-        <Logo src={placeholderImages.logo} alt="Journey Planner Logo" />
-      </Footer>
-    </PageWrapper>
+    <ErrorBoundary fallback={<TripSectionFallback />}>
+      <TripSection member={member} plans={plans} isLoading={false} />
+    </ErrorBoundary>
+  );
+}
+
+function TripSectionFallback() {
+  return (
+    <div style={{ width: '100%' }}>
+      {/* 인사말 자리 */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <span style={{ marginRight: 8 }}>✈️</span>
+        <Spinner size={16} />
+      </div>
+      {/* 플랜 카드 자리 */}
+      <SectionSpinner />
+    </div>
   );
 }
 

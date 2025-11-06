@@ -4,7 +4,7 @@ import PlanCard from './PlanCard';
 import Add from '@/assets/icons/Add';
 import NewPlanWindow from './NewPlanWindow';
 import { useModal } from '@/hooks/useModal';
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 import { colorSystem } from '@/styles/colorSystem';
@@ -21,21 +21,17 @@ const fetchPlans = async (): Promise<Plan[]> => {
 };
 
 function PlanSpace() {
-  const {
-    data: plans,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: plans } = useSuspenseQuery({
     queryKey: ['plans'],
     queryFn: fetchPlans,
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: false,
   });
 
   const [newPlanWindow, openNewPlanModal] = useModal({
     ModalWindow: NewPlanWindow,
   });
-
-  if (isLoading) return <PlanSpaceWrapper>계획 로딩 중...</PlanSpaceWrapper>;
-  if (isError) return <PlanSpaceWrapper>계획을 불러오는데 실패했습니다.</PlanSpaceWrapper>;
 
   const latestPlanId = plans && plans.length > 0 ? Math.max(...plans.map((p) => p.id)) : null;
 

@@ -1,4 +1,4 @@
-import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import { useSuspenseQuery, type UseSuspenseQueryResult } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
 import type { Plan as HomePlan } from '@/pages/home/components/TripSection';
@@ -64,7 +64,9 @@ async function fetchPlans(params: PlansQueryParams): Promise<Page<PlanItemRespon
 }
 
 // 홈 화면 카드에 맞춘 간단한 목록 전용 훅만 노출
-export function usePlansForHome(params: PlansQueryParams = {}): UseQueryResult<HomePlan[], unknown> {
+export function usePlansForHome(
+  params: PlansQueryParams = {}
+): UseSuspenseQueryResult<HomePlan[], unknown> {
   const merged = {
     page: params.page ?? 0,
     size: params.size ?? 10,
@@ -72,7 +74,7 @@ export function usePlansForHome(params: PlansQueryParams = {}): UseQueryResult<H
     memberId: params.memberId,
   } satisfies PlansQueryParams;
 
-  return useQuery<Page<PlanItemResponse>, unknown, HomePlan[]>({
+  return useSuspenseQuery<Page<PlanItemResponse>, unknown, HomePlan[]>({
     queryKey: [...QUERY_KEY_HOME, merged.page, merged.size, (merged.sort ?? []).join(','), merged.memberId ?? null],
     queryFn: () => fetchPlans(merged),
     select: (page) =>
