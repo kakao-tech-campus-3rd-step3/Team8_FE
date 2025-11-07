@@ -13,6 +13,7 @@ export const usePageRouting = () => {
       register: () => navigate(PATH.REGISTER),
       space: () => navigate(PATH.SPACE),
       plan: (id: string) => () => navigate(PATH.PLAN.replace(':id', id)),
+      inbox: () => navigate(PATH.INBOX),
       back: () => navigate(-1),
     }),
     [navigate]

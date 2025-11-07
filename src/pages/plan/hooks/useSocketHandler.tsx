@@ -8,6 +8,7 @@ import { topologicalSort } from '../utils/topology';
 import { RouteDispatcherResolver } from '../utils/routeDispatcherResolver';
 import SockJS from 'sockjs-client';
 import { getSessionId } from '../utils/sessionIdParser';
+import { TravelerDispatcherResolver } from '../utils/travelerDispatcherResolver';
 
 const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
 
@@ -55,9 +56,7 @@ export default function useSocketHandler({ planId }: useSocketHandlerType) {
     client.subscribe(StompURL.SUB.WAYPOINT(planId), WaypointDispatcherResolver);
     client.subscribe(StompURL.SUB.MEMO(planId), MemoDispatcherResolver);
     client.subscribe(StompURL.SUB.ROUTE(planId), RouteDispatcherResolver);
-    client.subscribe(StompURL.SUB.TRAVELER(planId), (message) => {
-      console.log('TRAVELER 메시지:', JSON.parse(message.body));
-    });
+    client.subscribe(StompURL.SUB.TRAVELER(planId), TravelerDispatcherResolver);
   }
 
   function waitForInitComplete(eventName: string, timeout = 5000): Promise<void> {
@@ -95,7 +94,8 @@ export default function useSocketHandler({ planId }: useSocketHandlerType) {
           await waitForInitComplete('ROUTE_INIT_DONE');
           break;
         case 'TRAVELER':
-          // TBD
+          client.publish({ destination: StompURL.PUB.TRAVELER.INIT(planId) });
+          await waitForInitComplete('TRAVELER_INIT_DONE');
           break;
       }
       console.log(`[INIT] ${target} 초기화 완료`);

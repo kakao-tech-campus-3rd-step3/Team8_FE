@@ -1,14 +1,23 @@
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import PDFTemplate from './PDFTemplate';
-import { schedules, travelers } from './data/example';
 import styled from 'styled-components';
 import { colorSystem } from '@/styles/colorSystem';
+import { useParams } from 'react-router-dom';
+import { useFetchPlanDetail } from '../hooks/useFetchPlanDetail';
+import { useFetchCanvas } from '../hooks/useFetchCanvas';
 
-export default function PDFSave({ title }: { title: string }) {
+export default function PDFSave() {
+  const id = useParams().id ?? '-1';
+  const { data: planData, isError: planError } = useFetchPlanDetail(id);
+  const { data: canvasData, isError: canvasError } = useFetchCanvas(id);
+
+  if (planError || canvasError) return null;
+  if (!planData || !canvasData) return null;
+
   return (
     <PDFDownloadLink
-      document={<PDFTemplate travelers={travelers} schedules={schedules} />}
-      fileName={`${title}-JourneyPlanner.pdf`}
+      document={<PDFTemplate planData={planData} canvasData={canvasData} />}
+      fileName={`${planData?.title}-JourneyPlanner.pdf`}
       style={{ textDecoration: 'none' }}
     >
       {({ loading }) =>

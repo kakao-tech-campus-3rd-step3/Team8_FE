@@ -3,17 +3,18 @@ import Close from '@/assets/icons/Close';
 import { styled } from 'styled-components';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
-import type { PlanType } from '../../types/plan';
+import type { Plan } from '../../types/plan';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
+import { toast } from 'react-toastify';
 
 const deletePlanApi = async (planId: number) => {
   const response = await axiosInstance.delete(ENDPOINTS.plans.byId(planId));
   return response.data;
 };
 
-function DeletionConfirmWindow({ closeModal, plan }: ModalPropType & { plan: PlanType }) {
+function DeletionConfirmWindow({ closeModal, plan }: ModalPropType & { plan: Plan }) {
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: deletePlanApi,
@@ -22,7 +23,7 @@ function DeletionConfirmWindow({ closeModal, plan }: ModalPropType & { plan: Pla
       closeModal();
     },
     onError: () => {
-      alert('삭제에 실패했습니다.');
+      toast.error('삭제에 실패했습니다.');
     },
   });
 

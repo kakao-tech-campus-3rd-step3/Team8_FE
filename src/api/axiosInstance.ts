@@ -44,6 +44,19 @@ function isAuthExcluded(url?: string) {
   }
 }
 
+// 서버의 토큰 오류 포맷을 400 + { code: 'AE_002' }로 인식하여
+// 액세스 토큰 리프레시 트리거 대상으로 간주한다.
+function isTokenBadError(res?: AxiosError['response']) {
+  if (!res) return false;
+  if (res.status !== 400) return false;
+  const data = res.data as unknown;
+  const code =
+    typeof data === 'object' && data !== null && 'code' in (data as Record<string, unknown>)
+      ? (data as Record<string, unknown>).code
+      : undefined;
+  return code === 'AE_002';
+}
+
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const access = getAccessToken();
@@ -105,12 +118,15 @@ axiosInstance.interceptors.response.use(
     const { config, response } = error;
     const originalRequest = config as AxiosRequestConfig & { _retry?: boolean };
 
-    if (response?.status === 401 && originalRequest && !originalRequest._retry) {
-      // 리프레시 요청 자체에서의 401은 재시도/리프레시를 하지 않고 즉시 실패 처리
+    // 토큰 오류: 401 또는 400 + AE_002 에서 리프레시 로직을 트리거
+    if ((response?.status === 401 || isTokenBadError(response)) && originalRequest && !originalRequest._retry) {
+      // 리프레시 요청 자체는 재시도/리프레시를 하지 않고 즉시 실패 처리
       try {
         const base = axiosInstance.defaults.baseURL ?? window.location.origin;
         const reqUrl = originalRequest.url ?? '';
-        const pathname = reqUrl.startsWith('http') ? new URL(reqUrl).pathname : new URL(reqUrl, base).pathname;
+        const pathname = reqUrl.startsWith('http')
+          ? new URL(reqUrl).pathname
+          : new URL(reqUrl, base).pathname;
         if (pathname === ENDPOINTS.auth.refresh) {
           return Promise.reject(error);
         }

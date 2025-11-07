@@ -3,59 +3,70 @@ import styled, { css } from 'styled-components';
 import { colorSystem } from '@/styles/colorSystem';
 import { fontSystem } from '@/styles/fontSystem';
 import Close from '@/assets/icons/Close';
-import type { User } from '../types/user';
-import { dummyUsers } from '../data/dummyUsers';
 import PlusIcon from './icons/PlusIcon';
 import CollapseIcon from './icons/CollapseIcon';
 import { useParams } from 'react-router-dom';
 import { useFetchPlanDetail } from '../hooks/useFetchPlanDetail';
 import type { TravelerType } from '@/api/types/traveler';
 
+import { useModal } from '@/hooks/useModal';
+import InvitationModalContent from './InvitationModalContent';
+import { useSocket } from '../context/SocketContext';
+import stompURL from '../utils/stompURL';
+
 function InvitationPanel() {
-  const [users, setUsers] = useState<User[]>(dummyUsers);
   const [isExpanded, setIsExpanded] = useState(true);
+  const id = useParams().id ?? '-1';
+
+  const [InvitationModal, openInvitationModal] = useModal({
+    ModalWindow: InvitationModalContent,
+    modalProps: { planId: id }, // 2. InvitationModalContent에 전달될 props
+  });
+
+  const { client, planId } = useSocket();
 
   const removeUser = (id: number) => {
-    setUsers(users.filter((user) => user.id !== id));
+    client.publish({
+      destination: stompURL.PUB.TRAVELER.DELETE(planId, id),
+    });
   };
 
-  const addUser = () => {
-    console.log('새로운 사용자 추가 기능');
-  };
-
-  const id = useParams().id ?? '-1';
   const { data, isLoading } = useFetchPlanDetail(id);
 
   if (isLoading) return null;
 
   return (
-    <PanelWrapper>
-      {isExpanded && (
-        <ContentWrapper>
-          <UserList>
-            {data?.travelers.map((user: TravelerType) => (
-              <UserItem key={user.id}>
-                <UserInfo>
-                  <UserName>{user.name}</UserName>
-                  <UserRole>{user.role}</UserRole>
-                </UserInfo>
-                {user.role !== 'creator' && (
-                  <RemoveButton onClick={() => removeUser(user.id)}>
-                    <Close />
-                  </RemoveButton>
-                )}
-              </UserItem>
-            ))}
-          </UserList>
-          <AddButton onClick={addUser}>
-            <PlusIcon />
-          </AddButton>
-        </ContentWrapper>
-      )}
-      <ToggleButton onClick={() => setIsExpanded(!isExpanded)}>
-        <CollapseIcon isExpanded={isExpanded} />
-      </ToggleButton>
-    </PanelWrapper>
+    <>
+      <PanelWrapper>
+        {isExpanded && (
+          <ContentWrapper>
+            <UserList>
+              {data?.travelers.map((user: TravelerType) => (
+                <UserItem key={user.id}>
+                  <UserInfo>
+                    <UserName>{user.name}</UserName>
+                    <UserRole>{user.role}</UserRole>
+                  </UserInfo>
+                  {user.role !== 'OWNER' && (
+                    <RemoveButton onClick={() => removeUser(user.id)}>
+                      <Close />
+                    </RemoveButton>
+                  )}
+                </UserItem>
+              ))}
+            </UserList>
+            <AddButton onClick={openInvitationModal}>
+              <PlusIcon />
+            </AddButton>
+          </ContentWrapper>
+        )}
+        <ToggleButton onClick={() => setIsExpanded(!isExpanded)}>
+          <CollapseIcon isExpanded={isExpanded} />
+        </ToggleButton>
+      </PanelWrapper>
+
+      {InvitationModal}
+    </>
   );
 }
 

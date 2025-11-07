@@ -7,6 +7,7 @@ function Modal({ children }: { children: React.ReactNode }) {
 }
 
 const ModalWrapper = styled.div`
+  z-index: 1;
   width: 100vw;
   height: 100vh;
   position: fixed;

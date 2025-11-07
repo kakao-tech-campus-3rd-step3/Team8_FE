@@ -287,6 +287,23 @@ export function useCanvas() {
     return () => socketEventBus.removeEventListener('ROUTE_EVENT', handleRouteEvent);
   }, [setNodes]);
 
+  useEffect(() => {
+    function handleRouteEvent(e: Event) {
+      const { detail } = e as CustomEvent;
+      if (getSessionId(client) === detail.senderSessionId) return;
+
+      switch (detail.type) {
+        case 'INIT': {
+          socketEventBus.dispatchEvent(new Event('TRAVELER_INIT_DONE'));
+          break;
+        }
+      }
+    }
+
+    socketEventBus.addEventListener('TRAVELER_EVENT', handleRouteEvent);
+    return () => socketEventBus.removeEventListener('TRAVELER_EVENT', handleRouteEvent);
+  }, [setNodes]);
+
   const { planId, client } = useSocket();
 
   const onNodeDragStop = (_event: React.MouseEvent, node: CanvasNodes) => {

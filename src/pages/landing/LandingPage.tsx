@@ -12,10 +12,9 @@ function LandingPage() {
   return (
     <LandingPageWrapper>
       <BackgroundImage src={background} alt="" />
-      <StartButton onClick={goto.login}>계획 만들기</StartButton>
+      <StartButton onClick={goto.login}>시작하기</StartButton>
       <LoginButton />
       <RegisterButton />
-      <HomeButton onClick={goto.home}>홈으로</HomeButton>
     </LandingPageWrapper>
   );
 }
@@ -32,24 +31,6 @@ const BackgroundImage = styled.img`
 const StartButton = styled.button`
   position: absolute;
   top: 13%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  padding: clamp(12px, 2vw, 20px);
-  background-color: ${colorSystem.tertiary_white._0};
-  border: none;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-
-  ${fontSystem.title.medium}
-  font-size: clamp(14px, 2vw, 20px);
-
-  cursor: pointer;
-`;
-
-const HomeButton = styled.button`
-  position: absolute;
-  bottom: 3.5%;
   left: 50%;
   transform: translate(-50%, -50%);
 

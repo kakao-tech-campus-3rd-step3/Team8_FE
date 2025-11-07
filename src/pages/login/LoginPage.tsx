@@ -3,12 +3,13 @@ import logo from '../../../public/logo.svg';
 import { fontSystem } from '@/styles/fontSystem';
 import { colorSystem } from '@/styles/colorSystem';
 import { useLoginForm } from '@/pages/login/hooks/useLoginForm';
+import Spinner from '@/components/Spinner';
 import { FormInputField } from '@/components/FormInputField';
 import type { LoginFormInputs } from '@/pages/login/utils/loginValidation';
 import TopBar from '@/components/TopBar';
 
 function LoginPage() {
-  const { register, handleSubmit, errors, isValid, navigateToRegister } = useLoginForm();
+  const { register, handleSubmit, errors, isValid, navigateToRegister, isPending } = useLoginForm();
 
   return (
     <Container>
@@ -38,8 +39,8 @@ function LoginPage() {
               회원가입
             </SignupLink>
           </SignupGuide>
-          <LoginButton type="submit" disabled={!isValid}>
-            로그인
+          <LoginButton type="submit" disabled={!isValid || isPending}>
+            {isPending ? <Spinner size={16} color="#fff" /> : '로그인'}
           </LoginButton>
         </StyledForm>
       </Content>
@@ -90,6 +91,9 @@ const LoginButton = styled.button`
   ${fontSystem.body.large}
   cursor: pointer;
   transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   &:hover {
     background: ${colorSystem.secondary_green._500};
   }

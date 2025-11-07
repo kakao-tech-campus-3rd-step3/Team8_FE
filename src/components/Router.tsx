@@ -4,65 +4,34 @@ import LoginPage from '@pages/login/LoginPage';
 import PlanPage from '@pages/plan/PlanPage';
 import RegisterPage from '@pages/register/RegisterPage';
 import SpacePage from '@pages/space/SpacePage';
-import RoutingPanel from '@/components/dev/RoutingPanel';
 import RequireAuth from '@/components/routes/RequireAuth';
 import RequireGuest from '@/components/routes/RequireGuest';
 import { PATH } from '@utils/path';
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { Outlet, Route, Routes } from 'react-router-dom';
 import styled from 'styled-components';
-import ColorPanel from './dev/ColorPanel';
-import FontPanel from './dev/FontPanel';
 import { ToastContainer } from 'react-toastify';
-import { useState, useEffect } from 'react';
-
-function RootRedirect() {
-  const [isFirstVisit] = useState(() => localStorage.getItem('isFirstVisit') === null);
-
-  useEffect(() => {
-    if (isFirstVisit) {
-      localStorage.setItem('isFirstVisit', 'false');
-    }
-  }, [isFirstVisit]);
-
-  if (isFirstVisit) {
-    return <LandingPage />;
-  } else {
-    return <Navigate to={PATH.HOME} replace />;
-  }
-}
+import InboxPage from '@/pages/inbox/InboxPage';
 
 function Router() {
   return (
     <>
-      {process.env.NODE_ENV === 'development' && (
-        <>
-          <RoutingPanel />
-          <ColorPanel />
-          <FontPanel />
-          <ToastContainer />
-        </>
-      )}
+      <ToastContainer />
       <Routes>
-        {/* 퍼블릭 라우트 */}
-        <Route element={<MobileLayout />}>
-          {/* 루트 경로('/')에 RootRedirect 컴포넌트를 연결 */}
-          <Route path={PATH.LANDING} element={<RootRedirect />} />
-          {/* 홈은 인증/게스트 무관하게 접근 가능 */}
-          <Route path={PATH.HOME} element={<HomePage />} />
-        </Route>
-
-        {/* 게스트 전용 라우트 */}
+        {/* 게스트 전용 라우트: 랜딩/로그인/회원가입 */}
         <Route element={<RequireGuest />}>
           <Route element={<MobileLayout />}>
+            <Route path={PATH.LANDING} element={<LandingPage />} />
             <Route path={PATH.LOGIN} element={<LoginPage />} />
             <Route path={PATH.REGISTER} element={<RegisterPage />} />
           </Route>
         </Route>
 
-        {/* 인증 전용 라우트 */}
+        {/* 인증 전용 라우트: 홈/스페이스/플랜 */}
         <Route element={<RequireAuth />}>
           <Route element={<MobileLayout />}>
+            <Route path={PATH.HOME} element={<HomePage />} />
             <Route path={PATH.SPACE} element={<SpacePage />} />
+            <Route path={PATH.INBOX} element={<InboxPage />} />
           </Route>
 
           {/* 플랜 페이지는 전체 뷰포트 사용 */}

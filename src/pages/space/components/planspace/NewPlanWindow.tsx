@@ -16,6 +16,7 @@ import type { NewPlanFormInputs } from '@/pages/space/utils/planValidation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
+import { toast } from 'react-toastify';
 
 const createPlan = async (data: NewPlanFormInputs) => {
   const response = await axiosInstance.post(ENDPOINTS.plans.base, data);
@@ -28,11 +29,11 @@ function NewPlanWindow({ closeModal }: ModalPropType) {
     mutationFn: createPlan,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['plans'] });
-      alert('새로운 계획을 만들었습니다.');
+      toast.success('새로운 계획을 만들었습니다.');
       closeModal();
     },
     onError: () => {
-      alert('계획 생성에 실패했습니다.');
+      toast.error('계획 생성에 실패했습니다.');
     },
   });
 
@@ -84,7 +85,9 @@ function NewPlanWindow({ closeModal }: ModalPropType) {
         </FieldWrapper>
 
         <ControlBar>
-          <CancelButton type="button" onClick={closeModal}>취소</CancelButton>
+          <CancelButton type="button" onClick={closeModal}>
+            취소
+          </CancelButton>
           <CompleteButton type="submit" disabled={!isValid || mutation.isPending}>
             {mutation.isPending ? '생성 중...' : '완료'}
           </CompleteButton>

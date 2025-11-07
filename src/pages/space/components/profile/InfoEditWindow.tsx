@@ -18,10 +18,16 @@ import { mbtiTypes, type EditFormInputs } from '../../utils/editValidation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '@/api/axiosInstance';
 import { ENDPOINTS } from '@/api/endpoints';
+import { toast } from 'react-toastify';
 
 const updateMemberInfo = async (data: EditFormInputs) => {
-  const { phone, ...rest } = data;
-  const payload = { ...rest, contact: phone };
+  // 서버 스펙: { email, contact, username, mbti }
+  const payload: { email: string; contact: string; username: string; mbti?: string } = {
+    email: data.email,
+    contact: data.phone,
+    username: data.name,
+  };
+  if (typeof data.mbti === 'string' && data.mbti.length > 0) payload.mbti = data.mbti;
   const response = await axiosInstance.patch(ENDPOINTS.members.me, payload);
   return response.data;
 };
@@ -32,11 +38,11 @@ function InfoEditWindow({ closeModal, member }: ModalPropType & { member: Member
     mutationFn: updateMemberInfo,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memberInfo'] });
-      alert('회원정보 수정이 완료되었습니다!');
+      toast.success('회원정보 수정이 완료되었습니다!');
       closeModal();
     },
     onError: () => {
-      alert('정보 수정에 실패했습니다.');
+      toast.error('정보 수정에 실패했습니다.');
     },
   });
 
@@ -82,7 +88,7 @@ function InfoEditWindow({ closeModal, member }: ModalPropType & { member: Member
           />
           <FormSelectField<EditFormInputs>
             id="mbti"
-            label="MBTI (선택 사항)"
+            label="MBTI"
             register={register}
             error={errors.mbti}
             options={mbtiTypes}
@@ -91,7 +97,9 @@ function InfoEditWindow({ closeModal, member }: ModalPropType & { member: Member
         </FieldWrapper>
 
         <ControlBar>
-          <CancelButton type="button" onClick={closeModal}>취소</CancelButton>
+          <CancelButton type="button" onClick={closeModal}>
+            취소
+          </CancelButton>
           <CompleteButton type="submit" disabled={!isValid || mutation.isPending}>
             {mutation.isPending ? '수정 중...' : '수정'}
           </CompleteButton>

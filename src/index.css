@@ -6,6 +6,16 @@ body {
 }
 /*======================<Pretendard Font>======================*/
 
+/*======================<React flow smooth node move>======================*/
+.react-flow__node {
+  transition: transform 0.3s ease-out;
+}
+
+.react-flow__node.dragging {
+  transition: none;
+}
+/*======================<React flow smooth node move>======================*/
+
 /*======================<React flow custom edge>======================*/
 .button-edge__label {
   position: absolute;

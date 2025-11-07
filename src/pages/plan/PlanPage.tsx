@@ -9,6 +9,7 @@ import Canvas from './flow/Canvas';
 import { SocketProvider } from './context/SocketContext';
 import { useFetchPlanDetail } from './hooks/useFetchPlanDetail';
 import { usePageRouting } from '@/hooks/usePageRouting';
+import { toast } from 'react-toastify';
 
 function PlanPage() {
   const id = useParams().id ?? '-1';
@@ -19,7 +20,9 @@ function PlanPage() {
 
   const { data, isSuccess, isError } = useFetchPlanDetail(id);
   const goto = usePageRouting();
+
   if (isError) {
+    toast.error('해당 계획에 접근할 수 없습니다.');
     goto.back();
     return null;
   }
@@ -31,8 +34,9 @@ function PlanPage() {
         <Title>{isSuccess ? data.title : '계획을 불러오고 있습니다...'}</Title>
         <Description>{isSuccess ? data.description : '...'}</Description>
         <ExportButton onClick={handleExportClick}>PDF로 내보내기</ExportButton>
+        <BackButton onClick={() => goto.back()}>뒤로가기</BackButton>
       </TitleBar>
-      {isExportModalOpen && <ExportModal onClose={handleCloseModal} title="일본여행" />}
+      {isExportModalOpen && <ExportModal onClose={handleCloseModal} />}
       <Canvas />
     </SocketProvider>
   );
@@ -65,6 +69,20 @@ const ExportButton = styled.button`
   ${fontSystem.body.medium}
   &:hover {
     background-color: ${colorSystem.primary_yellow._500};
+  }
+`;
+
+const BackButton = styled.button`
+  margin-left: 10px;
+  padding: 8px 16px;
+  background-color: ${colorSystem.secondary_green._400};
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  ${fontSystem.body.medium}
+  &:hover {
+    background-color: ${colorSystem.secondary_green._500};
   }
 `;
 
